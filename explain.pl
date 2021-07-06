@@ -45,6 +45,8 @@ logsBetween(SId,log(SId,_,_,XTime),FailTime,Time) :-
     log(SId,_,_,XTime),
     XTime > FailTime, XTime < Time.
 
+lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Run Explainer %%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,8 +68,6 @@ severity(warn, 4).
 severity(notice, 5).
 severity(info, 6).
 severity(debug, 7).
-
-lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
 % log(ServiceInstance,Message,Severity,LogTime).
 log(s1,'alive',info,200).
