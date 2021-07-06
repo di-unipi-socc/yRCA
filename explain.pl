@@ -92,8 +92,7 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,End), Start < Time,
-    log(SId1,M,Sev,Time1), Time1 > Start, Time1 < End,
-    severity(Sev,A), severity(warn,W), A < W,
+    log(SId1,M,Sev,Time1), lte(Sev,warn), Time1 > Start, Time1 < End,
     F = log(SId1,M,Sev,Time1),
     explain(P, [F|Evs], [E|Explained], Explanation).
 % SPECIAL CASE: explaining crashes not due to interactions
