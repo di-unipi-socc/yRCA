@@ -30,7 +30,7 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     %write('crashinvoked'),writeln(E),
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,End), Start < Time,
-    findall(C,findX(Start,End,P,C),Xs), min_member(X,Xs),
+    findall(C,findX(Start,End,P,C),Xs), min_member(X,Xs), X<Time,
     log(SId1,_,_,Before),Before < X, 
     XPlusP is X + P, findall(Y, logsBetween(SId1,Y,X,XPlusP), []),
     F = log(SId1,'unexpected crash',emerg,X),
@@ -49,11 +49,11 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,emerg,Time), 
     F = log(SId,'internal crash',emerg,Time),
     explain(P, Evs, [E|Explained], Explanation).
-explain(_, [], _, []):- writeln('end').
+explain(_, [], _, []).
 
 findX(Start,End,P,X) :- 
     MinX is Start - P, MaxX is End + P, between(MinX,MaxX,X),
-    \+ (between(MinX,MaxX,X1), X1 > X).
+    \+ (between(MinX,MaxX,X1), X1 < X).
 
 logsBetween(SId,log(SId,_,_,XTime),FailTime,Time) :-
     log(SId,_,_,XTime),
