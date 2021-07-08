@@ -21,25 +21,23 @@ explain(Event, Explanation) :-
 % internal crash
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :- 
     \+ member(E,Explained), E = log(SId,_,_,Time), 
-    FailTime is Time - P, 
-    findall(X, logsBetween(SId,X,FailTime,Time), []),
-    F = log(SId,'unexpected crash',emerg,FailTime),
+    CrashTime is Time - P, noLogPeriod(SId,CrashTime,Time),
+    F = log(SId,'unexpected crash',emerg,CrashTime),
     explain(P, [F|Evs], [E|Explained], Explanation).
 % % invoked service never started
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,_), Start < Time,
-    findall(X, log(SId1,X,_,_), []),
+    noLogPeriod(SId1,-1,inf),
     F = log(SId1,noStart,warn,0),
     explain(P, Evs, [E|Explained], Explanation).
 % crash of invoked service
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,End), Start < Time,
-    findX(Start,End,Time,P,X),
-    log(SId1,_,_,Before), Before < X, 
-    XPlusP is X + P, findall(Y, logsBetween(SId1,Y,X,XPlusP), []),
-    F = log(SId1,'unexpected crash',emerg,X),
+    crashTime(SId1,Start,End,Time,P,CrashTime),
+    log(SId1,_,_,Before), Before < CrashTime, 
+    F = log(SId1,'unexpected crash',emerg,CrashTime),
     explain(P, [F|Evs], [E|Explained], Explanation). 
 % error in invoked service 
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
@@ -55,13 +53,14 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     explain(P, Evs, [E|Explained], Explanation).
 explain(_, [], _, []).
 
-findX(Start,End,Time,P,X) :- 
+crashTime(SId,Start,End,Time,P,CrashTime) :- 
     MinX is Start - P, MaxX is End + P, 
-    findall(C, between(MinX,MaxX,C), Xs), min_list(Xs,X), X < Time.
+    findall(X, (between(MinX,MaxX,X), XPlusP is X + P, noLogPeriod(SId,X,XPlusP)), Xs), min_list(Xs,CrashTime), CrashTime < Time.
+
+noLogPeriod(SId,Start,End) :- findall(Y, logsBetween(SId,Y,Start,End), []).
 
 logsBetween(SId,log(SId,_,_,XTime),FailTime,Time) :-
-    log(SId,_,_,XTime),
-    XTime > FailTime, XTime < Time.
+    log(SId,_,_,XTime), XTime >= FailTime, XTime =< Time.
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
@@ -105,6 +104,7 @@ log(s2,'error in processing request from s1',err,967).
 log(s3,'alive',info,200).
 log(s3,'alive',info,400).
 log(s3,'alive',info,600).
+log(s3,'alive',info,790).
 % s3 crashing and not logging "alive" at time 800
 log(s3,'alive',info,1000).
 
