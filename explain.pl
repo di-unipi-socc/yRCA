@@ -11,6 +11,7 @@ explain(Event, Explanation) :-
 
 % internal crash
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :- 
+    %write('internalcrash-'),writeln(E),
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     FailTime is Time - P, 
     findall(X, logsBetween(SId,X,FailTime,Time), []),
@@ -18,16 +19,25 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     explain(P, [F|Evs], [E|Explained], Explanation).
 % % invoked service never started
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
+    %write('neverstarted-'),writeln(E),
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,_), Start < Time,
     findall(X, log(SId1,X,_,_), []),
     F = log(SId1,noStart,warn,0),
     explain(P, Evs, [E|Explained], Explanation).
 % crash of invoked service
-%% %TODO: between(Low,Hi,X)
-%%%%%%%%%%%%%%%%%%%%%%%%
+explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
+    %write('crashinvoked'),writeln(E),
+    \+ member(E,Explained), E = log(SId,_,_,Time), 
+    interaction(SId,SId1,Start,End), Start < Time,
+    findall(C,findX(Start,End,P,C),Xs), min_member(X,Xs),
+    log(SId1,_,_,Before),Before < X, 
+    XPlusP is X + P, findall(Y, logsBetween(SId1,Y,X,XPlusP), []),
+    F = log(SId1,'unexpected crash',emerg,X),
+    explain(P, [F|Evs], [E|Explained], Explanation). 
 % error in invoked service 
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
+    %write('errorinvoked-'),writeln(E),
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,End), Start < Time,
     log(SId1,M,Sev,Time1), lte(Sev,warn), Time1 > Start, Time1 < End,
@@ -35,11 +45,15 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     explain(P, [F|Evs], [E|Explained], Explanation).
 % SPECIAL CASE: explaining crashes not due to interactions
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
+    %write('special-'),writeln(E),
     \+ member(E,Explained), E = log(SId,_,emerg,Time), 
     F = log(SId,'internal crash',emerg,Time),
     explain(P, Evs, [E|Explained], Explanation).
+explain(_, [], _, []):- writeln('end').
 
-explain(_, [], _, []).
+findX(Start,End,P,X) :- 
+    MinX is Start - P, MaxX is End + P, between(MinX,MaxX,X),
+    \+ (between(MinX,MaxX,X1), X1 > X).
 
 logsBetween(SId,log(SId,_,_,XTime),FailTime,Time) :-
     log(SId,_,_,XTime),
