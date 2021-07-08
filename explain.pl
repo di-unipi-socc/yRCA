@@ -35,7 +35,7 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,End), Start < Time,
-    crashTime(SId1,Start,End,Time,P,CrashTime),
+    serviceCrash(SId1,Start,End,Time,P,CrashTime),
     log(SId1,_,_,Before), Before < CrashTime, 
     F = log(SId1,'unexpected crash',emerg,CrashTime),
     explain(P, [F|Evs], [E|Explained], Explanation). 
@@ -53,7 +53,7 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     explain(P, Evs, [E|Explained], Explanation).
 explain(_, [], _, []).
 
-crashTime(SId,Start,End,Time,P,CrashTime) :- 
+serviceCrash(SId,Start,End,Time,P,CrashTime) :- 
     MinX is Start - P, MaxX is End + P, 
     findall(X, (between(MinX,MaxX,X), XPlusP is X + P, noLogPeriod(SId,X,XPlusP)), Xs), min_list(Xs,CrashTime), CrashTime < Time.
 
