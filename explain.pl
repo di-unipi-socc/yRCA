@@ -1,4 +1,3 @@
-:-consult('data.pl').
 :-set_prolog_flag(last_call_optimisation, true).
 
 %error of invoked service
