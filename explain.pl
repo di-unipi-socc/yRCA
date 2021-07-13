@@ -51,6 +51,10 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,emerg,Time), 
     F = log(SId,'internal crash',emerg,Time),
     explain(P, Evs, [E|Explained], Explanation).
+% already explained
+explain(P, [E|Evs], Explained, Explanation) :-
+    member(E,Explained),
+    explain(P, Evs, Explained, Explanation).
 explain(_, [], _, []).
 
 serviceCrash(SId,Start,End,Time,P,CrashTime) :- 
