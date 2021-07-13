@@ -14,7 +14,7 @@ causedBy(log(S,T,_,_),[X]) :-
 %crash of invoked service
 causedBy(log(S,T,_,_),[X]) :-
     interaction(S,S2,Ts,Te), Ts < T, heartbeat(P), 
-    T0 is Ts-P, T1 is Te + P,
+    T0 is Ts-P, T1 is Te + P, log(S2,_,_,_),
     \+ (log(S2,U,_,_), log(S2,V,_,_), dif(U,V), T0=<U, V=<T1, V-U=<P),
     X = crash(S2,T0,T1). % log(S2,Tx,⊥,emerg).
 %internal crash
