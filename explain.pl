@@ -29,7 +29,7 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,_), Start < Time,
     noLogPeriod(SId1,-1,inf),
-    F = log(SId1,noStart,warn,0),
+    F = log(SId1,'no start',warn,0),
     explain(P, Evs, [E|Explained], Explanation).
 % crash of invoked service
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
