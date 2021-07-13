@@ -16,7 +16,7 @@ causedBy(log(S,T,_,_),[X]) :-
     interaction(S,S2,Ts,Te), Ts < T, heartbeat(P), 
     T0 is Ts-P, T1 is Te + P, log(S2,_,_,_),
     \+ (log(S2,U,_,_), log(S2,V,_,_), dif(U,V), T0=<U, V=<T1, V-U=<P),
-    X = crash(S2,T0,T1). 
+    X = crash(S2,T0,T1). % TODO: could be Ts, Te?
 %internal crash
 causedBy(log(S,T,_,_),[X]) :-
     heartbeat(P), T0 is T-P, T0>0,
