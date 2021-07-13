@@ -14,15 +14,14 @@ causedBy(log(S,T,_,_),[X]) :-
 %crash of invoked service
 causedBy(log(S,T,_,_),[X]) :-
     interaction(S,S2,Ts,Te), Ts < T, heartbeat(P), 
-    \+ (log(S2,U,_,_), log(S2,V,_,_), dif(U,V), Ts-P=<U, V=<Te+P, V-U=<P),
-    Tx is Ts-P,
-    X=log(S2,Tx,⊥,emerg).
+    T0 is Ts-P, T1 is Te + P,
+    \+ (log(S2,U,_,_), log(S2,V,_,_), dif(U,V), T0=<U, V=<T1, V-U=<P),
+    X = crash(S2,T0,T1). % log(S2,Tx,⊥,emerg).
 %internal crash
-causedBy(log(S,T,M,_),[X]) :-
-    dif(M,⊥),
+causedBy(log(S,T,_,_),[X]) :-
     heartbeat(P), T0 is T-P, T0>0,
     \+ (log(S,U,_,_), T0 =< U, U < T),
-    X = log(S,T0,⊥,emerg).
+    X = crash(S,T0,T). % log(S,T0,⊥,emerg).
 %base case
 causedBy(_,[]).
 
