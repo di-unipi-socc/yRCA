@@ -24,7 +24,7 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     CrashTime is Time - P, noLogPeriod(SId,CrashTime,Time),
     F = log(SId,'unexpected crash',emerg,CrashTime),
     explain(P, [F|Evs], [E|Explained], Explanation).
-% % invoked service never started
+% invoked service never started
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     \+ member(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,_), Start < Time,
