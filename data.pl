@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Knowledge base %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%
+:- discontiguous log/4.
 
 % hearbeat period
 heartbeat(200).
