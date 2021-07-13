@@ -20,20 +20,20 @@ explain(Event, Explanation) :-
 
 % internal crash
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :- 
-    \+ member(E,Explained), E = log(SId,_,_,Time), 
+    notExplained(E,Explained), E = log(SId,_,_,Time), 
     CrashTime is Time - P, noLogPeriod(SId,CrashTime,Time),
     F = log(SId,'unexpected crash',emerg,CrashTime),
     explain(P, [F|Evs], [E|Explained], Explanation).
 % invoked service never started
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
-    \+ member(E,Explained), E = log(SId,_,_,Time), 
+    notExplained(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,_), Start < Time,
     noLogPeriod(SId1,-1,inf),
     F = log(SId1,'no start',warn,0),
     explain(P, Evs, [E|Explained], Explanation).
 % crash of invoked service
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
-    \+ member(E,Explained), E = log(SId,_,_,Time), 
+    notExplained(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,End), Start < Time,
     serviceCrash(SId1,Start,End,Time,P,CrashTime),
     log(SId1,_,_,Before), Before < CrashTime, 
@@ -41,19 +41,19 @@ explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
     explain(P, [F|Evs], [E|Explained], Explanation). 
 % error in invoked service 
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
-    \+ member(E,Explained), E = log(SId,_,_,Time), 
+    notExplained(E,Explained), E = log(SId,_,_,Time), 
     interaction(SId,SId1,Start,End), Start < Time,
     log(SId1,M,Sev,Time1), lte(Sev,warn), Time1 > Start, Time1 < End,
     F = log(SId1,M,Sev,Time1),
     explain(P, [F|Evs], [E|Explained], Explanation).
 % SPECIAL CASE: explaining crashes not due to interactions
 explain(P, [E|Evs], Explained, [x(E,F)|Explanation]) :-
-    \+ member(E,Explained), E = log(SId,_,emerg,Time), 
+    notExplained(E,Explained), E = log(SId,_,emerg,Time), 
     F = log(SId,'internal crash',emerg,Time),
     explain(P, Evs, [E|Explained], Explanation).
 % already explained
 explain(P, [E|Evs], Explained, Explanation) :-
-    member(E,Explained),
+    explained(E,Explained),
     explain(P, Evs, Explained, Explanation).
 explain(_, [], _, []).
 
@@ -67,6 +67,11 @@ logsBetween(SId,log(SId,_,_,XTime),FailTime,Time) :-
     log(SId,_,_,XTime), XTime >= FailTime, XTime =< Time.
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
+
+explained(E, Explained) :- member(E,Explained).
+
+notExplained(E,[E1|Explained]) :- dif(E1,E), notExplained(E,Explained).
+notExplained(_,[]). 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Run Explainer %%%%%%%
