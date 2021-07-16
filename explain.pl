@@ -30,6 +30,6 @@ lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 %:-causedBy(log(s0,10000,_,_),X).
 
 % interaction(S1,S2,Ts,Te) :-
-%     log(S1,Ts,(_,ID),_), dif(ID,nil),
+%     log(S1,Ts,(_,ID),_), 
 %     log(S2,Tm,(_,ID),_), Tm > Ts,
 %     log(S1,Te,(_,ID),_), Te > Tm.
