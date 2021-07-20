@@ -6,12 +6,12 @@ def parse(jsonLog):
     event = {}
     event["instance"] = parseInstanceName(log["container_name"])
     try:
-        event["message"] = log["event"]
+        event["message"] = log["event"] # TODO: this should be processed to extract info needed for predicates (or 'other', if not interesting)
         event["severity"] = log["severity"]
         event["timestamp"] = log["timestamp"]
     except:
         # handle Logstash's grok parse failures
-        event["message"] = log["message"]
+        event["message"] = log["message"] # TODO: this could be 'other'
         event["severity"] = "INFO"
         event["timestamp"] = log["@timestamp"].replace("T"," ").replace("Z","")
     
