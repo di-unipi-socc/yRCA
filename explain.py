@@ -1,7 +1,7 @@
 # import Python default modules
 import sys
 # import explainer's modules
-from parser.parser import parse_events
+from parser.parser import parseEvents
 from explainer.explainer import explain
 from post_processor.post_processor import post_process
 
@@ -22,7 +22,7 @@ def main(args):
     # parse events
     logged_facts = "logged_events.pl"
     # TODO
-    parse_events(event_logs,logged_facts)
+    parseEvents(event_logs,logged_facts)
     
     # explain event
     # TODO
