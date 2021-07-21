@@ -20,23 +20,28 @@ def parse(jsonLog):
         severity = "INFO"
         timestamp = log["@timestamp"].replace("T"," ").replace("Z","")
 
-    # formatting fields "message" and "timestamp" as required
+    # formatting fields "timestamp", "message", and "severity" as required
     timestamp = parseTimestamp(timestamp)
     message = parseMessage(message)
+    severity = parseSeverity(severity)
     return Event(serviceName,instanceId,timestamp,message,severity)
 
+# function for extracting service name from container_name
 def parseServiceName(containerName):
     return containerName.split(".")[0]
     
+# function for extracting service instance identifier from container_name
 def parseInstanceId(containerName):
     info = containerName.split(".")
     serviceName = info[0]
     serviceInstance = info[1]
     return serviceName + "_" + serviceInstance
 
+# function for transforming ISO timestamps to epoch timestamps
 def parseTimestamp(timestamp):
     return datetime.datetime.fromisoformat(timestamp).timestamp()
 
+# function for parsing messages based on log templates
 def parseMessage(message):
     # default: classic logging message
     msg = Message(MessageType.OTHER,None)
@@ -76,6 +81,24 @@ def parseMessage(message):
         msgInfo = re.match(r'Answered to POST request from (?P<sourceIP>.*) with code: 500 \(request_id: \[(?P<requestId>.*)\]\)', message)
         if msgInfo is not None:
             parameters = Parameters(None,msgInfo.group('requestId'))
-            msg = Message(MessageType.SERVER_RECEIVE,parameters)
-
+            msg = Message(MessageType.SERVER_SEND,parameters)
+    print(message)
+    print(msg)
+    print()
     return msg
+
+# function for transforming logged severity to Syslog protocol: https://datatracker.ietf.org/doc/html/rfc5424
+# (from Apache Log4j: https://logging.apache.org/log4j/)
+def parseSeverity(severity):
+    syslogSeverity = None
+    if severity == "DEBUG":
+        syslogSeverity = "debug"
+    elif severity == "INFO":
+        syslogSeverity = "info"
+    elif severity == "WARN":
+        syslogSeverity == "warning"
+    elif severity == "ERROR":
+        syslogSeverity = "err"
+    elif severity == "FATAL":
+        syslogSeverity == "emerg"
+    return syslogSeverity
