@@ -9,5 +9,5 @@ class Event:
         self.timestamp = timestamp
         # message included in the logged event
         self.message = message
-        # severity level of the logged event
+        # severity level of the logged event (as per the Syslog standard: https://datatracker.ietf.org/doc/html/rfc5424)
         self.severity = severity

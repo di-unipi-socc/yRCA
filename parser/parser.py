@@ -1,6 +1,9 @@
 from parser.model.message import MessageType
 from parser.templates.chaos_echo import parse # change template for parsing other applications' logs
 
+# The method "parse" imported from the "templates" package must parse a log line and
+# return an "Event" object (see "model/event.py")
+
 def parseEvents(eventLogs,targetFile):
     # open source/target files 
     logs = open(eventLogs,"r")
