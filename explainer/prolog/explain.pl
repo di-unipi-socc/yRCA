@@ -3,14 +3,14 @@
 %error of invoked service
 causedBy(log(S,T,_,_),[X|Xs]) :-
     interaction(S,S2,Ts,Te), Ts < T,
-    log(S2,U,M,Sev), lte(Sev,warn), Ts<U, U<Te,
+    log(S2,U,M,Sev), lte(Sev,warning), Ts<U, U<Te,
     X=log(S2,U,M,Sev),
     causedBy(X,Xs).
 %invoked service never started
 causedBy(log(S,T,_,_),[X]) :-
     interaction(S,S2,Ts,_), Ts < T,
     \+ log(S2,_,_,_),
-    X=log(S2,0,nostart,warn).
+    X=log(S2,0,nostart,warning).
 %crash of invoked service
 causedBy(log(S,T,_,_),[X]) :-
     interaction(S,S2,Ts,Te), Ts < T, heartbeat(P), 
