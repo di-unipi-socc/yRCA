@@ -69,22 +69,19 @@ def parseMessage(message):
             msg = Message(MessageType.CLIENT_RECEIVE,parameters)
 
     # case 3: server service receiving request from client service
-    # example: Received POST request from 10.0.0.2 (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172])
+    # example: Received POST request from 10.0.0.2 (request_id: 178cfae5-71a2-4414-bd56-d7c2cef2f172)
     if msgInfo is None: 
-        msgInfo = re.match(r'Received POST request from (?P<sourceIP>.*) \(request_id: \[(?P<requestId>.*)\]\)', message)
+        msgInfo = re.match(r'Received POST request from (?P<sourceIP>.*) \(request_id: (?P<requestId>.*)\)', message)
         if msgInfo is not None:
             parameters = Parameters(None,msgInfo.group('requestId'))
             msg = Message(MessageType.SERVER_RECEIVE,parameters)
     # case 4: server service sending answer to client service
-    # example: Answered to POST request from 10.0.0.2 with code: 500 (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172])
+    # example: Answered to POST request from 10.0.0.2 with code: 500 (request_id: 178cfae5-71a2-4414-bd56-d7c2cef2f172)
     if msgInfo is None: 
-        msgInfo = re.match(r'Answered to POST request from (?P<sourceIP>.*) with code: 500 \(request_id: \[(?P<requestId>.*)\]\)', message)
+        msgInfo = re.match(r'Answered to POST request from (?P<sourceIP>.*) with code: (?P<statusCode>.*) \(request_id: (?P<requestId>.*)\)', message)
         if msgInfo is not None:
             parameters = Parameters(None,msgInfo.group('requestId'))
             msg = Message(MessageType.SERVER_SEND,parameters)
-    print(message)
-    print(msg)
-    print()
     return msg
 
 # function for transforming logged severity to Syslog protocol: https://datatracker.ietf.org/doc/html/rfc5424
