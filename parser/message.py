@@ -1,5 +1,7 @@
 from enum import Enum
 
+# class for distinguishing the "type" of events
+# (currently distingushing "interaction events" from all "other events")
 class MessageType(Enum):
     CLIENT_SEND = 1
     CLIENT_RECEIVE = 2
@@ -7,16 +9,21 @@ class MessageType(Enum):
     SERVER_SEND = 4
     OTHER = 5
 
+# class for specifying event-specific parameters
+# (currently only used for "interactions")
 class Parameters: 
     def __init__(self,service,requestId):
         self.service=service
         self.requestId=requestId
 
+# class for representing messages in terms of the "type" of event they correspond to and of event specific "parameters"
 class Message:
     def __init__(self,type,parameters):
         if type not in list(MessageType):
             raise ValueError("Unknown message type")
+        # "MessageType" denoting the type of event corresponding to the message
         self.type=type
+        # event-specific "Parameters"
         self.parameters=parameters
     
     def print(self):
