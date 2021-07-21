@@ -1,4 +1,4 @@
-from parser.message import Message, MessageType
+from parser.model.message import MessageType
 from parser.templates.chaos_echo import parse # change template for parsing other applications' logs
 
 def parseEvents(eventLogs,targetFile):

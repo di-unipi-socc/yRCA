@@ -3,8 +3,8 @@ import json
 import re
 
 # import message structure
-from parser.message import Message, MessageType, Parameters
-from parser.event import Event
+from parser.model.message import Message, MessageType, Parameters
+from parser.model.event import Event
 
 def parse(jsonLog):
     log = json.loads(jsonLog)
