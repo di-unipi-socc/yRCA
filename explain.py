@@ -21,7 +21,6 @@ def main(args):
 
     # parse events
     logged_facts = "logged_events.pl"
-    # TODO
     parseEvents(event_logs,logged_facts)
     
     # explain event
