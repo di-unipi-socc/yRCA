@@ -1,4 +1,5 @@
 # import "parse" method from log templater 
+from parser.message import Message, MessageType
 from parser.templates.chaos_echo import parse
 
 def parseEvents(eventLogs,targetFile):
@@ -20,9 +21,21 @@ def parseEvents(eventLogs,targetFile):
 
 def logFact(event):
     fact = "log("
-    fact += event["instance"] + ","
-    fact += str(event["timestamp"]) + "," 
-    fact += "'" + event["message"].replace("'","").replace("/","").replace("\\","") + "',"
-    fact += event["severity"]
+    fact += event.serviceName + ","
+    fact += event.instanceId + ","
+    fact += str(event.timestamp) + "," 
+    fact += generateMessage(event.message) + ","
+    fact += event.severity
     fact += ").\n"
     return fact
+
+def generateMessage(msg):
+    if msg.type == MessageType.CLIENT_SEND:
+        return "sendTo(" + msg.parameters.service + "," + msg.parameters.requestId + ")"
+    if msg.type == MessageType.CLIENT_RECEIVE:
+        return "answerFrom(" + msg.parameters.service + "," + msg.parameters.requestId + ")"
+    if msg.type == MessageType.SERVER_RECEIVE:
+        return "received(" + msg.parameters.requestId + ")"
+    if msg.type == MessageType.SERVER_SEND:
+        return "answeredTo(" + msg.parameters.requestId + ")"
+    return "other"
