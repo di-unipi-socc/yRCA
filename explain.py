@@ -15,17 +15,15 @@ def main(args):
         print()
         cli_help()
         return
-    # parse command line arguments
-    event = args[0]
-    event_logs = args[1]
-
-    # parse events
-    logged_facts = "logged_events.pl"
-    parseEvents(event_logs,logged_facts)
+    # parse "event" to be explained and all "applicationLogs"
+    event = "event_to_explain.pl"
+    parseEvents(args[0],event)
+    applicationLogs = "logged_events.pl"
+    parseEvents(args[1],applicationLogs)
     
     # explain event
     # TODO
-    explain(event,logged_facts)
+    explain(event,applicationLogs)
 
     # post processing & output
     # TODO

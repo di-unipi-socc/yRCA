@@ -1,5 +1,6 @@
 # Temporary files
 logged_events.pl
+event_to_explain.pl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
