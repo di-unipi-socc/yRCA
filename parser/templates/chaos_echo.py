@@ -28,7 +28,8 @@ def parse(jsonLog):
 
 # function for extracting service name from container_name
 def parseServiceName(containerName):
-    return containerName.split(".")[0]
+    echoName = containerName.split(".")[0]
+    return echoName.split("_")[1]
     
 # function for extracting service instance identifier from container_name
 def parseInstanceId(containerName):
