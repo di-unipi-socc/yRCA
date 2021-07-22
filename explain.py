@@ -27,12 +27,14 @@ def main(argv):
                 return
         if opt in ["-h","--help"]:
             cli_help()
+    eventLogLine = args[0]
+    applicationLogs = args[1]
 
     # parse "event" to be explained and all events forming the "knowledgeBase"
     event = "event.pl"
-    parseEvents(args[0],event)
+    parseEvents(eventLogLine,event)
     knowledgeBase = "knowledgeBase.pl"
-    parseEvents(args[1],knowledgeBase)
+    parseEvents(applicationLogs,knowledgeBase)
 
     # add heartbeat value to "knowledgeBase"
     prologFacts = open(knowledgeBase,"a")
