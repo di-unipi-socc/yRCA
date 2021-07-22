@@ -1,40 +1,65 @@
 # import Python default modules
-import sys
+import sys, getopt
 # import explainer's modules
 from parser.parser import parseEvents
 from explainer.explainer import explain
 from post_processor.post_processor import post_process
 
-def main(args):
-    # check command line arguments
-    if len(args) == 1 and args[0] in ["-h","--help"]:
-        cli_help()
+def main(argv):
+    heartbeat = 10 # default value considered for heartbeat logs
+
+    # parse command line arguments
+    try:
+        opts,args = getopt.getopt(argv,"hb:",["help","heartbeat=",])
+    except: 
+        cli_error("wrong options used")
         exit(-1)
-    if len(args) != 2 or args[0][0]=='-' or args[1][0]=='-':
-        print("ERROR: wrong input arguments.")
-        print()
-        cli_help()
-        return
-    # parse "event" to be explained and all "applicationLogs"
-    event = "event_to_explain.pl"
+    # check & process command line arguments
+    if len(args) < 2:
+        cli_error("missing input arguments")
+        exit(-1)
+    for opt, arg in opts:
+        if opt in ["-b","--heartbeat"]:
+            if arg.isnumeric():
+                heartbeat = arg
+            else: 
+                cli_error("heartbeat value must be a number")
+                return
+        if opt in ["-h","--help"]:
+            cli_help()
+
+    # parse "event" to be explained and all events forming the "knowledgeBase"
+    event = "event.pl"
     parseEvents(args[0],event)
-    applicationLogs = "logged_events.pl"
-    parseEvents(args[1],applicationLogs)
+    knowledgeBase = "knowledgeBase.pl"
+    parseEvents(args[1],knowledgeBase)
+
+    # add heartbeat value to "knowledgeBase"
+    prologFacts = open(knowledgeBase,"a")
+    prologFacts.write("heartbeat(" + str(heartbeat) + ").")
+    prologFacts.close()
     
     # explain event
-    # TODO
-    explain(event,applicationLogs)
+    rootCauses = explain(event,knowledgeBase)
+    print("N SOLS: ", len(rootCauses))
+    for rc in rootCauses: 
+        print(rc["C"])
 
     # post processing & output
-    # TODO
+    # TODO: post-process root causes instead of printing them out
     post_process()
+
+def cli_error(message):
+    print("ERROR: " + message + ".")
+    print()
+    cli_help()
 
 def cli_help():
     print("Usage of explain.py is as follows:")
-    print("  python3 explain.py event.json event_logs.json")
-    print("where")
-    print("  - event.json contains event to be explained and")
-    print("  - event_logs.json contains all events logged by an application.")
+    print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json")
+    print("where OPTIONS can be")
+    print("  [-h|--help] to print a help on the usage of explain.py")
+    print("  [-b N|--beat=N] to set to N the period of the target application's heartbeat logs")
     print()
 
 if __name__ == "__main__":
