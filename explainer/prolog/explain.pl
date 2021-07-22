@@ -2,8 +2,8 @@
 
 %error of invoked service
 causedBy(log(_,S,T,_,_),[X|Xs]) :-
-    interaction(S,S2,Ts,Te), heartbeat(P), Ts < T-P, % Ts < T, 
-    log(N,S2,U,M,Sev), lte(Sev,warning), Ts<U, U<Te,
+    interaction(S,S2,Ts,Te), heartbeat(P), Ts < T - P, % Ts < T, 
+    log(N,S2,U,M,Sev), lte(Sev,warning), Ts < U, U < Te,
     X=log(N,S2,U,M,Sev),
     causedBy(X,Xs).
 %invoked service never started
@@ -31,5 +31,5 @@ lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
 interaction(S1,S2,Ts,Te) :-
     log(N1,S1,Ts,sendTo(N2,Id),_), 
-    log(N2,S2,_,received(Id2),_), Id = Id2,
+    log(N2,S2,_,received(Id),_),
     log(N1,S1,Te,answerFrom(N2,Id),_), Te > Ts.
