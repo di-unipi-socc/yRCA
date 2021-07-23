@@ -2,7 +2,7 @@
 
 %error of invoked service
 causedBy(log(_,S,T,_,_),[X|Xs]) :-
-    interaction(S,S2,Ts,Te), heartbeat(P), Ts < T - P, % Ts < T, 
+    interaction(S,S2,Ts,Te), Ts < T, % heartbeat(P), Ts > T - P (if we wish to use P as "horizon")
     log(N,S2,U,M,Sev), lte(Sev,warning), Ts < U, U < Te,
     X=log(N,S2,U,M,Sev),
     causedBy(X,Xs).
