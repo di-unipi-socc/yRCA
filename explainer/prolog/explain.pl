@@ -32,4 +32,4 @@ lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 interaction(S1,S2,Ts,Te) :-
     log(N1,S1,Ts,sendTo(N2,Id),_), 
     log(N2,S2,_,received(Id),_),
-    log(N1,S1,Te,answerFrom(N2,Id),_), Te > Ts.
+    log(N1,S1,Te,answerFrom(N2,Id),_), Ts < Te.
