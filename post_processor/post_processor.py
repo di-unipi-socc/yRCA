@@ -1,9 +1,22 @@
-def post_process(rootCauses,applicationLogs):
-    print("TODO: post-processing (based on " + applicationLogs + ")\n")
-    print("N SOLS: ", len(rootCauses))
+from datetime import datetime
+
+
+def post_process(event,rootCauses,applicationLogs):
+    # TODO: ongoing, just for testing purposes
+
+    # get event fact
+    eventProlog = open(event,"r")
+    eventFact = eventProlog.readline()
+    eventProlog.close()
+    eventFact = eventFact[:len(eventFact)-2]
+
+    # print root causes 
     for rc in rootCauses:
-        # each rc is a list itself
-        for c in rc["C"]:
-            print(c, end="->")
-        print("END") 
-        #print(rc["C"])
+        # rc["Explanations"] contains all possible explanations
+        for c in rc["Explanations"]:
+            print(eventFact)
+            # each explanations is a list of prolog facts
+            for e in c: 
+                print(" ->",e) 
+        print("Found",len(rc["Explanations"]),"explanations.")
+

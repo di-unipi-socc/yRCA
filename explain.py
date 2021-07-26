@@ -61,7 +61,7 @@ def main(argv):
     # *******************
     # * POST-PROCESSING *
     # *******************
-    post_process(rootCauses,applicationLogs)
+    post_process(event,rootCauses,applicationLogs)
 
 def cli_error(message):
     print("ERROR: " + message + ".")
