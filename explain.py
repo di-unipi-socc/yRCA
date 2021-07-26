@@ -30,26 +30,38 @@ def main(argv):
     eventLogLine = args[0]
     applicationLogs = args[1]
 
+    # ******************
+    # * PARSING INPUTS *
+    # ******************
+    print("Parsing input files..", end="")
+    
     # parse "event" to be explained and all events forming the "knowledgeBase"
     event = "event.pl"
     parseEvents(eventLogLine,event)
     knowledgeBase = "knowledgeBase.pl"
     parseEvents(applicationLogs,knowledgeBase)
-
+    
     # add heartbeat value to "knowledgeBase"
     prologFacts = open(knowledgeBase,"a")
     prologFacts.write("heartbeat(" + str(heartbeat) + ").")
     prologFacts.close()
     
+    print("done!")
+
+    # ***********************
+    # * ROOT CAUSE ANALYSIS *
+    # ***********************
+    print("Find possible root causes..", end="")
+
     # explain event
     rootCauses = explain(event,knowledgeBase)
-    print("N SOLS: ", len(rootCauses))
-    for rc in rootCauses: 
-        print(rc["C"])
-
-    # post processing & output
-    # TODO: post-process root causes instead of printing them out
-    post_process()
+    
+    print("done!")
+    
+    # *******************
+    # * POST-PROCESSING *
+    # *******************
+    post_process(rootCauses,applicationLogs)
 
 def cli_error(message):
     print("ERROR: " + message + ".")
