@@ -1,6 +1,7 @@
 import datetime
 import json 
 import re
+from matplotlib import container
 
 # import message structure
 from parser.model.message import Message, MessageType, Parameters
@@ -33,6 +34,9 @@ def parseServiceName(containerName):
     
 # function for extracting service instance identifier from container_name
 def parseInstanceId(containerName):
+    if containerName.find(".") < 0: # case: docker compose deployment (name already set)
+        return containerName
+    # case: docker stack deployment (name to be extracted)
     info = containerName.split(".")
     serviceName = info[0]
     serviceInstance = info[1]
