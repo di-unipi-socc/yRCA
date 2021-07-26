@@ -15,5 +15,6 @@ def explain(event,appLogs):
     eventToExplain = eventToExplain[:len(eventToExplain)-2] # remove "." and "\n" at the end
     
     # run Prolog reasoner to find (and return) root causes
-    rootCauses = list(reasoner.query("causedBy(" + eventToExplain + ",C)"))
+    # query example: findall(C,causedBy(log(frontend,f1,69,other,err),C), L), sort(L,E).
+    rootCauses = list(reasoner.query("findall(C,causedBy(" + eventToExplain + ",C),L),sort(L,Explanations)"))
     return rootCauses
