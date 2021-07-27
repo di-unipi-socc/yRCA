@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from post_processor.model.explanations import Explanations
+
 
 def post_process(event,rootCauses,applicationLogs):
     # TODO: ongoing, just for testing purposes
@@ -11,12 +13,6 @@ def post_process(event,rootCauses,applicationLogs):
     eventFact = eventFact[:len(eventFact)-2]
 
     # print root causes 
-    for rc in rootCauses:
-        # rc["Explanations"] contains all possible explanations
-        for c in rc["Explanations"]:
-            print(eventFact)
-            # each explanations is a list of prolog facts
-            for e in c: 
-                print(" ->",e) 
-        print("Found",len(rc["Explanations"]),"explanations.")
-
+    explanations = Explanations(rootCauses[0]["Explanations"])
+    explanations.print()
+    print("\nFound",explanations.size(),"possible root causes")
