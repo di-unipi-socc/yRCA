@@ -33,8 +33,6 @@ def main(argv):
     # ******************
     # * PARSING INPUTS *
     # ******************
-    print("Parsing input files..", end="")
-    
     # parse "event" to be explained and all events forming the "knowledgeBase"
     event = "event.pl"
     parseEvents(eventLogLine,event)
@@ -45,18 +43,11 @@ def main(argv):
     prologFacts = open(knowledgeBase,"a")
     prologFacts.write("heartbeat(" + str(heartbeat) + ").")
     prologFacts.close()
-    
-    print("done!")
 
     # ***********************
     # * ROOT CAUSE ANALYSIS *
     # ***********************
-    print("Find possible root causes..", end="")
-
-    # explain event
     rootCauses = explain(event,knowledgeBase)
-    
-    print("done!")
     
     # *******************
     # * POST-PROCESSING *
