@@ -43,7 +43,7 @@ class Explanations:
                     ppEvent["interval"] = [ datetime.fromtimestamp(event.args[1]), datetime.fromtimestamp(event.args[2]) ]
                 # case: unknown event type 
                 else:
-                    raise TypeError("unknown event type " + e) # to avoid missing events (if not corresponding to a known type)
+                    raise TypeError("unknown event type " + eventType) # to avoid missing events (if not corresponding to a known type)
                 ppExp.append(ppEvent)
             self.explanations.append(ppExp)
 
