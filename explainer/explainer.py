@@ -16,5 +16,5 @@ def explain(event,appLogs):
     
     # run Prolog reasoner to find (and return) root causes
     # query example: findall(C,causedBy(log(frontend,f1,69,other,err),C), L), sort(L,E).
-    rootCauses = list(reasoner.query("findall(C,causedBy(" + eventToExplain + ",C),L),sort(L,Explanations)"))
+    rootCauses = list(reasoner.query("findall(C,causedBy(" + eventToExplain + ",C), L), sort(L,Explanations)"))
     return rootCauses

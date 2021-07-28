@@ -6,7 +6,8 @@ from explainer.explainer import explain
 from post_processor.post_processor import post_process
 
 def main(argv):
-    heartbeat = 10 # default value considered for heartbeat logs
+    heartbeat = 5 # default value considered for heartbeat logs
+    lookbackRadius = 10 # default value considered for lookback radius
 
     # parse command line arguments
     try:
@@ -25,6 +26,12 @@ def main(argv):
             else: 
                 cli_error("heartbeat value must be a number")
                 return
+        if opt in ["-r","--lookbackRadius"]:
+            if arg.isnumeric():
+                lookbackRadius = arg
+            else: 
+                cli_error("heartbeat value must be a number")
+                return
         if opt in ["-h","--help"]:
             cli_help()
     eventLogLine = args[0]
@@ -39,9 +46,10 @@ def main(argv):
     knowledgeBase = "knowledgeBase.pl"
     parseEvents(applicationLogs,knowledgeBase)
     
-    # add heartbeat value to "knowledgeBase"
+    # add heartbeat and lookback radius values to "knowledgeBase"
     prologFacts = open(knowledgeBase,"a")
-    prologFacts.write("heartbeat(" + str(heartbeat) + ").")
+    prologFacts.write("heartbeat(" + str(heartbeat) + ").\n")
+    prologFacts.write("lookbackRadius(" + str(lookbackRadius) + ").\n")
     prologFacts.close()
 
     # ***********************
@@ -65,6 +73,7 @@ def cli_help():
     print("where OPTIONS can be")
     print("  [-h|--help] to print a help on the usage of explain.py")
     print("  [-b N|--beat=N] to set to N the period of the target application's heartbeat logs")
+    print("  [-r N|--lookbackRadius=N] to set to N the lookback radius in finding explanations")
     print()
 
 if __name__ == "__main__":

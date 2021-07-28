@@ -2,16 +2,22 @@
 
 %invoked service never started
 causedBy(log(_,S,T,_,_),[X]) :-
+    cond1(S,T,X).
+cond1(S,T,X) :-
     log(_,S,Ts,sendTo(N2,_),_), Ts < T, lookbackRadius(Z), Ts >= T - Z,
-    \+ log(N2,_,_,_,_),
+    \+ started(N2),
     X = neverStarted(N2).
 %unreachable service
 causedBy(log(_,S,T,_,_),[X]) :-
-    unhandledRequest(S,N2,Ts,Te), Ts < T, lookbackRadius(Z), Ts >= T - Z,
-    findnsols(1,N2,log(N2,_,_,_,_),[N2]),
-    X = unreachable(N2,Ts,Te).
+    cond2(S,T,X).
+cond2(S,T,X) :-
+    started(N2), lookbackRadius(Z), 
+    unhandledRequest(S,N2,Ts,_), Ts < T, Ts >= T - Z,
+    X = unreachable(N2). %,Ts,Te).
 %error of invoked service
 causedBy(log(_,S,T,_,_),[X|Xs]) :-
+    cond3(S,T,X,Xs).
+cond3(S,T,X,Xs) :-
     interaction(S,S2,Ts,Te), Ts < T, lookbackRadius(Z), Ts >= T - Z,
     log(N,S2,U,M,Sev), lte(Sev,warning), Ts < U, U < Te, % =<?
     X=log(N,S2,U,M,Sev),
@@ -41,3 +47,6 @@ unhandledRequest(S1,N2,Ts,Te) :-
     log(N1,S1,Ts,sendTo(N2,Id),_),
     \+ log(N2,_,_,received(Id),_),
     log(N1,S1,Te,answerFrom(N2,Id),_). %, Ts < Te.
+
+started(N) :-
+    findnsols(1,N,log(N,_,_,_,_),[N]).
