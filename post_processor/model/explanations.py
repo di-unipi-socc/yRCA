@@ -71,7 +71,7 @@ class Explanations:
         elif e["type"] == EventType.UNREACHABLE:
             startTime = str(e["interval"][0])
             endTime = str(e["interval"][1])
-            print(e["serviceName"] + "was unreachable between " +startTime + " and " + endTime)
+            print(e["serviceName"] + " was unreachable between " + startTime + " and " + endTime)
 
     # getter for the total number of explanations
     def size(self):
