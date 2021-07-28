@@ -75,4 +75,7 @@ class Explanations:
 
     # getter for the total number of explanations
     def size(self):
-        return len(self.explanations)-1 # -1 since we always find an "empty" explanation
+        l = len(self.explanations)
+        if [] in self.explanations:
+            l = l-1  # the "empty" explanation should not be counted
+        return l

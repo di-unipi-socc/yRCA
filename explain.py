@@ -5,12 +5,13 @@ from parser.parser import parseEvents
 from explainer.explainer import explain
 
 def main(argv):
+    nSols = 10 # default number of possible explanations to find
     heartbeat = 5 # default value considered for heartbeat logs
     lookbackRadius = 10 # default value considered for lookback radius
 
     # parse command line arguments
     try:
-        opts,args = getopt.getopt(argv,"hb:",["help","heartbeat=",])
+        opts,args = getopt.getopt(argv,"hb:n:r:",["help","heartbeat=","nSols=","lookbackRadius="])
     except: 
         cli_error("wrong options used")
         exit(-1)
@@ -19,6 +20,12 @@ def main(argv):
         cli_error("missing input arguments")
         exit(-1)
     for opt, arg in opts:
+        if opt in ["-n","--nSols"]:
+            if arg.isnumeric():
+                nSols = arg
+            else: 
+                cli_error("the amount of solutions to find must be a number")
+                return
         if opt in ["-b","--heartbeat"]:
             if arg.isnumeric():
                 heartbeat = arg
@@ -29,7 +36,7 @@ def main(argv):
             if arg.isnumeric():
                 lookbackRadius = arg
             else: 
-                cli_error("heartbeat value must be a number")
+                cli_error("lookback radius must be a number")
                 return
         if opt in ["-h","--help"]:
             cli_help()
@@ -54,7 +61,7 @@ def main(argv):
     # ***********************
     # * ROOT CAUSE ANALYSIS *
     # ***********************
-    rootCauses = explain(event,knowledgeBase)
+    rootCauses = explain(event,knowledgeBase,nSols)
     
     # *****************
     # * PRINT RESULTS *
@@ -73,6 +80,7 @@ def cli_help():
     print("where OPTIONS can be")
     print("  [-h|--help] to print a help on the usage of explain.py")
     print("  [-b N|--beat=N] to set to N the period of the target application's heartbeat logs")
+    print("  [-n N|--nSols=N] to set to N the amount of possible explanations to identify")
     print("  [-r N|--lookbackRadius=N] to set to N the lookback radius in finding explanations")
     print()
 
