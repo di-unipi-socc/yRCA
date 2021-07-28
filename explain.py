@@ -3,7 +3,6 @@ import sys, getopt
 # import explainer's modules
 from parser.parser import parseEvents
 from explainer.explainer import explain
-from post_processor.post_processor import post_process
 
 def main(argv):
     heartbeat = 5 # default value considered for heartbeat logs
@@ -57,10 +56,11 @@ def main(argv):
     # ***********************
     rootCauses = explain(event,knowledgeBase)
     
-    # *******************
-    # * POST-PROCESSING *
-    # *******************
-    post_process(event,rootCauses,applicationLogs)
+    # *****************
+    # * PRINT RESULTS *
+    # *****************
+    rootCauses.print()
+    print("Found",rootCauses.size(), "explanations")
 
 def cli_error(message):
     print("ERROR: " + message + ".")
