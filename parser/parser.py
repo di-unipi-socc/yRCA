@@ -8,7 +8,7 @@ def parseEvents(eventLogs,targetFile):
     # open source/target files 
     events = open(eventLogs,"r")
     prologFacts = open(targetFile,"w")
-    for e in events:
+    for e in reversed(list(events)):
         # parsing log event with chosen template
         event = parse(e)
 
