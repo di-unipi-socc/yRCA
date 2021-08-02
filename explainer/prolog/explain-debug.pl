@@ -1,43 +1,8 @@
 :-set_prolog_flag(last_call_optimisation, true).
 
-% xfail(K,Event,Exps,Root) :-
-%     id(K,Event,[],Exps,Root); 
-%     findall(E,causedBy(Event,E,Root),Exps).
-
-% id(K,Event,OldExps,NewExps,Root) :-
-%     findnsols(K,E,(causedBy(Event,E,Root), \+ member(E,OldExps)),Tmp),
-%     unique(Tmp,CurrExps), length(CurrExps,Len), Len < K,
-%     append(OldExps,CurrExps,Exps), KNew is K - Len, 
-%     id(KNew,Event,Exps,NewExps,Root).
-% id(K,Event,OldExps,NewExps,Root) :-
-%     findnsols(K,E,(causedBy(Event,E,Root), \+ member(E,OldExps)),Tmp),
-%     unique(Tmp,NewExps), length(NewExps,Len), Len = K.
-
-% id(K,K,Event,Exps,Root) :-
-%     findnsols(K,E,causedBy(Event,E,Root),Tmp),
-%     unique(Tmp,Exps), length(Exps,Len), Len >= K.
-% id(K,K,Event,Exps,Root) :-
-%     findnsols(K,E,causedBy(Event,E,Root),Tmp),
-%     unique(Tmp,Exps), length(Exps,Len), Len < K,
-%     KNew is K+1, id(KNew,K,Event,Exps,Root).
-
-% xfail(K,Event,Exps,Root) :-
-%     xfail(K,Event,[],Exps,Root).
-
-% xfail(K,Event,Exps,NewExps,Root) :-
-%     causedBy(Event,E,Root), \+ member(E,Exps),
-%     KNew is K-1, xfail(KNew,Event,[E|Exps],NewExps,Root).
-% xfail(K,Event,Exps,Exps,Root) :-
-%     K > 0, findall(E,(causedBy(Event,E,Root), \+ member(E,Exps)),[]).
-% xfail(0,_,Exps,Exps,_).
-
-
-% xfail(L,Cs,R) :-
-%     findall(C,causedBy(L,C,R),Cs), %unique(Cs,X),
-%     printExplanations(L, Cs, 1).
-% xfail(L,X) :-
-%     findall(C, causedBy(L,C), Cs), unique(Cs,X), 
-%     printExplanations(L, X, 1).
+xfail(K,Event,Exps,Root) :-
+    findnsols(K,E,distinct(causedBy(Event,E,Root)),Exps);
+    findall(E,causedBy(Event,E,Root),Exps).
 
 %invoked service never started
 causedBy(log(_,S,T,_,_),[X],N) :-
@@ -84,10 +49,3 @@ unhandledRequest(S1,N2,Ts,Te) :-
 printExplanations(L,[X|Xs],I) :- 
     write(I), write('. '), write(L), nl, write(' <-- '), writeln(X), nl, INew is I + 1, printExplanations(L,Xs,INew).
 printExplanations(_,[],_).
-
-unique([], []).
-unique([Head | Tail], Result) :-
-    member(Head, Tail), !,
-    unique(Tail, Result).
-unique([Head | Tail], [Head | Result]) :-
-    unique(Tail, Result).
