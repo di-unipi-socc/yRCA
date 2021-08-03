@@ -18,11 +18,13 @@ class Parameters:
 
 # class for representing messages in terms of the "type" of event they correspond to and of event specific "parameters"
 class Message:
-    def __init__(self,type,parameters):
+    def __init__(self,type,content,parameters):
         if type not in list(MessageType):
             raise ValueError("Unknown message type")
         # "MessageType" denoting the type of event corresponding to the message
         self.type=type
+        # message content (plain text)
+        self.content=content.replace("'","")
         # event-specific "Parameters"
         self.parameters=parameters
     

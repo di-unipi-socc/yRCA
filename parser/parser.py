@@ -27,6 +27,7 @@ def logFact(event):
     fact += event.instanceId + ","
     fact += str(event.timestamp) + "," 
     fact += generateMessage(event.message) + ","
+    fact += "'" + str(event.message.content) + "',"
     fact += event.severity
     fact += ").\n"
     return fact

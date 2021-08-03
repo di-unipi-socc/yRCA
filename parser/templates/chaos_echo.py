@@ -49,14 +49,14 @@ def parseTimestamp(timestamp):
 # function for parsing messages based on log templates
 def parseMessage(message):
     # default: classic logging message
-    msg = Message(MessageType.OTHER,None)
+    msg = Message(MessageType.OTHER,message,None)
     
     # case 1: client service sending request to server service
     # example: Sending message to backend (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172])
     msgInfo = re.match(r'Sending message to (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)', message)
     if msgInfo is not None:
         parameters = Parameters(msgInfo.group('service'),msgInfo.group('requestId'))
-        msg = Message(MessageType.CLIENT_SEND,parameters)
+        msg = Message(MessageType.CLIENT_SEND,message,parameters)
 
     # case 2: client service receiving answer from server service
     # three possible sub-cases
@@ -71,7 +71,7 @@ def parseMessage(message):
             msgInfo = re.match(r'Failing to contact (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\). Root cause: (?P<exception>.*)', message) 
         if msgInfo is not None:
             parameters = Parameters(msgInfo.group('service'),msgInfo.group('requestId'))
-            msg = Message(MessageType.CLIENT_RECEIVE,parameters)
+            msg = Message(MessageType.CLIENT_RECEIVE,message,parameters)
 
     # case 3: server service receiving request from client service
     # example: Received POST request from 10.0.0.2 (request_id: 178cfae5-71a2-4414-bd56-d7c2cef2f172)
@@ -79,14 +79,14 @@ def parseMessage(message):
         msgInfo = re.match(r'Received POST request from (?P<sourceIP>.*) \(request_id: (?P<requestId>.*)\)', message)
         if msgInfo is not None:
             parameters = Parameters(None,msgInfo.group('requestId'))
-            msg = Message(MessageType.SERVER_RECEIVE,parameters)
+            msg = Message(MessageType.SERVER_RECEIVE,message,parameters)
     # case 4: server service sending answer to client service
     # example: Answered to POST request from 10.0.0.2 with code: 500 (request_id: 178cfae5-71a2-4414-bd56-d7c2cef2f172)
     if msgInfo is None: 
         msgInfo = re.match(r'Answered to POST request from (?P<sourceIP>.*) with code: (?P<statusCode>.*) \(request_id: (?P<requestId>.*)\)', message)
         if msgInfo is not None:
             parameters = Parameters(None,msgInfo.group('requestId'))
-            msg = Message(MessageType.SERVER_SEND,parameters)
+            msg = Message(MessageType.SERVER_SEND,message,parameters)
     return msg
 
 # function for transforming logged severity to Syslog protocol: https://datatracker.ietf.org/doc/html/rfc5424

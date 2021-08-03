@@ -29,6 +29,7 @@ class Explanations:
                     ppEvent["type"] = EventType.LOG
                     ppEvent["instance"] = str(event.args[1])
                     ppEvent["timestamp"] = datetime.fromtimestamp(event.args[2]) # timestamp saved as ISO
+                    ppEvent["message"] = str(event.args[4])
                 # case: event = "failed(serviceName,instanceId,startTimestamp,endTimestamp)"
                 elif eventType == EventType.FAILED.value:
                     ppEvent["type"] = EventType.FAILED # save event type
@@ -62,7 +63,8 @@ class Explanations:
     def printEvent(self,e):
         if e["type"] == EventType.LOG:
             timestamp = str(e["timestamp"])
-            print("event logged by " + e["instance"] + " (" + e["serviceName"] + ") at time " + timestamp)
+            #print("event logged by " + e["instance"] + " (" + e["serviceName"] + ") at time " + timestamp)
+            print("[" + timestamp + "] " + e["instance"] + " (" + e["serviceName"] + "): " + e["message"])
         elif e["type"] == EventType.FAILED:
             print(e["instance"] + " (" + e["serviceName"] + ") failed")
         elif e["type"] == EventType.NEVER_STARTED:
