@@ -5,7 +5,12 @@ from parser.parser import parseEvents
 from explainer.explainer import explain
 
 def main(argv):
-    # parse command line arguments
+    # check if "help" is required
+    if "-h" in argv or "--help" in argv:
+        cli_help()
+        return
+
+    # otherwise, parse command line arguments
     try:
         options,args = getopt.getopt(argv,"hl:n:p:r:",["help","lookback=","period=","num=","root="])
     except: 
@@ -27,12 +32,8 @@ def main(argv):
 
     # getting specified options
     for option, value in options:
-        # asking for help
-        if option in ["-h","--help"]:
-            cli_help()
-            exit(0)
         # setting lookback radius
-        elif option in ["-l","--lookback"]:
+        if option in ["-l","--lookback"]:
             if value.isnumeric():
                 lookbackRadius = value
             else: 
@@ -40,17 +41,17 @@ def main(argv):
                 exit(-2)
         # setting number of solutions to identify
         elif option in ["-n","--num"]:
-            if value.isnumeric() and int(value)>0:
+            if value.isnumeric() and float(value)>0:
                 nSols = value
             else: 
                 cli_error("the amount of solutions to find must be a positive number")
                 exit(-2)
         # setting hearbeat period
         elif option in ["-p","--period"]:
-            if value.isnumeric():
+            if value.isnumeric() and float(value)>0:
                 heartbeat = float(value)/1000 # converting millis to seconds
             else: 
-                cli_error("the value for heartbeat period must be a number")
+                cli_error("the value for heartbeat period must be a positive number")
                 exit(-2)
         # setting root causing service
         elif option in ["-r","--rootCause"]:
