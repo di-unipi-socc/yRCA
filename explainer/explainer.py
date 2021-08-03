@@ -17,9 +17,6 @@ def explain(event,appLogs,nSols):
     eventToExplain = eventToExplain[:len(eventToExplain)-2] # remove "." and "\n" at the end
     
     # run Prolog reasoner to find (and return) root causes
-    # query example: findall(C,causedBy(log(frontend,f1,69,other,err),C), L), sort(L,Explanations).
-    # rootCauses = list(reasoner.query("findall(C,causedBy(" + eventToExplain + ",C), L), sort(L,Explanations)"))
-    # run Prolog reasoner to find "nSols" root causes
-    # query example: findnsols(nSols,C,causedBy(log(frontend,f1,69,other,err),C), Explanations).
-    rootCauses = list(reasoner.query("findnsols(" + str(nSols) + ",C,causedBy(" + eventToExplain + ",C), Explanations)"))
+    # query example: xfail(3,log(frontend,echo_frontend_1,1627883313.98,answerFrom(backend,'1629b530-1192-4579-8620-65098bf2f71d'),err),C,R).
+    rootCauses = list(reasoner.query("xfail(" + str(nSols) + "," + eventToExplain + ",Explanations,Root)"))
     return Explanations(rootCauses[0]["Explanations"])

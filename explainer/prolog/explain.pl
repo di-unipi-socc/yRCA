@@ -1,8 +1,8 @@
 :-set_prolog_flag(last_call_optimisation, true).
 
+%determine K possible explanations for "Event"
 xfail(K,Event,Exps,Root) :-
-    findnsols(K,E,distinct(causedBy(Event,E,Root)),Exps);
-    findall(E,causedBy(Event,E,Root),Exps).
+    findnsols(K,E,distinct(causedBy(Event,E,Root)),Exps).
     
 %invoked service never started
 causedBy(log(_,S,T,_,_),[X],N) :-
