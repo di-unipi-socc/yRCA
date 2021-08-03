@@ -8,10 +8,11 @@ def main(argv):
     nSols = 10 # default number of possible explanations to find
     heartbeat = 5 # default value considered for heartbeat logs
     lookbackRadius = 10 # default value considered for lookback radius
+    rootCause = None # default value for root cause (for finding all possible root causes)
 
     # parse command line arguments
     try:
-        opts,args = getopt.getopt(argv,"hb:n:r:",["help","heartbeat=","nSols=","lookbackRadius="])
+        opts,args = getopt.getopt(argv,"hb:l:n:r:",["help","lookbackRadius=","heartbeat=","nSols=","rootCause="])
     except: 
         cli_error("wrong options used")
         exit(-1)
@@ -26,19 +27,21 @@ def main(argv):
             else: 
                 cli_error("the amount of solutions to find must be a number")
                 return
-        if opt in ["-b","--heartbeat"]:
+        elif opt in ["-b","--heartbeat"]:
             if arg.isnumeric():
-                heartbeat = arg
+                heartbeat = float(arg)/1000 # converting millis to seconds
             else: 
                 cli_error("heartbeat value must be a number")
                 return
-        if opt in ["-r","--lookbackRadius"]:
+        elif opt in ["-l","--lookbackRadius"]:
             if arg.isnumeric():
                 lookbackRadius = arg
             else: 
                 cli_error("lookback radius must be a number")
                 return
-        if opt in ["-h","--help"]:
+        elif opt in ["-r","--rootCause"]:
+            rootCause = arg
+        elif opt in ["-h","--help"]:
             cli_help()
     eventLogLine = args[0]
     applicationLogs = args[1]
@@ -61,7 +64,7 @@ def main(argv):
     # ***********************
     # * ROOT CAUSE ANALYSIS *
     # ***********************
-    rootCauses = explain(event,knowledgeBase,nSols)
+    rootCauses = explain(event,knowledgeBase,nSols,rootCause)
     
     # *****************
     # * PRINT RESULTS *
@@ -79,9 +82,10 @@ def cli_help():
     print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json")
     print("where OPTIONS can be")
     print("  [-h|--help] to print a help on the usage of explain.py")
-    print("  [-b N|--beat=N] to set to N the period of the target application's heartbeat logs")
+    print("  [-b N|--beat=N] to set to N milliseconds the period of the target application's heartbeat logs")
+    print("  [-l N|--lookbackRadius=N] to set to N the lookback radius in finding explanations")
     print("  [-n N|--nSols=N] to set to N the amount of possible explanations to identify")
-    print("  [-r N|--lookbackRadius=N] to set to N the lookback radius in finding explanations")
+    print("  [-r X|--rootCause X] to require X to be the root cause of identified explanations")
     print()
 
 if __name__ == "__main__":

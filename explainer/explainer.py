@@ -1,14 +1,14 @@
 from pyswip import Prolog
 from explainer.model.explanations import Explanations
 
-def explain(event,appLogs,nSols):
+def explain(event,applicationLogs,nSols,rootCause):
     # create Prolog reasoner
     reasoner = Prolog()
     
     # load knowledge base
     reasoner.consult("explainer/prolog/severity.pl")
     reasoner.consult("explainer/prolog/explain.pl")
-    reasoner.consult(appLogs)
+    reasoner.consult(applicationLogs)
     
     # read event to explain
     eventFile = open(event,"r")
@@ -18,5 +18,8 @@ def explain(event,appLogs,nSols):
     
     # run Prolog reasoner to find (and return) root causes
     # query example: xfail(3,log(frontend,echo_frontend_1,1627883313.98,answerFrom(backend,'1629b530-1192-4579-8620-65098bf2f71d'),err),C,R).
-    rootCauses = list(reasoner.query("xfail(" + str(nSols) + "," + eventToExplain + ",Explanations,Root)"))
+    root = "Root"
+    if rootCause:
+        root = rootCause
+    rootCauses = list(reasoner.query("xfail(" + str(nSols) + "," + eventToExplain + ",Explanations," + root + ")"))
     return Explanations(rootCauses[0]["Explanations"])
