@@ -16,10 +16,15 @@ def explain(event,applicationLogs,nSols,rootCause):
     eventFile.close()
     eventToExplain = eventToExplain[:len(eventToExplain)-2] # remove "." and "\n" at the end
     
+    # configure query options, based on input options
+    if nSols is None: 
+        nSols = 10000 # to (most probably) find all possible solutions
+    if rootCause is None: 
+        root = "Root"
+    else:
+        root = rootCause
+    
     # run Prolog reasoner to find (and return) root causes
     # query example: xfail(3,log(frontend,echo_frontend_1,1627883313.98,answerFrom(backend,'1629b530-1192-4579-8620-65098bf2f71d'),err),C,R).
-    root = "Root"
-    if rootCause:
-        root = rootCause
     rootCauses = list(reasoner.query("xfail(" + str(nSols) + "," + eventToExplain + ",Explanations," + root + ")"))
     return Explanations(rootCauses[0]["Explanations"])

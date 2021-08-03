@@ -4,24 +4,25 @@ from parser.templates.chaos_echo import parse # change template for parsing othe
 # The method "parse" imported from the "templates" package must parse a log line and
 # return an "Event" object (see "model/event.py")
 
-def parseEvents(eventLogs,targetFile):
+def parseEvents(applicationLogs,targetFile):
     # open source/target files 
-    events = open(eventLogs,"r")
-    prologFacts = open(targetFile,"w")
-    for e in reversed(list(events)):
-        # parsing log event with chosen template
-        event = parse(e)
+    loggedEvents = open(applicationLogs,"r")
+    knowledgeBase = open(targetFile,"w")
 
+    # parse logged events (reversed, to go from last logged event to first logged event)
+    for le in reversed(list(loggedEvents)): 
+        # parsing log event with chosen template
+        event = parse(le)
         # write prolog corresponding fact
-        prologFacts.write(logFact(event))
+        knowledgeBase.write(generateLogFact(event))
 
     # close source/target files
-    events.close()
-    prologFacts.close()
+    loggedEvents.close()
+    knowledgeBase.close()
 
 # function for generating the Prolog representation of a log event
 # (it takes as input an "Event" -> see module "event.py")
-def logFact(event):
+def generateLogFact(event):
     fact = "log("
     fact += event.serviceName + ","
     fact += event.instanceId + ","
