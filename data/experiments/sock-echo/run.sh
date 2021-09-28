@@ -6,6 +6,7 @@ serviceList="EDGEROUTER FRONTEND ORDERS ORDERSDB CATALOGUE CATALOGUEDB USERS USE
 curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/generate_workload.sh > generate_workload.sh
 chmod ugo+x generate_workload.sh
 
+
 for s in $serviceList; do
     # generate docker-compose file with single point of failure 
     # (service s failing, all other services s1 not failing)
