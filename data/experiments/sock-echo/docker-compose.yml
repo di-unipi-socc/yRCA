@@ -1,0 +1,173 @@
+version: '3.8'
+
+services:
+  # ------------------
+  #     Frontend
+  # ------------------
+  edgeRouter:
+    ports: ['8080:80']
+    depends_on: [frontend, elasticsearch, kibana, logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: EDGEROUTER_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: frontend}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: edgeRouter, gelf-address: 'udp://localhost:12201'}
+
+  frontend:
+    depends_on: [orders, catalogue, users, carts, elasticsearch, kibana, logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: FRONTEND_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: 'orders:catalogue:users:carts'}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: frontend, gelf-address: 'udp://localhost:12201'}
+
+  # ------------------
+  #      Orders
+  # ------------------
+  orders:
+    depends_on: [users, carts, payment, shipping, ordersDb, elasticsearch, kibana,
+      logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: ORDERS_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: 'users:carts:payment:shipping:odersDb'}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: orders, gelf-address: 'udp://localhost:12201'}
+
+  ordersDb:
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: ORDERSDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    depends_on: [elasticsearch, kibana, logstash]
+    logging:
+      driver: gelf
+      options: {tag: ordersDb, gelf-address: 'udp://localhost:12201'}
+    deploy: {replicas: 1}
+
+  # ------------------
+  #     Catalogue
+  # ------------------
+  catalogue:
+    depends_on: [catalogueDb, elasticsearch, kibana, logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: CATALOGUE_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: catalogueDb}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: catalogue, gelf-address: 'udp://localhost:12201'}
+
+  catalogueDb:
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: CATALOGUEDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    depends_on: [elasticsearch, kibana, logstash]
+    logging:
+      driver: gelf
+      options: {tag: catalogueDb, gelf-address: 'udp://localhost:12201'}
+    deploy: {replicas: 1}
+
+  # ------------------
+  #       Users
+  # ------------------
+  users:
+    depends_on: [usersDb, elasticsearch, kibana, logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: USERS_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: usersDb}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: users, gelf-address: 'udp://localhost:12201'}
+
+  usersDb:
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: USERSDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    depends_on: [elasticsearch, kibana, logstash]
+    logging:
+      driver: gelf
+      options: {tag: usersDb, gelf-address: 'udp://localhost:12201'}
+    deploy: {replicas: 1}
+
+  # ------------------
+  #       Carts
+  # ------------------
+  carts:
+    depends_on: [cartsDb, elasticsearch, kibana, logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: CARTS_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: cartsDb}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: carts, gelf-address: 'udp://localhost:12201'}
+
+  cartsDb:
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: CARTSDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    depends_on: [elasticsearch, kibana, logstash]
+    logging:
+      driver: gelf
+      options: {tag: cartsDb, gelf-address: 'udp://localhost:12201'}
+    deploy: {replicas: 1}
+
+  # ------------------
+  #      Payment
+  # ------------------
+  payment:
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: PAYMENT_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    depends_on: [elasticsearch, kibana, logstash]
+    logging:
+      driver: gelf
+      options: {tag: payment, gelf-address: 'udp://localhost:12201'}
+    deploy: {replicas: 1}
+
+  # ------------------
+  #     Shipping
+  # ------------------
+  shipping:
+    depends_on: [rabbitMq, elasticsearch, kibana, logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: SHIPPING_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: rabbitMq}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: shipping, gelf-address: 'udp://localhost:12201'}
+
+  rabbitMq:
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: RABBITMQ_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    depends_on: [elasticsearch, kibana, logstash]
+    logging:
+      driver: gelf
+      options: {tag: rabbitMq, gelf-address: 'udp://localhost:12201'}
+    deploy: {replicas: 1}
+
+  queueMaster:
+    ports: ['8081:80']
+    depends_on: [rabbitMq, elasticsearch, kibana, logstash]
+    image: diunipisocc/chaosecho:1
+    environment: {P_INVOKE: 50, P_FAIL: QUEUEMASTER_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: rabbitMq}
+    deploy: {replicas: 1}
+    logging:
+      driver: gelf
+      options: {tag: queueMaster, gelf-address: 'udp://localhost:12201'}
+
+
+  # ------------------
+  #    ELK stack
+  # ------------------
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    environment: [discovery.type=single-node]
+    ports: ['9200:9200']
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.6.2
+    ports: ['5601:5601']
+    depends_on: [elasticsearch, logstash]
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.6.2
+    volumes: ['.:/etc/logstash']
+    command: logstash -f /etc/logstash/logstash.conf
+    ports: ['12201:12201/udp']
+    depends_on: [elasticsearch]
