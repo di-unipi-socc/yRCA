@@ -3,6 +3,7 @@
 serviceList="EDGEROUTER FRONTEND ORDERS ORDERSDB CATALOGUE CATALOGUEDB USERS USERSDB CARTS CARTSDB PAYMENT SHIPPING RABBITMQ QUEUEMASTER"
 
 # download load script from "chaos-echo"
+curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/deploy/examples/sock-echo/logstash.conf > logstash.conf
 curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/generate_workload.sh > generate_workload.sh
 chmod ugo+x generate_workload.sh
 
