@@ -2,6 +2,9 @@
 event.pl
 knowledgeBase.pl
 
+*generate_workload.sh
+*logstash.conf
+
 *DS_Store
 
 # Byte-compiled / optimized / DLL files
