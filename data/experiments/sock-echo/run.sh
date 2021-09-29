@@ -7,6 +7,10 @@ curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/deploy/exam
 curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/generate_workload.sh > generate_workload.sh
 chmod ugo+x generate_workload.sh
 
+# create folder where to store results
+results = "results_$(date +%y_%m_%d_%H_%M)"
+mkdir $results
+
 # s="ORDERS" 			# uncomment for single run 
 for s in $serviceList; do 	# comment for single run
     # generate docker-compose file with single point of failure 
@@ -29,6 +33,12 @@ for s in $serviceList; do 	# comment for single run
     sleep 30
     docker stack rm sockecho
 
+    # save logs
+    grep ERROR echo-stack.log | grep _edgeRouter | tail -n 1 > $s-edgeRouter-fault.log
+    grep ERROR echo-stack.log | grep _$s | tail -n 1 > $s-$s-fault.log
+    mv echo-stack.log $s-all.log
+    mv *.log $results 
+    
     # restore original docker file
     mv docker-compose.yml.original docker-compose.yml
 done 				#comment for single run
