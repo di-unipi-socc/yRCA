@@ -20,7 +20,7 @@ for s in $serviceList; do 	# comment for single run
     # generate docker-compose file with single point of failure 
     # (service s failing, all other services s1 not failing)
     cp docker-compose.yml docker-compose.yml.original
-    sed -i "s/${s^^}_FAIL/0/" docker-compose.yml
+    sed -i "s/${s^^}_FAIL/50/" docker-compose.yml
     for s1 in $serviceList ; do
         if [ $s != $s1 ]; then
             sed -i "s/${s1^^}_FAIL/0/" docker-compose.yml 
