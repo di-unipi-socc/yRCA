@@ -23,6 +23,8 @@ Note: all the logs and outputs produced by the experiment are placed in a `resul
 ## Running the Experiment
 To run the experiment, issue the command
 ```
-nohup ./run.sh > runLog &
+sudo nohup ./run.sh > runLog &
 ```
 This will start the [run.sh](run.sh) script in background, storing its outputs in the file `runLog`, which can be read to observe what happened while the experiment was running (as well as to get the name of the folder where the experiments' outputs are stored).
+
+(Note: `sudo` privileges are needed to enable restarting the Docker daemon between subsequent runs)
