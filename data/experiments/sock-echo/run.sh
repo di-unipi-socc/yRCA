@@ -68,6 +68,7 @@ for s in $serviceList; do 	# comment for single run
     echo "* Original log file restored"
 
     # clean Docker environment and wait before next run
+    echo "* Cleaning experiment's environment"
     docker container prune -f
     docker network prune -f
     sleep 60
