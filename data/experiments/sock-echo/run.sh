@@ -48,8 +48,8 @@ for s in $serviceList; do 	# comment for single run
     echo "* Undeployment completed"
 
     # save logs
-    grep ERROR echo-stack.log | grep _edgeRouter | tail -n 1 > $s-edgeRouter-fault.log
-    grep ERROR echo-stack.log | grep _$s | tail -n 1 > $s-$s-fault.log
+    grep ERROR echo-stack.log | grep _edgeRouter | head -n 1 > $s-edgeRouter-fault.log
+    grep ERROR echo-stack.log | grep _$s | head -n 1 > $s-$s-fault.log
     mv echo-stack.log $s-all.log
     mv *.log $results
     echo "* Log files stored in ${results}"
@@ -67,11 +67,9 @@ for s in $serviceList; do 	# comment for single run
     mv docker-compose.yml.original docker-compose.yml
     echo "* Original log file restored"
 
-    # Restart Docker and wait before next run
+    # clean Docker environment and wait before next run
     docker container prune -f
     docker network prune -f
-    systemctl restart docker
-    export DOCKER_CLIENT_TIMEOUT=120
-    export COMPOSE_HTTP_TIMEOUT=120
     sleep 60
+
 done 				#comment for single run
