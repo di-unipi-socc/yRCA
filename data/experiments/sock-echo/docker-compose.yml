@@ -145,7 +145,7 @@ services:
     ports: ['8081:80']
     depends_on: [rabbitMq, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: QUEUEMASTER_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: rabbitMq}
+    environment: {P_INVOKE: 50, P_FAIL: 0, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: rabbitMq}
     deploy: {replicas: 1}
     logging:
       driver: gelf
