@@ -66,4 +66,12 @@ for s in $serviceList; do 	# comment for single run
     # restore original docker file
     mv docker-compose.yml.original docker-compose.yml
     echo "* Original log file restored"
+
+    # Restart Docker and wait before next run
+    docker container prune -f
+    docker network prune -f
+    snap restart docker
+    export DOCKER_CLIENT_TIMEOUT=120
+    export COMPOSE_HTTP_TIMEOUT=120
+    sleep 60
 done 				#comment for single run
