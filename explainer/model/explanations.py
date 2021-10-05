@@ -46,31 +46,79 @@ class Explanations:
                 ppExp.append(ppEvent)
             self.explanations.append(ppExp)
 
-    # function for printing all explanations
+    # returns True if exp1 and exp2 have the same explanation structure
+    def akin(self,exp1,exp2):
+        if len(exp1) != len(exp2):
+                return False
+        i = 0       
+        while i < len(exp1):
+            if not(self.akinEvent(exp1[i],exp2[i])):
+                return False
+            i = i + 1
+        return True
+       
+    # function to compare if two events are of the same type (even if associated with different timestamps/messages)
+    def akinEvent(self,e1,e2):
+        if e1["type"] == e2["type"] and e1["serviceName"] == e2["serviceName"]:
+            return True
+        else:
+            return False
+
+    # function for printing the possible failure cascades (only considering service names)
+    def compactPrint(self):
+        printedCascades = []
+        i=1
+        for explanation in self.explanations:
+            if len(explanation) > 0:
+                # check if explanation has already been printed
+                toPrint = True
+                for printed in printedCascades:
+                    if self.akin(explanation,printed):
+                        toPrint = False
+                        break
+                # if not yet printed, print skeleton
+                if toPrint:
+                    printedCascades.append(explanation)
+                    print(str(i) + ": " + self.compactEventString(explanation[0]), end="\n  ")
+                    for event in explanation[1:]:
+                        print(" -> " + self.compactEventString(event), end="\n  ")
+                    print()
+                    i=i+1
+    
+    # function for printing a single event in an explanation (without message)
+    def compactEventString(self,e):
+        if e["type"] == EventType.LOG:
+            return e["serviceName"] + " logged some error"
+        elif e["type"] == EventType.FAILED:
+            return e["serviceName"] + " failed"
+        elif e["type"] == EventType.NEVER_STARTED:
+            return e["serviceName"] + " never started"
+        elif e["type"] == EventType.UNREACHABLE:
+            return e["serviceName"] + " was unreachable"
+
+    # function for printing all explanations (verbose, with message)
     def print(self):
         i=1
         for explanation in self.explanations:
             if len(explanation) > 0:
-                print(str(i) + ": ", end="")
-                self.printEvent(explanation[0])
+                print(str(i) + ": " + self.eventString(explanation[0]))
                 for event in explanation[1:]:
-                    print(" -> ",end="")
-                    self.printEvent(event)
-                print()
+                    print(" -> " + self.eventString(event))
                 i=i+1
 
-    # function for printing a single event in an explanation
-    def printEvent(self,e):
+
+    # function for printing a single event in an explanation (verbose, with message)
+    def eventString(self,e):
         if e["type"] == EventType.LOG:
             timestamp = str(e["timestamp"])
             #print("event logged by " + e["instance"] + " (" + e["serviceName"] + ") at time " + timestamp)
-            print("[" + timestamp + "] " + e["instance"] + " (" + e["serviceName"] + "): " + e["message"])
+            return "[" + timestamp + "] " + e["instance"] + " (" + e["serviceName"] + "): " + e["message"]
         elif e["type"] == EventType.FAILED:
-            print(e["instance"] + " (" + e["serviceName"] + ") failed")
+            return e["instance"] + " (" + e["serviceName"] + ") failed"
         elif e["type"] == EventType.NEVER_STARTED:
-            print(e["serviceName"] + " never started")
+            return e["serviceName"] + " never started"
         elif e["type"] == EventType.UNREACHABLE:
-            print(e["serviceName"] + " was unreachable")
+            return e["serviceName"] + " was unreachable"
 
     # getter for the total number of explanations
     def size(self):

@@ -12,7 +12,7 @@ def main(argv):
 
     # otherwise, parse command line arguments
     try:
-        options,args = getopt.getopt(argv,"hl:n:p:r:",["help","lookback=","period=","num=","root="])
+        options,args = getopt.getopt(argv,"hl:n:p:r:v",["help","lookback=","period=","num=","root=","verbose"])
     except: 
         cli_error("wrong options used")
         exit(-1)
@@ -29,6 +29,7 @@ def main(argv):
     lookbackRadius = 10 # lookback radius, in seconds (default: 10s)
     nSols = None # number of possible explanations to find (default: all)
     rootCause = None # value for root cause (default: all)
+    verbose = False # by default, only "compact" printing (service names, no instances/timestamps/messages)
 
     # getting specified options
     for option, value in options:
@@ -56,6 +57,9 @@ def main(argv):
         # setting root causing service
         elif option in ["-r","--rootCause"]:
             rootCause = value
+        # setting verbosity
+        elif option in ["-v","--verbose"]:
+            verbose = True
 
     # ******************
     # * PARSING INPUTS *
@@ -80,8 +84,17 @@ def main(argv):
     # *****************
     # * PRINT RESULTS *
     # *****************
-    rootCauses.print()
-    print("Found",rootCauses.size(), "explanations")
+    if verbose:
+        rootCauses.print()
+    else:
+        rootCauses.compactPrint()
+
+    if rootCauses.size()==0:
+        rc = (" from " + rootCause) if rootCause!=None else "" 
+        print("Found no failure cascade" + rc + " to the considered event")
+    else:
+        end = "s" if rootCauses.size() > 1 else "" # plural or singular
+        print("Found a total of " + str(rootCauses.size()) + " possible explanation" + end)
 
     # Remove generated files
     os.remove(event) # comment this, if needing to keep files for Prolog debugging
