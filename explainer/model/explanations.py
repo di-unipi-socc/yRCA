@@ -88,7 +88,7 @@ class Explanations:
     # function for printing a single event in an explanation (without message)
     def compactEventString(self,e):
         if e["type"] == EventType.LOG:
-            return e["serviceName"] + " logged some error"
+            return e["serviceName"] + " logged some warning/error"
         elif e["type"] == EventType.FAILED:
             return e["serviceName"] + " failed"
         elif e["type"] == EventType.NEVER_STARTED:
