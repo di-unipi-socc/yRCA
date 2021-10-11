@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from multiprocessing import Event
+import json
 
 # class for distinguishing the "type" of events
 class EventType(Enum):
@@ -47,18 +48,20 @@ class Explanations:
             self.explanations.append(ppExp)
 
     # returns True if exp1 and exp2 have the same explanation structure
-    def akin(self,exp1,exp2):
+    @staticmethod
+    def akin(exp1,exp2):
         if len(exp1) != len(exp2):
                 return False
         i = 0       
         while i < len(exp1):
-            if not(self.akinEvent(exp1[i],exp2[i])):
+            if not(Explanations.akinEvent(exp1[i],exp2[i])):
                 return False
             i = i + 1
         return True
        
     # function to compare if two events are of the same type (even if associated with different timestamps/messages)
-    def akinEvent(self,e1,e2):
+    @staticmethod
+    def akinEvent(e1,e2):
         if e1["type"] == e2["type"] and e1["serviceName"] == e2["serviceName"]:
             return True
         else:
@@ -73,7 +76,7 @@ class Explanations:
                 # check if explanation has already been printed
                 toPrint = True
                 for printed in printedCascades:
-                    if self.akin(explanation,printed):
+                    if Explanations.akin(explanation,printed):
                         toPrint = False
                         break
                 # if not yet printed, print skeleton
