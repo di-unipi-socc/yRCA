@@ -1,7 +1,6 @@
 from datetime import datetime
 from enum import Enum
 from multiprocessing import Event
-import json
 
 # class for distinguishing the "type" of events
 class EventType(Enum):
