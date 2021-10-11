@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from multiprocessing import Event
+import json
 
 # class for distinguishing the "type" of events
 class EventType(Enum):
@@ -8,6 +8,15 @@ class EventType(Enum):
     UNREACHABLE = "unreachable"
     FAILED = "failed"
     NEVER_STARTED = "neverStarted"
+
+# class to represent an event
+class Event:
+    def __init__(self,serviceName,type,instance,timestamp,message):
+        self.serviceName = serviceName
+        self.type = type
+        self.instance = instance
+        self.timestamp = timestamp
+        self.message = message
 
 # class to represent list of possible root causes/explanations
 # (takes as input "explanationsList" returned by pyswip)
@@ -21,29 +30,33 @@ class Explanations:
             # given an explanation, create a post-processed 
             # event modelling each original event 
             for event in explanation:
-                ppEvent = {} # post-processed event
-                ppEvent["serviceName"] = str(event.args[0])
+                # post-processed event info
+                serviceName = str(event.args[0])
+                type = None
+                instance = None
+                timestamp = None
+                message = None 
                 eventType = str(event.name)
                 # case: event = "log(serviceName,instanceId,timestamp,_,_)"
                 if eventType == EventType.LOG.value:
-                    ppEvent["type"] = EventType.LOG
-                    ppEvent["instance"] = str(event.args[1])
-                    ppEvent["timestamp"] = datetime.fromtimestamp(event.args[2]) # timestamp saved as ISO
-                    ppEvent["message"] = str(event.args[4])
+                    type = EventType.LOG
+                    instance = str(event.args[1])
+                    timestamp = datetime.fromtimestamp(event.args[2]) # timestamp saved as ISO
+                    message = str(event.args[4])
                 # case: event = "failed(serviceName,instanceId,startTimestamp,endTimestamp)"
                 elif eventType == EventType.FAILED.value:
-                    ppEvent["type"] = EventType.FAILED # save event type
-                    ppEvent["instance"] = str(event.args[1]) # 
+                    type = EventType.FAILED # save event type
+                    instance = str(event.args[1]) # 
                 # case: event = "neverStarted(serviceName)"
                 elif eventType == EventType.NEVER_STARTED.value:
-                    ppEvent["type"] = EventType.NEVER_STARTED
+                    type = EventType.NEVER_STARTED
                 # case: event = "unreachable(serviceName,startTimestamp,endTimestamp)"
                 elif eventType == EventType.UNREACHABLE.value:
-                    ppEvent["type"] = EventType.UNREACHABLE
+                    type = EventType.UNREACHABLE
                 # case: unknown event type 
                 else:
                     raise TypeError("unknown event type " + eventType) # to avoid missing events (if not corresponding to a known type)
-                ppExp.append(ppEvent)
+                ppExp.append(Event(serviceName,type,instance,timestamp,message))
             self.explanations.append(ppExp)
 
     # returns True if exp1 and exp2 have the same explanation structure
@@ -61,7 +74,7 @@ class Explanations:
     # function to compare if two events are of the same type (even if associated with different timestamps/messages)
     @staticmethod
     def akinEvent(e1,e2):
-        if e1["type"] == e2["type"] and e1["serviceName"] == e2["serviceName"]:
+        if e1.type == e2.type and e1.serviceName == e2.serviceName:
             return True
         else:
             return False
@@ -89,14 +102,14 @@ class Explanations:
     
     # function for printing a single event in an explanation (without message)
     def compactEventString(self,e):
-        if e["type"] == EventType.LOG:
-            return e["serviceName"] + " logged some warning/error"
-        elif e["type"] == EventType.FAILED:
-            return e["serviceName"] + " failed"
-        elif e["type"] == EventType.NEVER_STARTED:
-            return e["serviceName"] + " never started"
-        elif e["type"] == EventType.UNREACHABLE:
-            return e["serviceName"] + " was unreachable"
+        if e.type == EventType.LOG:
+            return e.serviceName + " logged some warning/error"
+        elif e.type == EventType.FAILED:
+            return e.serviceName + " failed"
+        elif e.type == EventType.NEVER_STARTED:
+            return e.serviceName + " never started"
+        elif e.type == EventType.UNREACHABLE:
+            return e.serviceName + " was unreachable"
 
     # function for printing all explanations (verbose, with message)
     def print(self):
@@ -111,16 +124,16 @@ class Explanations:
 
     # function for printing a single event in an explanation (verbose, with message)
     def eventString(self,e):
-        if e["type"] == EventType.LOG:
-            timestamp = str(e["timestamp"])
-            #print("event logged by " + e["instance"] + " (" + e["serviceName"] + ") at time " + timestamp)
-            return "[" + timestamp + "] " + e["instance"] + " (" + e["serviceName"] + "): " + e["message"]
-        elif e["type"] == EventType.FAILED:
-            return e["instance"] + " (" + e["serviceName"] + ") failed"
-        elif e["type"] == EventType.NEVER_STARTED:
-            return e["serviceName"] + " never started"
-        elif e["type"] == EventType.UNREACHABLE:
-            return e["serviceName"] + " was unreachable"
+        if e.type == EventType.LOG:
+            timestamp = str(e.timestamp)
+            #print("event logged by " + e.instance + " (" + e.serviceName + ") at time " + timestamp)
+            return "[" + timestamp + "] " + e.instance + " (" + e.serviceName + "): " + e.message
+        elif e.type == EventType.FAILED:
+            return e.instance + " (" + e.serviceName + ") failed"
+        elif e.type == EventType.NEVER_STARTED:
+            return e.serviceName + " never started"
+        elif e.type == EventType.UNREACHABLE:
+            return e.serviceName + " was unreachable"
 
     # getter for the total number of explanations
     def size(self):
