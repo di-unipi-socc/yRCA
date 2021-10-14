@@ -21,7 +21,7 @@ class Event:
 # class to represent list of possible root causes/explanations
 # (takes as input "explanationsList" returned by pyswip)
 class Explanations:
-    def __init__(self,explanationsList): # TODO: add applicationLogs to retrieve messages
+    def __init__(self,explanationsList): 
         self.explanations = []
         # create a post-processed explanation 
         # for each found explanation
