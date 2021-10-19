@@ -21,9 +21,12 @@ causedBy(log(_,S,T,_,_,_),[X|Xs],R) :-
     X=log(N,S2,U,F,M,Sev),
     causedBy(X,Xs,R).
 
-%ci serve questa? non basterebbe distinguere i casi "interazione" da "interazione senza risposta"
-%ovvero potremmo distinguere due tipi di interaction
-
+%ci serve la regola "crash of invoked service"? non basterebbe distinguere i casi "interazione" da "interazione senza risposta" (che potremmo distinguere con due tipi diversi di interaction)
+%Osservazione: A interagisce con B, quattro possibili casi:
+% 1) B non ha creato problemi -> scarto B dalle cause
+% 2) B ha loggato errore -> catturato da regola sopra
+% 3) B ha risposto con errore -> catturato dal fatto che A loggherà tale errore 
+% 4) B ha gestito la richiesta, ma non ha mai risposto -> catturato da regola sotto, ma insieme a moltri altri casi (basta vedere se ha mai risposto)
 %crash of invoked service
 causedBy(log(_,S,T,_,_,_),[X],N) :-
     interaction(S,S2,Ts,Te), Ts < T, lookbackRadius(Z), Ts >= T - Z,
@@ -31,13 +34,16 @@ causedBy(log(_,S,T,_,_,_),[X],N) :-
     once((log(N,S2,U,_,_,_), T0=<U, U=<T1, \+ (log(_,S2,V,_,_,_), dif(U,V), U-P=<V, V=<U+P))),
     X = failed(N,S2). 
 
+%ci serve la regola "internal crash"? perché spiegare che A ha loggato qualcosa dicendo che prima non aveva loggato niente?
 %internal crash
 causedBy(log(N,S,T,_,_,_),[X],N) :-
     heartbeat(P), T0 is T-P, T0>0,
     \+ (log(_,S,U,_,_,_), T0 =< U, U < T),
     X = failed(N,S). 
+
 %base case
 causedBy(log(N,_,_,_,_,_),[],N).
+%causedBy(log(N,S,_,_,_,_),[failed(N,S)],N). % da usare se togliamo "internal crash"
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
