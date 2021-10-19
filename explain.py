@@ -112,10 +112,11 @@ def cli_help():
     print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json")
     print("where OPTIONS can be")
     print("  [-h|--help] to print a help on the usage of explain.py")
-    print("  [-b N|--beat=N] to set to N milliseconds the period of the target application's heartbeat logs")
-    print("  [-l N|--lookbackRadius=N] to set to N the lookback radius in finding explanations")
-    print("  [-n N|--nSols=N] to set to N the amount of possible explanations to identify")
-    print("  [-r X|--rootCause X] to require X to be the root cause of identified explanations")
+    print("  [-p N|--period=N] to set to N milliseconds the period of the target application's heartbeat logs")
+    print("  [-l N|--lookback=N] to set to N the lookback radius in finding explanations")
+    print("  [-n N|--num=N] to set to N the amount of possible explanations to identify")
+    print("  [-r X|--root=X] to require X to be the root cause of identified explanations")
+    print("  [-v X|--verbose] to print verbose analysis results")
     print()
 
 if __name__ == "__main__":
