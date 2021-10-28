@@ -20,17 +20,6 @@ causedBy(log(_,S,T,_,_,_),[X|Xs],R) :-
     log(N,S2,U,F,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
     X=log(N,S2,U,F,M,Sev),
     causedBy(X,Xs,R).
-%crash of invoked service
-%causedBy(log(_,S,T,_,_,_),[X],N) :-
-%    interaction(S,S2,Ts,Te), Ts < T, lookbackRadius(Z), Ts >= T - Z,
-%    heartbeat(P), T0 is Ts - P, T1 is Te + P,
-%    once((log(N,S2,U,_,_,_), T0=<U, U=<T1, \+ (log(_,S2,V,_,_,_), dif(U,V), U-P=<V, V=<U+P))),
-%    X = failed(N,S2). 
-%internal crash
-%causedBy(log(N,S,T,_,_,_),[X],N) :-
-%    heartbeat(P), T0 is T-P, T0>0,
-%    \+ (log(_,S,U,_,_,_), T0 =< U, U < T),
-%    X = failed(N,S). 
 %base case
 causedBy(log(N,_,_,_,_,_),[],N).
 
