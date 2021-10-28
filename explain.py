@@ -12,7 +12,7 @@ def main(argv):
 
     # otherwise, parse command line arguments
     try:
-        options,args = getopt.getopt(argv,"hl:n:p:r:v",["help","lookback=","period=","num=","root=","verbose"])
+        options,args = getopt.getopt(argv,"hl:n:r:v",["help","lookback=","num=","root=","verbose"])
     except: 
         cli_error("wrong options used")
         exit(-1)
