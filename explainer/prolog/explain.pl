@@ -7,20 +7,20 @@ xfail(NumSols,Event,Explanations,RootCause) :-
 %invoked service never started
 causedBy(log(_,S,T,F,_,_),[X],N) :-
     dif(F,internal),
-    log(_,S,Ts,sendTo(N,_),_,_), Ts < T, lookbackRadius(Z), Ts >= T - Z,
+    log(_,S,Ts,sendTo(N,_),_,_), Ts < T, horizon(H), Ts >= T - H,
     \+ log(N,_,_,_,_,_),
     X = neverStarted(N).
 %unreachable service
 causedBy(log(_,S,T,F,_,_),[X],N) :-
     dif(F,internal),
-    unhandledRequest(S,N,Ts,_), Ts < T, lookbackRadius(Z), Ts >= T - Z,
+    unhandledRequest(S,N,Ts,_), Ts < T, horizon(H), Ts >= T - H,
     log(N,_,_,_,_,_),
     X = unreachable(N).
 
 %error of invoked service
 causedBy(log(_,S,T,F,_,_),[X|Xs],R) :-
     dif(F,internal),
-    failedInteraction(S,S2,Ts,Te), Ts < T, lookbackRadius(Z), Ts >= T - Z,
+    failedInteraction(S,S2,Ts,Te), Ts < T, horizon(H), Ts >= T - H,
     log(N,S2,U,F2,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
     X=log(N,S2,U,F2,M,Sev),
     causedBy(X,Xs,R).
