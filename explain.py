@@ -47,13 +47,6 @@ def main(argv):
             else: 
                 cli_error("the amount of solutions to find must be a positive number")
                 exit(-2)
-        # setting hearbeat period
-        # elif option in ["-p","--period"]:
-        #     if value.isnumeric() and float(value)>0:
-        #         heartbeat = float(value)/1000 # converting millis to seconds
-        #     else: 
-        #         cli_error("the value for heartbeat period must be a positive number")
-        #         exit(-2)
         # setting root causing service
         elif option in ["-r","--rootCause"]:
             rootCause = value
@@ -72,7 +65,6 @@ def main(argv):
     
     # add heartbeat and lookback radius values to "knowledgeBase"
     knowledgeBaseFile = open(knowledgeBase,"a")
-    # knowledgeBaseFile.write("heartbeat(" + str(heartbeat) + ").\n")
     knowledgeBaseFile.write("lookbackRadius(" + str(lookbackRadius) + ").\n")
     knowledgeBaseFile.close()
 
@@ -112,7 +104,6 @@ def cli_help():
     print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json")
     print("where OPTIONS can be")
     print("  [-h|--help] to print a help on the usage of explain.py")
-    # print("  [-p N|--period=N] to set to N milliseconds the period of the target application's heartbeat logs")
     print("  [-l N|--lookback=N] to set to N the lookback radius in finding explanations")
     print("  [-n N|--num=N] to set to N the amount of possible explanations to identify")
     print("  [-r X|--root=X] to require X to be the root cause of identified explanations")
