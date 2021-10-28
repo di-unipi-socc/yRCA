@@ -48,4 +48,4 @@ def generateMessage(msg):
         return "received('" + msg.parameters.requestId + "')"
     if msg.type == MessageType.SERVER_SEND:
         return "answeredTo('" + msg.parameters.requestId + "')"
-    return "other"
+    return "internal"

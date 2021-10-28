@@ -135,6 +135,7 @@ class Explanations:
                 for event in explanation[1:]:
                     print(" -> " + self.eventString(event))
                 i=i+1
+            print()
 
 
     # function for printing a single event in an explanation (verbose, with message)
