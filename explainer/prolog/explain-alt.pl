@@ -21,7 +21,7 @@ causedBy(log(_,S,T,_,_,_),[X|Xs],R) :-
     X=log(N,S2,U,F,M,Sev),
     causedBy(X,Xs,R).
 
-%ci serve la regola "crash of invoked service"? non basterebbe distinguere i casi "interazione" da "interazione senza risposta" (che potremmo distinguere con due tipi diversi di interaction)
+%TODO - rimuovere regola "crash of invoked service", distinguendo i casi "interazione" da "interazione senza risposta" (che potremmo distinguere con due tipi diversi di interaction)
 %Osservazione: A interagisce con B, quattro possibili casi:
 % 1) B non ha creato problemi -> scarto B dalle cause
 % 2) B ha loggato errore -> catturato da regola sopra
@@ -34,7 +34,7 @@ causedBy(log(_,S,T,_,_,_),[X],N) :-
     once((log(N,S2,U,_,_,_), T0=<U, U=<T1, \+ (log(_,S2,V,_,_,_), dif(U,V), U-P=<V, V=<U+P))),
     X = failed(N,S2). 
 
-%ci serve la regola "internal crash"? perché spiegare che A ha loggato qualcosa dicendo che prima non aveva loggato niente?
+%TODO - rimuover regola "internal crash", per evitare di spiegare che A ha loggato qualcosa dicendo che prima non aveva loggato niente
 %internal crash
 causedBy(log(N,S,T,_,_,_),[X],N) :-
     heartbeat(P), T0 is T-P, T0>0,
@@ -52,7 +52,7 @@ interaction(S1,S2,Ts,Te) :-
     log(N2,S2,_,received(Id),_,_),
     log(N1,S1,Te,answerFrom(N2,Id),_,_). %, Ts < Te.
 
-%modellare interazione fallita?
+%TODO - modellare interazione fallita
 %interaction(S1,S2,Ts,Te) :-
 %    log(N1,S1,Ts,sendTo(N2,Id),_,_), 
 %    log(N2,S2,_,received(Id),_,_),
