@@ -81,24 +81,34 @@ class Explanations:
 
     # function for printing the possible failure cascades (only considering service names)
     def compactPrint(self):
-        printedCascades = []
-        i=1
+        # create an array "cascade" of explanation skeletons, each with the count of 
+        # how many times they appear
+        cascades = []
         for explanation in self.explanations:
             if len(explanation) > 0:
-                # check if explanation has already been printed
-                toPrint = True
-                for printed in printedCascades:
-                    if Explanations.akin(explanation,printed):
-                        toPrint = False
-                        break
-                # if not yet printed, print skeleton
-                if toPrint:
-                    printedCascades.append(explanation)
-                    print(str(i) + ": " + self.compactEventString(explanation[0]), end="\n  ")
-                    for event in explanation[1:]:
-                        print(" -> " + self.compactEventString(event), end="\n  ")
-                    print()
-                    i=i+1
+                eWithCount = None
+                if cascades != []:
+                    for cascade in cascades:
+                        if Explanations.akin(explanation,cascade["exp"]):
+                            eWithCount = cascade
+                            break
+                if eWithCount:
+                    eWithCount["count"] +=1
+                else:
+                    eWithCount = {}
+                    eWithCount["exp"] = explanation
+                    eWithCount["count"] = 1
+                    cascades.append(eWithCount)
+        # sort the array "cascades" by count (descending)
+        cascades = sorted(cascades, key=lambda eWithCount: eWithCount['count'], reverse=True)
+        # print the explanation skeletons in "cascades"
+        i=1
+        for eWithCount in cascades:            
+            print(str(i) + " [" + str(eWithCount["count"]) + " times]: " + self.compactEventString(eWithCount["exp"][0]), end="\n  ")
+            for event in eWithCount["exp"][1:]:
+                print(" -> " + self.compactEventString(event), end="\n  ")
+            print()
+            i=i+1
     
     # function for printing a single event in an explanation (without message)
     def compactEventString(self,e):
