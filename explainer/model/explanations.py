@@ -79,8 +79,7 @@ class Explanations:
         else:
             return False
 
-    # function for printing the possible failure cascades (only considering service names)
-    def compactPrint(self):
+    def postProcess(self):
         # create an array "cascade" of explanation skeletons, each with the count of 
         # how many times they appear
         cascades = []
@@ -89,23 +88,31 @@ class Explanations:
                 eWithCount = None
                 if cascades != []:
                     for cascade in cascades:
-                        if Explanations.akin(explanation,cascade["exp"]):
+                        if Explanations.akin(explanation,cascade["exp"][0]):
                             eWithCount = cascade
                             break
                 if eWithCount:
                     eWithCount["count"] +=1
+                    eWithCount["exp"].append(explanation)
                 else:
                     eWithCount = {}
-                    eWithCount["exp"] = explanation
+                    eWithCount["exp"] = []
+                    eWithCount["exp"].append(explanation)
                     eWithCount["count"] = 1
                     cascades.append(eWithCount)
         # sort the array "cascades" by count (descending)
         cascades = sorted(cascades, key=lambda eWithCount: eWithCount['count'], reverse=True)
+        return cascades
+
+    # function for printing the possible failure cascades (only considering service names)
+    def compactPrint(self):
+        cascades = self.postProcess()
         # print the explanation skeletons in "cascades"
         i=1
-        for eWithCount in cascades:            
-            print(str(i) + " [" + str(eWithCount["count"]) + " times]: " + self.compactEventString(eWithCount["exp"][0]), end="\n  ")
-            for event in eWithCount["exp"][1:]:
+        for eWithCount in cascades:
+            explanation = eWithCount["exp"][0]
+            print(str(i) + " [" + str(eWithCount["count"]) + " times]: " + self.compactEventString(explanation[0]), end="\n  ")
+            for event in explanation[1:]:
                 print(" -> " + self.compactEventString(event), end="\n  ")
             print()
             i=i+1
@@ -123,9 +130,10 @@ class Explanations:
 
     # function for printing all explanations (verbose, with message)
     def print(self):
+        cascades = self.postProcess()
         i=1
-        for explanation in self.explanations:
-            if len(explanation) > 0:
+        for eWithCount in cascades:
+            for explanation in eWithCount["exp"]:
                 print(str(i) + ": " + self.eventString(explanation[0]))
                 for event in explanation[1:]:
                     print(" -> " + self.eventString(event))
