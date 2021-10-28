@@ -16,7 +16,7 @@ causedBy(log(_,S,T,_,_,_),[X],N) :-
     X = unreachable(N).
 %error of invoked service
 causedBy(log(_,S,T,_,_,_),[X|Xs],R) :-
-    interaction(S,S2,Ts,Te), Ts < T, lookbackRadius(Z), Ts >= T - Z,
+    failedInteraction(S,S2,Ts,Te), Ts < T, lookbackRadius(Z), Ts >= T - Z,
     log(N,S2,U,F,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
     X=log(N,S2,U,F,M,Sev),
     causedBy(X,Xs,R).
@@ -25,12 +25,19 @@ causedBy(log(N,_,_,_,_,_),[],N).
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
-interaction(S1,S2,Ts,Te) :-
-    log(N1,S1,Ts,sendTo(N2,Id),_,_), 
-    log(N2,S2,_,received(Id),_,_),
-    log(N1,S1,Te,answerFrom(N2,Id),_,_). %, Ts < Te.
-
 unhandledRequest(S1,N2,Ts,Te) :-
     log(N1,S1,Ts,sendTo(N2,Id),_,_),
     \+ log(N2,_,_,received(Id),_,_),
-    log(N1,S1,Te,answerFrom(N2,Id),_,_). %, Ts < Te.
+    log(N1,S1,Te,timeout(N2,Id),_,_). 
+
+failedInteraction(S1,S2,Ts,Te) :-
+    interaction(Id,(N1,S1),(N2,S2),Ts),
+    log(N1,S1,Te,errorFrom(N2,Id),_,_). 
+failedInteraction(S1,S2,Ts,Te) :-
+    interaction(Id,(N1,S1),(N2,S2),Ts),
+    log(N1,S1,Te,timeout(N2,Id),_,_). 
+
+interaction(Id,(N1,S1),(N2,S2),Ts) :-
+    log(N1,S1,Ts,sendTo(N2,Id),_,_), 
+    log(N2,S2,_,received(Id),_,_).
+    

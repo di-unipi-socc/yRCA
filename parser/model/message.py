@@ -3,11 +3,16 @@ from enum import Enum
 # class for distinguishing the "type" of events
 # (currently distingushing "interaction events" from all "other events")
 class MessageType(Enum):
+    # CLIENT events
     CLIENT_SEND = 1
     CLIENT_RECEIVE = 2
-    SERVER_RECEIVE = 3
-    SERVER_SEND = 4
-    OTHER = 5
+    CLIENT_ERROR = 3
+    CLIENT_TIMEOUT = 4
+    # SERVER events
+    SERVER_RECEIVE = 5
+    SERVER_SEND = 6
+    # OTHER events
+    OTHER = 7
 
 # class for specifying event-specific parameters
 # (currently only used for "interactions")
