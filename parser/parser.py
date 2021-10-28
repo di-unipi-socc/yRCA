@@ -39,9 +39,13 @@ def generateMessage(msg):
     if msg.type == MessageType.CLIENT_SEND:
         return "sendTo(" + msg.parameters.service + ",'" + msg.parameters.requestId + "')"
     if msg.type == MessageType.CLIENT_RECEIVE:
-        return "answerFrom(" + msg.parameters.service + ",'" + msg.parameters.requestId + "')"
+        return "okFrom(" + msg.parameters.service + ",'" + msg.parameters.requestId + "')"
+    if msg.type == MessageType.CLIENT_ERROR:
+        return "errorFrom(" + msg.parameters.service + ",'" + msg.parameters.requestId + "')"
+    if msg.type == MessageType.CLIENT_TIMEOUT:
+        return "timeout(" + msg.parameters.service + ",'" + msg.parameters.requestId + "')"
     if msg.type == MessageType.SERVER_RECEIVE:
         return "received('" + msg.parameters.requestId + "')"
     if msg.type == MessageType.SERVER_SEND:
         return "answeredTo('" + msg.parameters.requestId + "')"
-    return "other"
+    return "internal"

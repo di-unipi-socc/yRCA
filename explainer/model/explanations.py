@@ -79,26 +79,40 @@ class Explanations:
         else:
             return False
 
-    # function for printing the possible failure cascades (only considering service names)
-    def compactPrint(self):
-        printedCascades = []
-        i=1
+    def groupExplanations(self):
+        # create an array "groupedExplanations" of explanation groups
+        # (explanations with the same skeleton go in the same group)
+        groupedExplanations = []
         for explanation in self.explanations:
             if len(explanation) > 0:
-                # check if explanation has already been printed
-                toPrint = True
-                for printed in printedCascades:
-                    if Explanations.akin(explanation,printed):
-                        toPrint = False
-                        break
-                # if not yet printed, print skeleton
-                if toPrint:
-                    printedCascades.append(explanation)
-                    print(str(i) + ": " + self.compactEventString(explanation[0]), end="\n  ")
-                    for event in explanation[1:]:
-                        print(" -> " + self.compactEventString(event), end="\n  ")
-                    print()
-                    i=i+1
+                expList = None
+                if groupedExplanations != []:
+                    for cascade in groupedExplanations:
+                        if Explanations.akin(explanation,cascade[0]):
+                            expList = cascade
+                            break
+                if expList:
+                    expList.append(explanation)
+                else:
+                    expList = []
+                    expList.append(explanation)
+                    groupedExplanations.append(expList)
+        # sort the array "groupedExplanations" by group size (descending)
+        groupedExplanations = sorted(groupedExplanations, key=lambda expList: len(expList), reverse=True)
+        return groupedExplanations
+
+    # function for printing the possible failure cascades (only considering service names)
+    def compactPrint(self):
+        expLists = self.groupExplanations()
+        # print the explanation skeletons in "cascades"
+        i=1
+        for expList in expLists:
+            explanation = expList[0]
+            print(str(i) + " [" + str(len(expList)) + " times]: " + self.compactEventString(explanation[0]), end="\n  ")
+            for event in explanation[1:]:
+                print(" -> " + self.compactEventString(event), end="\n  ")
+            print()
+            i=i+1
     
     # function for printing a single event in an explanation (without message)
     def compactEventString(self,e):
@@ -113,13 +127,15 @@ class Explanations:
 
     # function for printing all explanations (verbose, with message)
     def print(self):
+        expLists = self.groupExplanations()
         i=1
-        for explanation in self.explanations:
-            if len(explanation) > 0:
+        for expList in expLists:
+            for explanation in expList:
                 print(str(i) + ": " + self.eventString(explanation[0]))
                 for event in explanation[1:]:
                     print(" -> " + self.eventString(event))
                 i=i+1
+            print()
 
 
     # function for printing a single event in an explanation (verbose, with message)

@@ -63,15 +63,21 @@ def parseMessage(message):
     # success: Receiving answer from backend (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172])
     if msgInfo is None:
         msgInfo = re.match(r'Receiving answer from (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)', message)
-        # error answer: Error response (code: 500) received from backend (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172])
-        if msgInfo is None: 
-            msgInfo = re.match(r'Error response (code: 500) received from (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)', message)
-        # failure: Failing to contact backend (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172]). Root cause: Root cause: org.springframework.web.client.ResourceAccessException: ...
-        if msgInfo is None:
-            msgInfo = re.match(r'Failing to contact (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\). Root cause: (?P<exception>.*)', message) 
         if msgInfo is not None:
             parameters = Parameters(msgInfo.group('service'),msgInfo.group('requestId'))
             msg = Message(MessageType.CLIENT_RECEIVE,message,parameters)
+    # error answer: Error response (code: 500) received from backend (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172])
+    if msgInfo is None: 
+        msgInfo = re.match(r'Error response (code: 500) received from (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)', message)
+        if msgInfo is not None:
+            parameters = Parameters(msgInfo.group('service'),msgInfo.group('requestId'))
+            msg = Message(MessageType.CLIENT_ERROR,message,parameters)
+    # failure: Failing to contact backend (request_id: [178cfae5-71a2-4414-bd56-d7c2cef2f172]). Root cause: Root cause: org.springframework.web.client.ResourceAccessException: ...
+    if msgInfo is None:
+        msgInfo = re.match(r'Failing to contact (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\). Root cause: (?P<exception>.*)', message) 
+        if msgInfo is not None:
+            parameters = Parameters(msgInfo.group('service'),msgInfo.group('requestId'))
+            msg = Message(MessageType.CLIENT_TIMEOUT,message,parameters)
 
     # case 3: server service receiving request from client service
     # example: Received POST request from 10.0.0.2 (request_id: 178cfae5-71a2-4414-bd56-d7c2cef2f172)

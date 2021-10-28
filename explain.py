@@ -6,13 +6,13 @@ from explainer.explainer import explain
 
 def main(argv):
     # check if "help" is required
-    if "-h" in argv or "--help" in argv:
+    if "--help" in argv:
         cli_help()
         return
 
     # otherwise, parse command line arguments
     try:
-        options,args = getopt.getopt(argv,"hl:n:p:r:v",["help","lookback=","period=","num=","root=","verbose"])
+        options,args = getopt.getopt(argv,"h:l:n:r:v",["help","horizon=","num=","root=","verbose"])
     except: 
         cli_error("wrong options used")
         exit(-1)
@@ -25,8 +25,7 @@ def main(argv):
     applicationLogs = args[1]
 
     # options to customise the execution of the explainer (with default values)
-    heartbeat = 1 # period, in seconds, of heartbeating in logs (default: 1s)
-    lookbackRadius = 10 # lookback radius, in seconds (default: 10s)
+    horizon = 10 # lookback radius, in seconds (default: 10s)
     nSols = None # number of possible explanations to find (default: all)
     rootCause = None # value for root cause (default: all)
     verbose = False # by default, only "compact" printing (service names, no instances/timestamps/messages)
@@ -34,9 +33,9 @@ def main(argv):
     # getting specified options
     for option, value in options:
         # setting lookback radius
-        if option in ["-l","--lookback"]:
+        if option in ["-h","--horizon"]:
             if value.isnumeric():
-                lookbackRadius = value
+                horizon = value
             else: 
                 cli_error("lookback radius must be a number")
                 exit(-2)
@@ -46,13 +45,6 @@ def main(argv):
                 nSols = value
             else: 
                 cli_error("the amount of solutions to find must be a positive number")
-                exit(-2)
-        # setting hearbeat period
-        elif option in ["-p","--period"]:
-            if value.isnumeric() and float(value)>0:
-                heartbeat = float(value)/1000 # converting millis to seconds
-            else: 
-                cli_error("the value for heartbeat period must be a positive number")
                 exit(-2)
         # setting root causing service
         elif option in ["-r","--rootCause"]:
@@ -72,8 +64,7 @@ def main(argv):
     
     # add heartbeat and lookback radius values to "knowledgeBase"
     knowledgeBaseFile = open(knowledgeBase,"a")
-    knowledgeBaseFile.write("heartbeat(" + str(heartbeat) + ").\n")
-    knowledgeBaseFile.write("lookbackRadius(" + str(lookbackRadius) + ").\n")
+    knowledgeBaseFile.write("horizon(" + str(horizon) + ").\n")
     knowledgeBaseFile.close()
 
     # ***********************
@@ -111,9 +102,8 @@ def cli_help():
     print("Usage of explain.py is as follows:")
     print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json")
     print("where OPTIONS can be")
-    print("  [-h|--help] to print a help on the usage of explain.py")
-    print("  [-p N|--period=N] to set to N milliseconds the period of the target application's heartbeat logs")
-    print("  [-l N|--lookback=N] to set to N the lookback radius in finding explanations")
+    print("  [--help] to print a help on the usage of explain.py")
+    print("  [-h H|--horizon=H] to set to N the lookback radius in finding explanations")
     print("  [-n N|--num=N] to set to N the amount of possible explanations to identify")
     print("  [-r X|--root=X] to require X to be the root cause of identified explanations")
     print("  [-v X|--verbose] to print verbose analysis results")
