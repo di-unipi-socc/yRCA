@@ -16,7 +16,6 @@ causedBy(log(_,S,T,F,_,_),[X],N) :-
     unhandledRequest(S,N,Ts,_), Ts < T, horizon(H), Ts >= T - H,
     log(N,_,_,_,_,_),
     X = unreachable(N).
-
 %error of invoked service
 causedBy(log(_,S,T,F,_,_),[X|Xs],R) :-
     dif(F,internal),
@@ -28,6 +27,7 @@ causedBy(log(_,S,T,F,_,_),[X|Xs],R) :-
 causedBy(log(N,_,_,internal,_,_),[],N).
 
 %TODO - gestire interazione tra servizio S1 e nodo N2 con logging non configurato (e.g., database, message queue)
+%TODO - rimuovere tutti gli Id di sessione dai log??
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
