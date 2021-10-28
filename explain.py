@@ -25,7 +25,6 @@ def main(argv):
     applicationLogs = args[1]
 
     # options to customise the execution of the explainer (with default values)
-    # heartbeat = 1 # period, in seconds, of heartbeating in logs (default: 1s)
     lookbackRadius = 10 # lookback radius, in seconds (default: 10s)
     nSols = None # number of possible explanations to find (default: all)
     rootCause = None # value for root cause (default: all)
