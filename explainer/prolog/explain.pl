@@ -26,8 +26,9 @@ causedBy(log(_,S,T,F,_,_),[X|Xs],R) :-
 %base case
 causedBy(log(N,_,_,internal,_,_),[],N).
 
-%TODO - gestire interazione tra servizio S1 e nodo N2 con logging non configurato (e.g., database, message queue)
-%TODO - rimuovere tutti gli Id di sessione dai log??
+%TODO A - gestire interazione tra servizio S1 e nodo N2 con logging non configurato (e.g., database, message queue)
+%TODO B - rimuovere tutti gli Id di sessione dai log?
+%TODO B2 - alternativa a B: Id usati solo per correlare log di un singolo servizio (richiesta inviata, risposta ricevuta), ma senza pretendere che il servente logghi Id richiesta ricevuta
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
