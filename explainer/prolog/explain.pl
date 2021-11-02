@@ -1,5 +1,8 @@
 :-set_prolog_flag(last_call_optimisation, true).
 
+%determine all possible explanations for "Event"
+xfail(Event,Explanations,RootCause) :-
+    findall(E,distinct(causedBy(Event,E,RootCause)),Explanations).
 %determine "NumSols" possible explanations for "Event"
 xfail(NumSols,Event,Explanations,RootCause) :-
     findnsols(NumSols,E,distinct(causedBy(Event,E,RootCause)),Explanations).
@@ -26,25 +29,31 @@ causedBy(log(_,S,T,F,_,_),[X|Xs],R) :-
 %base case
 causedBy(log(N,_,_,internal,_,_),[],N).
 
-%TODO A - gestire interazione tra servizio S1 e nodo N2 con logging non configurato (e.g., database, message queue)
-%TODO B - rimuovere tutti gli Id di sessione dai log?
-%TODO B2 - alternativa a B: Id usati solo per correlare log di un singolo servizio (richiesta inviata, risposta ricevuta), ma senza pretendere che il servente logghi Id richiesta ricevuta
-
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
 unhandledRequest(S1,N2,Ts,Te) :-
     log(N1,S1,Ts,sendTo(N2,Id),_,_),
-    \+ log(N2,_,_,received(Id),_,_),
-    log(N1,S1,Te,timeout(N2,Id),_,_). 
+    log(N1,S1,Te,timeout(N2,Id),_,_),
+    \+ (log(N2,_,Tr,received(Id),_,_), Ts < Tr, Tr < Te).
+unhandledRequest(S1,N2,Ts,Te) :-
+    log(N1,S1,Ts,sendTo(N2,Id),_,_),
+    log(N1,S1,Te,timeout(N2,Id),_,_),
+    \+ (log(N2,_,Tr,received(noId),_,_), Ts < Tr, Tr < Te).
 
 failedInteraction(S1,S2,Ts,Te) :-
-    interaction(Id,(N1,S1),(N2,S2),Ts),
-    log(N1,S1,Te,errorFrom(N2,Id),_,_). 
+    log(N1,S1,Te,errorFrom(N2,Id),_,_),
+    interaction(Id,(N1,S1),(N2,S2),Ts,Te).
 failedInteraction(S1,S2,Ts,Te) :-
-    interaction(Id,(N1,S1),(N2,S2),Ts),
-    log(N1,S1,Te,timeout(N2,Id),_,_). 
+    log(N1,S1,Te,timeout(N2,Id),_,_), 
+    interaction(Id,(N1,S1),(N2,S2),Ts,Te).
 
-interaction(Id,(N1,S1),(N2,S2),Ts) :-
+interaction(Id,(N1,S1),(N2,S2),Ts,Te) :-
     log(N1,S1,Ts,sendTo(N2,Id),_,_), 
-    log(N2,S2,_,received(Id),_,_).
-    
+    log(N2,S2,Tr,received(Id),_,_), 
+    Ts < Tr, Tr < Te.
+interaction(Id,(N1,S1),(N2,S2),Ts,Te) :-
+    log(N1,S1,Ts,sendTo(N2,Id),_,_),
+    log(N2,S2,Tr,received(noId),_,_), 
+    Ts < Tr, Tr < Te.
+
+% MEMO: If (passive) components are not instrumented to propagate IDs, just put "noId" as ID when templating logs corresponding to receive/answer to service interactions (in the log template parser)
