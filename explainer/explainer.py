@@ -23,6 +23,5 @@ def explain(event,applicationLogs,nSols,rootCause):
     query += eventToExplain + ",Explanations,"
     query += (rootCause) if rootCause is not None else "Root" # use "Root" if rootCause is not specified
     query += ")"
-    print(query)
     rootCauses = list(reasoner.query(query))
     return Explanations(rootCauses[0]["Explanations"])
