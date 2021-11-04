@@ -85,7 +85,7 @@ def parseMessage(message):
         msgInfo = re.match(r'Received POST request from (?P<sourceIP>.*) \(request_id: (?P<requestId>.*)\)', message)
         if msgInfo is not None:
             parameters = Parameters(None,msgInfo.group('requestId'))
-            # parameters = Parameters(msgInfo.group('service'),"xyz") # not instrumented alternative
+            # parameters = Parameters(msgInfo.group('service'),"noId") # not instrumented alternative
             msg = Message(MessageType.SERVER_RECEIVE,message,parameters)
     # case 4: server service sending answer to client service
     # example: Answered to POST request from 10.0.0.2 with code: 500 (request_id: 178cfae5-71a2-4414-bd56-d7c2cef2f172)
@@ -93,7 +93,7 @@ def parseMessage(message):
         msgInfo = re.match(r'Answered to POST request from (?P<sourceIP>.*) with code: (?P<statusCode>.*) \(request_id: (?P<requestId>.*)\)', message)
         if msgInfo is not None:
             parameters = Parameters(None,msgInfo.group('requestId'))
-            # parameters = Parameters(msgInfo.group('service'),"xyz") # not instrumented alternative
+            # parameters = Parameters(msgInfo.group('service'),"noId") # not instrumented alternative
             msg = Message(MessageType.SERVER_SEND,message,parameters)
     return msg
 
