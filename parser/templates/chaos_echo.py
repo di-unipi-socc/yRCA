@@ -17,7 +17,7 @@ def parse(jsonLog):
         timestamp = log["timestamp"]
     except:
         # handle Logstash's grok parse failures
-        message = "other"
+        message = log["message"].replace("\\","").replace("/","")
         severity = "INFO"
         timestamp = log["@timestamp"].replace("T"," ").replace("Z","")
 

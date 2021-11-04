@@ -88,8 +88,8 @@ def main(argv):
         print("Found a total of " + str(rootCauses.size()) + " possible explanation" + end)
 
     # Remove generated files
-    # os.remove(event) # comment this, if needing to keep files for Prolog debugging
-    # os.remove(knowledgeBase) # comment this, if needing to keep files for Prolog debugging
+    os.remove(event) # comment this, if needing to keep files for Prolog debugging
+    os.remove(knowledgeBase) # comment this, if needing to keep files for Prolog debugging
 
 # function for printing cli erros, followed by cli usage
 def cli_error(message):
