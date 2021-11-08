@@ -22,10 +22,10 @@ echo "========================="
 results="logs_exp11"
 mkdir $results
 
-requestRates="1 10 20 30 40 50 60 70 80 90 100"
+requestPeriods="1.0000 0.1000 0.0500 0.0333 0.0250 0.0200 0.0167 0.0143 0.0125 0.0111 0.0100"
 failingService="shipping"
-for rate in $requestRates; do 	
-    echo "RATE ${rate}" 
+for requestPeriod in $requestPeriods; do 	
+    echo "RATE ${requestPeriod}" 
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
@@ -49,7 +49,6 @@ for rate in $requestRates; do
 
     # load "sock-echo" with given "rate"
     echo "* Generating workload"
-    requestPeriod=$((1.0/$rate))
     fault=0
     while [ $fault -eq 0 ] # loop until at least one frontend failure happened
     do
