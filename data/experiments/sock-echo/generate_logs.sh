@@ -22,7 +22,7 @@ deploy_and_load() {
         fault=$(grep 500 $curlLog | wc -l)
         echo "Generated faults: ${fault}"
     done
-    rm curlLog
+    rm $curlLog
     sleep 60
 
     # undeploy "sock-echo"
