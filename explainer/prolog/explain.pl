@@ -22,6 +22,7 @@ causedBy(log(_,I,T,E,_,_),[X],Root) :-
     nonReceivedRequest(I,Root,Ts,_), Ts < T, horizon(H), Ts >= T - H,
     log(Root,_,_,_,_,_),
     X = unreachable(Root).
+
 %error of invoked service
 causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-
     dif(E,internal),
@@ -30,7 +31,7 @@ causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-
     X=log(SJ,J,U,F,M,Sev),
     causedBy(X,Xs,Root).
 
-%timeout of invoked service - NEW
+%timeout of invoked service
 causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-
     dif(E,internal),
     timedOutInteraction((SI,I),(SJ,J),TsIJ,TeIJ), TsIJ < T, horizon(H), TsIJ >= T - H,
@@ -40,6 +41,8 @@ causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-
 
 %base case
 causedBy(log(Root,_,_,internal,_,_),[],Root).
+
+% TODO: use file to create associate log templates with events, then use it to parse input and to generate outputs
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
