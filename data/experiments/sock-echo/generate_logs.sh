@@ -106,7 +106,7 @@ echo "========================="
 results="logs_exp12_invokeProbability"
 mkdir $results
 
-invokeProbabilities="1 10 20 30 40 50 60 70 80 90 100"
+invokeProbabilities="10 20 30 40 50 60 70 80 90 100"
 failingService="shipping"
 for invokeProbability in $invokeProbabilities; do 	
     echo "INVOKE PROBABILITY ${invokeProbability}" 
@@ -182,7 +182,7 @@ echo "========================="
 results="logs_exp22_failProbability"
 mkdir $results
 
-failProbabilities="1 10 20 30 40 50 60 70 80 90 100"
+failProbabilities="10 20 30 40 50 60 70 80 90 100"
 for failProbability in $failProbabilities; do 	
     echo "FAILING PROBABILITY: ${failProbability}" 
     # generate docker-compose file with single point of failure 
