@@ -8,7 +8,7 @@ services:
     ports: ['8080:80']
     depends_on: [frontend, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: EDGEROUTER_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: frontend}
+    environment: {P_INVOKE: EDGEROUTER_INVOKE, P_FAIL: EDGEROUTER_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: frontend}
     deploy: {replicas: 1}
     logging:
       driver: gelf
@@ -17,7 +17,7 @@ services:
   frontend:
     depends_on: [orders, catalogue, users, carts, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: FRONTEND_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: 'orders:catalogue:users:carts'}
+    environment: {P_INVOKE: FRONTEND_INVOKE, P_FAIL: FRONTEND_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: 'orders:catalogue:users:carts'}
     deploy: {replicas: 1}
     logging:
       driver: gelf
@@ -30,7 +30,7 @@ services:
     depends_on: [users, carts, payment, shipping, ordersDb, elasticsearch, kibana,
       logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: ORDERS_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: 'users:carts:payment:shipping:ordersDb'}
+    environment: {P_INVOKE: ORDERS_INVOKE, P_FAIL: ORDERS_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: 'users:carts:payment:shipping:ordersDb'}
     deploy: {replicas: 1}
     logging:
       driver: gelf
@@ -38,7 +38,7 @@ services:
 
   ordersDb:
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: ORDERSDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    environment: {P_INVOKE: ORDERSDB_INVOKE, P_FAIL: ORDERSDB_FAIL, P_CRASH: 25, TIMEOUT: 5000}
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
@@ -51,7 +51,7 @@ services:
   catalogue:
     depends_on: [catalogueDb, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: CATALOGUE_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: catalogueDb}
+    environment: {P_INVOKE: CATALOGUE_INVOKE, P_FAIL: CATALOGUE_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: catalogueDb}
     deploy: {replicas: 1}
     logging:
       driver: gelf
@@ -59,7 +59,7 @@ services:
 
   catalogueDb:
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: CATALOGUEDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    environment: {P_INVOKE: CATALOGUEDB_INVOKE, P_FAIL: CATALOGUEDB_FAIL, P_CRASH: 25, TIMEOUT: 5000}
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
@@ -72,7 +72,7 @@ services:
   users:
     depends_on: [usersDb, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: USERS_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: usersDb}
+    environment: {P_INVOKE: USERS_INVOKE, P_FAIL: USERS_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: usersDb}
     deploy: {replicas: 1}
     logging:
       driver: gelf
@@ -80,7 +80,7 @@ services:
 
   usersDb:
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: USERSDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    environment: {P_INVOKE: USERSDB_INVOKE, P_FAIL: USERSDB_FAIL, P_CRASH: 25, TIMEOUT: 5000}
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
@@ -93,7 +93,7 @@ services:
   carts:
     depends_on: [cartsDb, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: CARTS_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: cartsDb}
+    environment: {P_INVOKE: CARTS_INVOKE, P_FAIL: CARTS_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: cartsDb}
     deploy: {replicas: 1}
     logging:
       driver: gelf
@@ -101,7 +101,7 @@ services:
 
   cartsDb:
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: CARTSDB_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    environment: {P_INVOKE: CARTSDB_INVOKE, P_FAIL: CARTSDB_FAIL, P_CRASH: 25, TIMEOUT: 5000}
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
@@ -113,7 +113,7 @@ services:
   # ------------------
   payment:
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: PAYMENT_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    environment: {P_INVOKE: PAYMENT_INVOKE, P_FAIL: PAYMENT_FAIL, P_CRASH: 25, TIMEOUT: 5000}
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
@@ -126,7 +126,7 @@ services:
   shipping:
     depends_on: [rabbitMq, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: SHIPPING_FAIL, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: rabbitMq}
+    environment: {P_INVOKE: SHIPPING_INVOKE, P_FAIL: SHIPPING_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: rabbitMq}
     deploy: {replicas: 1}
     logging:
       driver: gelf
@@ -134,7 +134,7 @@ services:
 
   rabbitMq:
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: RABBITMQ_FAIL, P_CRASH: 25, TIMEOUT: 10000}
+    environment: {P_INVOKE: RABBITMQ_INVOKE, P_FAIL: RABBITMQ_FAIL, P_CRASH: 25, TIMEOUT: 5000}
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
@@ -145,7 +145,7 @@ services:
     ports: ['8081:80']
     depends_on: [rabbitMq, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    environment: {P_INVOKE: 50, P_FAIL: 0, P_CRASH: 25, TIMEOUT: 10000, DEPENDS_ON: rabbitMq}
+    environment: {P_INVOKE: 50, P_FAIL: 0, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: rabbitMq}
     deploy: {replicas: 1}
     logging:
       driver: gelf
