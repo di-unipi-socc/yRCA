@@ -33,7 +33,7 @@ causedBy(log(_,I,T,E,_,_),[X|Xs],Root) :-
 %timeout of invoked service - NEW
 causedBy(log(_,I,T,E,_,_),[X|Xs],Root) :-
     dif(E,internal),
-    timedOutInteraction(I,J,TsIJ,TeIJ), Ts < T, horizon(H), Ts >= T - H,
+    timedOutInteraction(I,J,TsIJ,TeIJ), TsIJ < T, horizon(H), TsIJ >= T - H,
     timedOutInteraction(J,K,TsJK,TeJK), TsJK < TeIJ, TeIJ < TeJK,
     X=log(_,J,TeJK,timeout(SK,_),_,_),
     causedBy(X,Xs,Root).
