@@ -25,7 +25,7 @@ causedBy(log(_,I,T,E,_,_),[X],Root) :-
 %error of invoked service
 causedBy(log(_,I,T,E,_,_),[X|Xs],Root) :-
     dif(E,internal),
-    failedInteraction(I,J,Ts,Te), Ts < T, horizon(H), Ts >= T - H,
+    failedInteraction((_,I),(SJ,J),Ts,Te), Ts < T, horizon(H), Ts >= T - H,
     log(SJ,J,U,F,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
     X=log(SJ,J,U,F,M,Sev),
     causedBy(X,Xs,Root).
@@ -33,8 +33,8 @@ causedBy(log(_,I,T,E,_,_),[X|Xs],Root) :-
 %timeout of invoked service - NEW
 causedBy(log(_,I,T,E,_,_),[X|Xs],Root) :-
     dif(E,internal),
-    timedOutInteraction(I,J,TsIJ,TeIJ), TsIJ < T, horizon(H), TsIJ >= T - H,
-    timedOutInteraction(J,K,TsJK,TeJK), TsJK < TeIJ, TeIJ < TeJK,
+    timedOutInteraction((_,I),(SJ,J),TsIJ,TeIJ), TsIJ < T, horizon(H), TsIJ >= T - H,
+    timedOutInteraction((SJ,J),(SK,_),TsJK,TeJK), TsJK < TeIJ, TeIJ < TeJK,
     X=log(_,J,TeJK,timeout(SK,_),_,_),
     causedBy(X,Xs,Root).
 
@@ -48,15 +48,15 @@ nonReceivedRequest(I,SJ,Ts,Te) :-
     log(SI,I,Te,timeout(SJ,Id),_,_),
     \+ (log(SJ,_,Tr,received(X),_,_), Ts < Tr, Tr < Te, (X=Id;X=noID)).
 
-failedInteraction(I,J,Ts,Te) :-
+failedInteraction((SI,I),(SJ,J),Ts,Te) :-
 %    log(SI,I,Te,E,_,_), (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
 %    interaction(Id,(SI,I),(SJ,J),Ts,Te).
-    errorInteraction(I,J,Ts,Te);timedOutInteraction(I,J,Ts,Te).
+    errorInteraction((SI,I),(SJ,J),Ts,Te);timedOutInteraction((SI,I),(SJ,J),Ts,Te).
 
-errorInteraction(I,J,Ts,Te) :-
+errorInteraction((SI,I),(SJ,J),Ts,Te) :-
     log(SI,I,Te,errorFrom(SJ,Id),_,_),
     interaction(Id,(SI,I),(SJ,J),Ts,Te).
-timedOutInteraction(I,J,Ts,Te) :-
+timedOutInteraction((SI,I),(SJ,J),Ts,Te) :-
     log(SI,I,Te,timeout(SJ,Id),_,_),
     interaction(Id,(SI,I),(SJ,J),Ts,Te).
 
