@@ -1,5 +1,7 @@
 # import Python default modules
 import os, sys, getopt
+# import parser's modules
+from parser.templates.templater import Templater
 # import explainer's modules
 from parser.parser import parseEvents
 from explainer.explainer import explain
@@ -18,11 +20,12 @@ def main(argv):
         exit(-1)
 
     # check & process command line arguments
-    if len(args) < 2:
+    if len(args) < 3:
         cli_error("missing input arguments")
         exit(-1)
     eventLogLine = args[0]
     applicationLogs = args[1]
+    templater = Templater(args[2])
 
     # options to customise the execution of the explainer (with default values)
     horizon = 10 # lookback radius, in seconds (default: 10s)
@@ -58,9 +61,9 @@ def main(argv):
     # ******************
     # parse "event" to be explained and all events forming the "knowledgeBase"
     event = "event.pl"
-    parseEvents(eventLogLine,event)
+    parseEvents(eventLogLine,event,templater)
     knowledgeBase = "knowledgeBase.pl"
-    parseEvents(applicationLogs,knowledgeBase)
+    parseEvents(applicationLogs,knowledgeBase,templater)
     
     # add heartbeat and lookback radius values to "knowledgeBase"
     knowledgeBaseFile = open(knowledgeBase,"a")
@@ -100,7 +103,7 @@ def cli_error(message):
 # function for printing cli usage
 def cli_help():
     print("Usage of explain.py is as follows:")
-    print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json")
+    print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json logParsingTemplates.yml")
     print("where OPTIONS can be")
     print("  [--help] to print a help on the usage of explain.py")
     print("  [-h H|--horizon=H] to set to N the lookback radius in finding explanations")

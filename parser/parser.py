@@ -1,10 +1,9 @@
 from parser.model.message import MessageType
-from parser.templates.chaos_echo import parse # change template for parsing other applications' logs
 
 # The method "parse" imported from the "templates" package must parse a log line and
 # return an "Event" object (see "model/event.py")
 
-def parseEvents(applicationLogs,targetFile):
+def parseEvents(applicationLogs,targetFile,templater):
     # open source/target files 
     loggedEvents = open(applicationLogs,"r")
     knowledgeBase = open(targetFile,"w")
@@ -12,7 +11,7 @@ def parseEvents(applicationLogs,targetFile):
     # parse logged events (reversed, to go from last logged event to first logged event)
     for le in reversed(list(loggedEvents)): 
         # parsing log event with chosen template
-        event = parse(le)
+        event = templater.parse(le)
         # write prolog corresponding fact
         knowledgeBase.write(generateLogFact(event))
 

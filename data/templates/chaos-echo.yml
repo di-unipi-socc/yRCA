@@ -1,0 +1,12 @@
+client_send:
+  - 'Sending message to (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)'
+client_receive:
+  - 'Receiving answer from (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)'
+client_error:
+  - 'Error response (code: 500) received from (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)'
+client_timeout:
+  - 'Failing to contact (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\). Root cause: (?P<exception>.*)'
+server_receive:
+  - 'Received POST request from (?P<sourceIP>.*) \(request_id: (?P<requestId>.*)\)'
+server_send:
+  - 'Answered to POST request from (?P<sourceIP>.*) with code: (?P<statusCode>.*) \(request_id: (?P<requestId>.*)\)'
