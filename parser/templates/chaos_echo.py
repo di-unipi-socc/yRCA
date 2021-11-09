@@ -1,7 +1,6 @@
 import datetime
 import json 
 import re
-from matplotlib import container
 
 # import message structure
 from parser.model.message import Message, MessageType, Parameters
