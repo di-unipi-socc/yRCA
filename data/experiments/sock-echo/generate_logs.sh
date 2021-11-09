@@ -47,7 +47,7 @@ deploy_and_load() {
     sleep 60
 } 
 
-serviceList="edgeRouter frontend orders ordersDb catalogue catalogueDb users usersDb carts cartsDb payment shipping rabbitMq"
+serviceList="edgeRouter frontend orders ordersDb catalogue catalogueDb users usersDb carts cartsDb payment shipping rabbitMq queueMaster"
 
 # download load script from "chaos-echo"
 curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/deploy/examples/sock-echo/logstash.conf --silent > logstash.conf
