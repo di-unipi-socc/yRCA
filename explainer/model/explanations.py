@@ -1,6 +1,9 @@
 from datetime import datetime
 from enum import Enum
 
+# import message structure
+from parser.model.message import MessageType
+
 # class for distinguishing the "type" of events
 class EventType(Enum):
     LOG = "log"
@@ -55,26 +58,33 @@ class Explanations:
 
     # returns True if exp1 and exp2 have the same explanation structure
     @staticmethod
-    def akin(exp1,exp2):
+    def akin(exp1,exp2,templater):
         if len(exp1) != len(exp2):
                 return False
         i = 0       
         while i < len(exp1):
-            if not(Explanations.akinEvent(exp1[i],exp2[i])):
+            if not(Explanations.akinEvent(exp1[i],exp2[i],templater)):
                 return False
             i = i + 1
         return True
        
     # function to compare if two events are of the same type (even if associated with different timestamps/messages)
     @staticmethod
-    def akinEvent(e1,e2):
+    def akinEvent(e1,e2,templater):
         if e1.type == e2.type and e1.serviceName == e2.serviceName:
-            # TODO: distinguish messages based on templates
-            return True
+            if e1.type != EventType.LOG:
+                return True
+            else:
+                msg1 = templater.parseMessage(e1.message)
+                msg2 = templater.parseMessage(e2.message)
+                if msg1.type == msg2.type and msg1.template == msg2.template:
+                    return True
+                else:
+                    return False
         else:
             return False
 
-    def groupExplanations(self):
+    def groupExplanations(self,templater):
         # create an array "groupedExplanations" of explanation groups
         # (explanations with the same skeleton go in the same group)
         groupedExplanations = []
@@ -83,7 +93,7 @@ class Explanations:
                 expList = None
                 if groupedExplanations != []:
                     for cascade in groupedExplanations:
-                        if Explanations.akin(explanation,cascade[0]):
+                        if Explanations.akin(explanation,cascade[0],templater):
                             expList = cascade
                             break
                 if expList:
@@ -97,33 +107,37 @@ class Explanations:
         return groupedExplanations
 
     # function for printing the possible failure cascades (only considering service names)
-    def compactPrint(self):
-        expLists = self.groupExplanations()
+    def compactPrint(self,templater):
+        expLists = self.groupExplanations(templater)
         size = float(self.size())
         # print the explanation skeletons in "cascades"
-        i=1
         for expList in expLists:
             explanation = expList[0]
             percentage = round(len(expList)/size,3)
-            print(str(i) + " [" + str(percentage) + "]: " + self.compactEventString(explanation[0]), end="\n  ")
+            print("[" + str(percentage) + "]: " + self.compactEventString(explanation[0],templater), end="\n  ")
             for event in explanation[1:]:
-                print(" -> " + self.compactEventString(event), end="\n  ")
+                print(" -> " + self.compactEventString(event,templater), end="\n  ")
             print()
-            i=i+1
     
     # function for printing a single event in an explanation (without message)
-    def compactEventString(self,e):
+    def compactEventString(self,e,templater):
+        eventString = e.serviceName + ": " 
+        # return log template structure in case of logged events
         if e.type == EventType.LOG:
-            # TODO: use templates to print messages
-            return e.serviceName + " logged some warning/error"
+            msg = templater.parseMessage(e.message)
+            if msg.type == MessageType.OTHER:
+                eventString += e.message
+            else:
+                eventString += msg.template.replace("(?P","").replace(".*)","").replace("\\","").replace("<service>",e.serviceName)
         elif e.type == EventType.NEVER_STARTED:
-            return e.serviceName + " never started"
+            eventString += "never started"
         elif e.type == EventType.UNREACHABLE:
-            return e.serviceName + " was unreachable"
+            eventString += "unreachable"
+        return eventString
 
     # function for printing all explanations (verbose, with message)
-    def print(self):
-        expLists = self.groupExplanations()
+    def print(self,templater):
+        expLists = self.groupExplanations(templater)
         i=1
         for expList in expLists:
             for explanation in expList:

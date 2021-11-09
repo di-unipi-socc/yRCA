@@ -1,7 +1,7 @@
 # import Python default modules
 import os, sys, getopt
 # import parser's modules
-from parser.templates.templater import Templater
+from parser.templater.templater import Templater
 # import explainer's modules
 from parser.parser import parseEvents
 from explainer.explainer import explain
@@ -79,9 +79,9 @@ def main(argv):
     # * PRINT RESULTS *
     # *****************
     if verbose:
-        rootCauses.print()
+        rootCauses.print(templater)
     else:
-        rootCauses.compactPrint()
+        rootCauses.compactPrint(templater)
 
     if rootCauses.size()==0:
         rc = (" from " + rootCause) if rootCause!=None else "" 

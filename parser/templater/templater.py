@@ -87,7 +87,7 @@ class Templater:
                     except:
                         requestId = "noId"
                     parameters = Parameters(service,requestId)
-                    msg = Message(msgType,message,parameters)
+                    msg = Message(msgType,message,regex,parameters)
                     break
             
             # stop if "message" has been templated
@@ -96,7 +96,7 @@ class Templater:
         
         # default: classic logging message
         if msg is None:
-            msg = Message(MessageType.OTHER,message,None)
+            msg = Message(MessageType.OTHER,message,None,None)
 
         return msg
 
