@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from os import putenv
 
 # import message structure
 from parser.model.message import MessageType
@@ -147,6 +148,18 @@ class Explanations:
                 i=i+1
             print()
 
+    # function for marshalling all explanations (verbose, with message)
+    def marshal(self,templater,outputFile):
+        expLists = self.groupExplanations(templater)
+        output = open(outputFile,"w")
+        output.write("* "*40 + "\n")
+        for expList in expLists:
+            for explanation in expList:
+                output.write("\n" + self.eventString(explanation[0]) + "\n")
+                for event in explanation[1:]:
+                    output.write(" -> " + self.eventString(event) + "\n")
+            output.write("\n" + "* "*40 + "\n")
+        output.close()
 
     # function for printing a single event in an explanation (verbose, with message)
     def eventString(self,e):

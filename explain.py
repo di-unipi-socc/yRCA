@@ -82,6 +82,7 @@ def main(argv):
         rootCauses.print(templater)
     else:
         rootCauses.compactPrint(templater)
+    rootCauses.marshal(templater,"explanations.txt")
 
     if rootCauses.size()==0:
         rc = (" from " + rootCause) if rootCause!=None else "" 
