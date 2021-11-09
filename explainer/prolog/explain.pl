@@ -1,4 +1,5 @@
 :-set_prolog_flag(last_call_optimisation, true).
+:-set_prolog_flag(stack_limit, 16 000 000 000).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % xFail can explain logged events of the form:
@@ -44,7 +45,7 @@ causedBy(log(Root,_,_,internal,_,_),[],Root).           %base case
 nonReceivedRequest(I,SJ,Ts,Te) :-
     log(SI,I,Ts,sendTo(SJ,Id),_,_),
     log(SI,I,Te,timeout(SJ,Id),_,_),
-    \+ (log(SJ,_,Tr,received(X),_,_), Ts < Tr, Tr < Te, (X=Id;X=noID)).
+    \+ (log(SJ,_,Tr,received(X),_,_), Ts < Tr, Tr < Te, (X=Id;X=noId)).
 
 failedInteraction((SI,I),(SJ,J),Ts,Te) :-
     errorInteraction((SI,I),(SJ,J),Ts,Te); timedOutInteraction((SI,I),(SJ,J),Ts,Te).
@@ -60,7 +61,7 @@ timedOutInteraction((SI,I),(SJ,J),Ts,Te) :-
 interaction(Id,(SI,I),(SJ,J),Ts,Te) :-
     log(SI,I,Ts,sendTo(SJ,Id),_,_), 
     log(SJ,J,Tr,received(X),_,_), 
-    (X=Id; X=noID), Ts < Tr, Tr < Te. % noID accounts for non-instrumented components
+    (X=Id; X=noId), Ts < Tr, Tr < Te. % noId accounts for non-instrumented components
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
