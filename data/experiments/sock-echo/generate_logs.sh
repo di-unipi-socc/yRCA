@@ -76,6 +76,8 @@ for requestPeriod in $requestPeriods; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
+        # all services set to be replicated over 3 instances
+        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
         # all services (but shipping) not failing on their own
@@ -113,6 +115,8 @@ for invokeProbability in $invokeProbabilities; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
+        # all services set to be replicated over 3 instances
+        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
         # all services invoking backend services with probability "invokeProbability"
         sed -i "s/${service^^}_INVOKE/${invokeProbability}/" docker-compose.yml
         # all services (but shipping) not failing on their own
@@ -150,6 +154,8 @@ for failingService in $rootCauses; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
+        # all services set to be replicated over 3 instances
+        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
         # all services (but "failingService") not failing on their own
@@ -188,6 +194,8 @@ for failProbability in $failProbabilities; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
+        # all services set to be replicated over 3 instances
+        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
         # all services failing (on their own) with probability "failProbability"
