@@ -9,7 +9,8 @@ deploy_and_load() {
     # deploy "sock-echo"
     echo "* Docker deployment started" 
     docker stack deploy -c docker-compose.yml sockecho
-    sleep 60
+    echo "* Waiting for services to get online"
+    sleep 180
     echo "* Docker deployment completed"
 
     # load "sock-echo" with given "rate"
@@ -23,7 +24,8 @@ deploy_and_load() {
         echo "Generated faults: ${fault}"
     done
     rm $curlLog
-    sleep 60
+    echo "* Waiting for logstash to collect all produced logs"
+    sleep 120
 
     # undeploy "sock-echo"
     echo "* Undeployment started"
@@ -44,7 +46,7 @@ deploy_and_load() {
     echo "* Cleaning experiment's environment"
     docker container prune -f
     docker network prune -f
-    sleep 60
+    sleep 30
 } 
 
 serviceList="edgeRouter frontend orders ordersDb catalogue catalogueDb users usersDb carts cartsDb payment shipping rabbitMq queueMaster"
