@@ -23,12 +23,21 @@ causedBy(log(_,I,T,E,_,_),[X],Root) :-
     log(Root,_,_,_,_,_),
     X = unreachable(Root).
 
-%error of invoked service
+%internal error of invoked service
 causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-
     dif(E,internal),
     failedInteraction((SI,I),(SJ,J),Ts,Te), Ts < T, horizon(H), Ts >= T - H,
-    log(SJ,J,U,F,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
-    X=log(SJ,J,U,F,M,Sev),
+    log(SJ,J,U,internal,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
+    X=log(SJ,J,U,internal,M,Sev),
+    causedBy(X,Xs,Root).
+
+%failed interaction of invoked service
+causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-
+    dif(E,internal),
+    failedInteraction((SI,I),(SJ,J),TsIJ,TeIJ), TsIJ < T, horizon(H), TsIJ >= T - H,
+    failedInteraction((SJ,J),(_,_),TsJK,TeJK), TsIJ < TsJK, TeJK < TeIJ,
+    log(SJ,J,TeJK,F,M,Sev), lte(Sev,warning), 
+    X=log(SJ,J,TeJK,F,M,Sev),
     causedBy(X,Xs,Root).
 
 %timeout of invoked service
