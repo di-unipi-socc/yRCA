@@ -1,12 +1,10 @@
 from datetime import datetime
 from enum import Enum
-import json
 
 # class for distinguishing the "type" of events
 class EventType(Enum):
     LOG = "log"
     UNREACHABLE = "unreachable"
-    FAILED = "failed"
     NEVER_STARTED = "neverStarted"
 
 # class to represent an event
@@ -43,10 +41,6 @@ class Explanations:
                     instance = str(event.args[1])
                     timestamp = datetime.fromtimestamp(event.args[2]) # timestamp saved as ISO
                     message = str(event.args[4])
-                # case: event = "failed(serviceName,instanceId,startTimestamp,endTimestamp)"
-                elif eventType == EventType.FAILED.value:
-                    type = EventType.FAILED # save event type
-                    instance = str(event.args[1]) # 
                 # case: event = "neverStarted(serviceName)"
                 elif eventType == EventType.NEVER_STARTED.value:
                     type = EventType.NEVER_STARTED
@@ -75,6 +69,7 @@ class Explanations:
     @staticmethod
     def akinEvent(e1,e2):
         if e1.type == e2.type and e1.serviceName == e2.serviceName:
+            # TODO: distinguish messages based on templates
             return True
         else:
             return False
@@ -104,11 +99,13 @@ class Explanations:
     # function for printing the possible failure cascades (only considering service names)
     def compactPrint(self):
         expLists = self.groupExplanations()
+        size = float(self.size())
         # print the explanation skeletons in "cascades"
         i=1
         for expList in expLists:
             explanation = expList[0]
-            print(str(i) + " [" + str(len(expList)) + " times]: " + self.compactEventString(explanation[0]), end="\n  ")
+            percentage = round(len(expList)/size,3)
+            print(str(i) + " [" + str(percentage) + "]: " + self.compactEventString(explanation[0]), end="\n  ")
             for event in explanation[1:]:
                 print(" -> " + self.compactEventString(event), end="\n  ")
             print()
@@ -117,9 +114,8 @@ class Explanations:
     # function for printing a single event in an explanation (without message)
     def compactEventString(self,e):
         if e.type == EventType.LOG:
+            # TODO: use templates to print messages
             return e.serviceName + " logged some warning/error"
-        elif e.type == EventType.FAILED:
-            return e.serviceName + " failed"
         elif e.type == EventType.NEVER_STARTED:
             return e.serviceName + " never started"
         elif e.type == EventType.UNREACHABLE:
@@ -142,10 +138,7 @@ class Explanations:
     def eventString(self,e):
         if e.type == EventType.LOG:
             timestamp = str(e.timestamp)
-            #print("event logged by " + e.instance + " (" + e.serviceName + ") at time " + timestamp)
             return "[" + timestamp + "] " + e.instance + " (" + e.serviceName + "): " + e.message
-        elif e.type == EventType.FAILED:
-            return e.instance + " (" + e.serviceName + ") failed"
         elif e.type == EventType.NEVER_STARTED:
             return e.serviceName + " never started"
         elif e.type == EventType.UNREACHABLE:
