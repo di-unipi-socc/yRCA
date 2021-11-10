@@ -19,8 +19,8 @@ deploy_and_load() {
     curlLog="curl.log"
     while [ $fault -eq 0 ] # loop until at least one frontend failure happened
     do
-        ./generate_workload.sh -d 60 -p $requestPeriod > $curlLog
-        fault=$(grep 500 $curlLog | wc -l)
+        ./generate_workload.sh -d 180 -p $requestPeriod > $curlLog
+	fault=$(grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | wc -l)
         echo "Generated faults: ${fault}"
     done
     rm $curlLog
@@ -33,7 +33,7 @@ deploy_and_load() {
     echo "* Undeployment completed"
 
     # save logs
-    grep ERROR echo-stack.log | grep _edgeRouter | head -n 1 > edgeRouter-$logName-fault.log
+    grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | tail -n 1 > edgeRouter-$logName-fault.log
     mv echo-stack.log all-$logName.log
     mv *.log $results
     echo "* Log files stored in ${results}"
