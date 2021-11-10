@@ -129,7 +129,9 @@ class Explanations:
             if msg.type == MessageType.OTHER:
                 eventString += e.message
             else:
-                eventString += msg.template.replace("(?P","").replace(".*)","").replace("\\","").replace("<service>",e.serviceName)
+                eventString += msg.template.replace("(?P","").replace(".*)","").replace("\\","")
+                if msg.parameters.service is not None:
+                    eventString = eventString.replace("<service>",msg.parameters.service)
         elif e.type == EventType.NEVER_STARTED:
             eventString += "never started"
         elif e.type == EventType.UNREACHABLE:
