@@ -10,7 +10,7 @@ deploy_and_load() {
     echo "* Docker deployment started" 
     docker stack deploy -c docker-compose.yml sockecho
     echo "* Waiting for services to get online"
-    sleep 180
+    sleep 300
     echo "* Docker deployment completed"
 
     # load "sock-echo" with given "rate"
@@ -25,7 +25,7 @@ deploy_and_load() {
     done
     rm $curlLog
     echo "* Waiting for logstash to collect all produced logs"
-    sleep 120
+    sleep 60
 
     # undeploy "sock-echo"
     echo "* Undeployment started"
