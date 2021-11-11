@@ -60,23 +60,13 @@ class Templater:
         for template in self.templates:
             msg = None
 
-            # get message type
-            if template == "client_send":
-                msgType = MessageType.CLIENT_SEND
-            elif template == "client_receive":
-                msgType = MessageType.CLIENT_RECEIVE
-            elif template == "client_error":
-                msgType = MessageType.CLIENT_ERROR
-            elif template == "client_timeout":
-                msgType = MessageType.CLIENT_TIMEOUT
-            elif template == "server_receive":
-                msgType = MessageType.SERVER_RECEIVE
-            elif template == "server_send":
-                msgType = MessageType.SERVER_SEND
-
             # parse regex to check whether message is of type "template"
             for regex in self.templates[template]:
                 msgInfo = re.match(r'' + regex, message)
+                # if "Error response" in message:
+                #     print(message)
+                #     print(msgInfo)
+                #     print()
                 if msgInfo is not None:
                     try:
                         service = msgInfo.group('service')
@@ -86,6 +76,20 @@ class Templater:
                         requestId = msgInfo.group('requestId')
                     except:
                         requestId = "noId"
+                    
+                    # get message type
+                    if template == "client_send":
+                        msgType = MessageType.CLIENT_SEND
+                    elif template == "client_receive":
+                        msgType = MessageType.CLIENT_RECEIVE
+                    elif template == "client_error":
+                        msgType = MessageType.CLIENT_ERROR
+                    elif template == "client_timeout":
+                        msgType = MessageType.CLIENT_TIMEOUT
+                    elif template == "server_receive":
+                        msgType = MessageType.SERVER_RECEIVE
+                    elif template == "server_send":
+                        msgType = MessageType.SERVER_SEND
                     parameters = Parameters(service,requestId)
                     msg = Message(msgType,message,regex,parameters)
                     break
