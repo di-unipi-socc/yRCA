@@ -1,5 +1,5 @@
 # import Python default modules
-import sys, getopt
+import os,sys,getopt
 # import parser's modules
 from parser.templater.templater import Templater
 # import explainer's modules
