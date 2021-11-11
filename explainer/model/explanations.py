@@ -127,7 +127,7 @@ class Explanations:
         if e.type == EventType.LOG:
             msg = templater.parseMessage(e.message)
             if msg.type == MessageType.OTHER:
-                eventString += e.message
+                eventString += "<internal error>"
             else:
                 eventString += msg.template.replace("(?P","").replace(".*)","").replace("\\","")
                 if msg.parameters.service is not None:
