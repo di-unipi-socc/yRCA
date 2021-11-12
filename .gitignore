@@ -6,7 +6,7 @@ event.pl
 knowledgeBase.pl
 
 *generate_workload.sh
-*logstash.conf
+#*logstash.conf
 */generated-logs/*
 
 *DS_Store
