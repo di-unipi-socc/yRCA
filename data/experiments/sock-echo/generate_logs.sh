@@ -54,7 +54,7 @@ deploy_and_load() {
 serviceList="edgeRouter frontend orders ordersDb catalogue catalogueDb users usersDb carts cartsDb payment shipping rabbitMq queueMaster"
 
 # download load script from "chaos-echo"
-curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/deploy/examples/sock-echo/logstash.conf --silent > logstash.conf
+#curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/deploy/examples/sock-echo/logstash.conf --silent > logstash.conf
 curl https://raw.githubusercontent.com/di-unipi-socc/chaos-echo/main/generate_workload.sh --silent > generate_workload.sh
 chmod ugo+x generate_workload.sh
 
