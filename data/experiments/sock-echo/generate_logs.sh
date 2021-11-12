@@ -23,7 +23,7 @@ deploy_and_load() {
     do
         ./generate_workload.sh -d 180 -p $requestPeriod > $curlLog
         fault=$(grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | wc -l)
-        loglines=$(wc -l echo-stack.log)
+        loglines=$(cat echo-stack.log | wc -l)
         echo "Generated faults: ${fault}"
     done
     rm $curlLog
