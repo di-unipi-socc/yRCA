@@ -9,7 +9,7 @@ deploy_and_load() {
     # deploy "sock-echo"
     echo "* Docker deployment started" 
     touch echo-stack.log
-    chmod ugo+x echo-stack.log
+    chmod ugo+rw echo-stack.log
     docker stack deploy -c docker-compose.yml sockecho
     echo "* Waiting for services to get online"
     sleep 300
