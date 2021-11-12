@@ -19,6 +19,7 @@ deploy_and_load() {
     echo "* Generating workload"
     fault=0
     curlLog="curl.log"
+    loglines=0
     while [ $fault -eq 0 ] && [ $loglines -le 100000 ] # loop until at least one frontend failure happened
     do
         ./generate_workload.sh -d 180 -p $requestPeriod > $curlLog
