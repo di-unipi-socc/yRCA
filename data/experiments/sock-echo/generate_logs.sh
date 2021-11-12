@@ -17,11 +17,12 @@ deploy_and_load() {
     echo "* Generating workload"
     fault=0
     curlLog="curl.log"
-    while [ $fault -eq 0 ] # loop until at least one frontend failure happened
+    while [ $fault -eq 0 ] && [ $loglines -le 100000 ] # loop until at least one frontend failure happened
     do
         ./generate_workload.sh -d 180 -p $requestPeriod > $curlLog
 	fault=$(grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | wc -l)
-        echo "Generated faults: ${fault}"
+	loglines=$(wc -l echo-stack.log)
+	echo "Generated faults: ${fault}"
     done
     rm $curlLog
     echo "* Waiting for logstash to collect all produced logs"
@@ -46,7 +47,7 @@ deploy_and_load() {
     echo "* Cleaning experiment's environment"
     docker container prune -f
     docker network prune -f
-    systemctl restart docker
+    snap restart docker
     sleep 30
 } 
 
@@ -72,7 +73,7 @@ echo "========================="
 results="logs_exp11_loadRate"
 mkdir $results
 
-requestPeriods="1.0000 0.1000 0.0500 0.0333 0.0250 0.0200 0.0167 0.0143 0.0125 0.0111 0.0100"
+requestPeriods="0.1 0.04 0.02 0.01333 0.01"
 failingService="shipping"
 for requestPeriod in $requestPeriods; do 	
     echo "RATE: ${requestPeriod}^(-1)" 
@@ -111,7 +112,7 @@ echo "========================="
 results="logs_exp12_invokeProbability"
 mkdir $results
 
-invokeProbabilities="10 20 30 40 50 60 70 80 90 100"
+invokeProbabilities="10 25 50 75 100"
 failingService="shipping"
 for invokeProbability in $invokeProbabilities; do 	
     echo "INVOKE PROBABILITY ${invokeProbability}" 
@@ -191,7 +192,7 @@ echo "========================="
 results="logs_exp22_failProbability"
 mkdir $results
 
-failProbabilities="10 20 30 40 50 60 70 80 90 100"
+failProbabilities="10 20 30 40 50 60 70"
 for failProbability in $failProbabilities; do 	
     echo "FAILING PROBABILITY: ${failProbability}" 
     # generate docker-compose file with single point of failure 
