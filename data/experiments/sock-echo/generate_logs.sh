@@ -47,7 +47,7 @@ deploy_and_load() {
     echo "* Cleaning experiment's environment"
     docker container prune -f
     docker network prune -f
-    snap restart docker
+    systemctl restart docker
     sleep 30
 } 
 
