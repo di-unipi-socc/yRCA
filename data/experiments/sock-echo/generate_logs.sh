@@ -8,6 +8,7 @@ deploy_and_load() {
 
     # deploy "sock-echo"
     echo "* Docker deployment started" 
+    touch echo-stack.log
     docker stack deploy -c docker-compose.yml sockecho
     echo "* Waiting for services to get online"
     sleep 300
@@ -34,7 +35,6 @@ deploy_and_load() {
     echo "* Undeployment completed"
 
     # save logs
-    grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | tail -n 1 > edgeRouter-$logName-fault.log
     mv echo-stack.log all-$logName.log
     mv *.log $results
     echo "* Log files stored in ${results}"
