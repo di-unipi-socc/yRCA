@@ -1,48 +1,69 @@
 :-set_prolog_flag(last_call_optimisation, true).
+:-set_prolog_flag(stack_limit, 16 000 000 000).
 
-%determine all possible explanations for "Event"
-xfail(Event,Explanations,RootCause) :-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% xFail can explain logged events of the form:
+% log(serviceName,serviceInstance,timestamp,eventType,message,severity)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+xfail(Event,Explanations,RootCause) :-                  %determine all possible explanations for "Event"
     findall(E,distinct(causedBy(Event,E,RootCause)),Explanations).
-%determine "NumSols" possible explanations for "Event"
-xfail(NumSols,Event,Explanations,RootCause) :-
+xfail(NumSols,Event,Explanations,RootCause) :-          %determine "NumSols" possible explanations for "Event"
     findnsols(NumSols,E,distinct(causedBy(Event,E,RootCause)),Explanations).
     
-%invoked service never started
-causedBy(log(_,S,T,F,_,_),[X],N) :-
-    dif(F,internal),
-    log(_,S,Ts,sendTo(N,_),_,_), Ts < T, horizon(H), Ts >= T - H,
-    \+ log(N,_,_,_,_,_),
-    X = neverStarted(N).
-%unreachable service
-causedBy(log(_,S,T,F,_,_),[X],N) :-
-    dif(F,internal),
-    nonReceivedRequest(S,N,Ts,_), Ts < T, horizon(H), Ts >= T - H,
-    log(N,_,_,_,_,_),
-    X = unreachable(N).
-%error of invoked service
-causedBy(log(_,S,T,F,_,_),[X|Xs],R) :-
-    dif(F,internal),
-    failedInteraction(S,S2,Ts,Te), Ts < T, horizon(H), Ts >= T - H,
-    log(N,S2,U,F2,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
-    X=log(N,S2,U,F2,M,Sev),
-    causedBy(X,Xs,R).
-%base case
-causedBy(log(N,_,_,internal,_,_),[],N).
+causedBy(log(_,I,T,E,_,_),[X],Root) :-                  %invoked service never started
+    dif(E,internal),
+    log(_,I,Ts,sendTo(Root,_),_,_), Ts < T, horizon(H), Ts >= T - H,
+    \+ log(Root,_,_,_,_,_),
+    X = neverStarted(Root).
+causedBy(log(_,I,T,E,_,_),[X],Root) :-                  %unreachable service
+    dif(E,internal),
+    nonReceivedRequest(I,Root,Ts,_), Ts < T, horizon(H), Ts >= T - H,
+    log(Root,_,_,_,_,_),
+    X = unreachable(Root).
+causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-              %internal error of invoked service
+    dif(E,internal),
+    failedInteraction((SI,I),(SJ,J),Ts,Te), Ts < T, horizon(H), Ts >= T - H,
+    log(SJ,J,U,internal,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
+    X=log(SJ,J,U,internal,M,Sev),
+    causedBy(X,Xs,Root).
+causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-              %failed interaction of invoked service
+    dif(E,internal),
+    failedInteraction((SI,I),(SJ,J),TsIJ,TeIJ), TsIJ < T, horizon(H), TsIJ >= T - H,
+    failedInteraction((SJ,J),(_,_),TsJK,TeJK), TsIJ < TsJK, TeJK < TeIJ,
+    log(SJ,J,TeJK,F,M,Sev), lte(Sev,warning), 
+    X=log(SJ,J,TeJK,F,M,Sev),
+    causedBy(X,Xs,Root).
+causedBy(log(SI,I,T,E,_,_),[X|Xs],Root) :-              %timed-out interaction of invoked service
+    dif(E,internal),
+    timedOutInteraction((SI,I),(SJ,J),TsIJ,TeIJ), TsIJ < T, horizon(H), TsIJ >= T - H,
+    timedOutInteraction((SJ,J),(SK,K),TsJK,TeJK), TsJK < TeIJ, TeIJ < TeJK,
+    log(SJ,J,TeJK,timeout(SK,K),M,Sev),X=log(SJ,J,TeJK,timeout(SK,K),M,Sev),
+    causedBy(X,Xs,Root).
+causedBy(log(Root,_,_,internal,_,_),[],Root).           %base case
+
+nonReceivedRequest(I,SJ,Ts,Te) :-
+    log(SI,I,Ts,sendTo(SJ,Id),_,_),
+    log(SI,I,Te,timeout(SJ,Id),_,_),
+    \+ (log(SJ,_,Tr,received(X),_,_), Ts < Tr, Tr < Te, (X=Id;X=noId)).
+
+failedInteraction((SI,I),(SJ,J),Ts,Te) :-
+    errorInteraction((SI,I),(SJ,J),Ts,Te); timedOutInteraction((SI,I),(SJ,J),Ts,Te).
+
+errorInteraction((SI,I),(SJ,J),Ts,Te) :-
+    log(SI,I,Te,errorFrom(SJ,Id),_,_),
+    interaction(Id,(SI,I),(SJ,J),Ts,Te).
+    
+timedOutInteraction((SI,I),(SJ,J),Ts,Te) :-
+    log(SI,I,Te,timeout(SJ,Id),_,_),
+    interaction(Id,(SI,I),(SJ,J),Ts,Te).
+
+interaction(Id,(SI,I),(SJ,J),Ts,Te) :-
+    log(SI,I,Ts,sendTo(SJ,Id),_,_), 
+    log(SJ,J,Tr,received(X),_,_), 
+    (X=Id; X=noId), Ts < Tr, Tr < Te. % noId accounts for non-instrumented components
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
-nonReceivedRequest(S1,N2,Ts,Te) :-
-    log(N1,S1,Ts,sendTo(N2,Id),_,_),
-    log(N1,S1,Te,timeout(N2,Id),_,_),
-    \+ (log(N2,_,Tr,received(J),_,_), Ts < Tr, Tr < Te, (J=Id;J=noID)).
-
-failedInteraction(S1,S2,Ts,Te) :-
-    log(N1,S1,Te,E,_,_), (E=errorFrom(N2,Id);E=timeout(N2,Id)),
-    interaction(Id,(N1,S1),(N2,S2),Ts,Te).
-
-interaction(Id,(N1,S1),(N2,S2),Ts,Te) :-
-    log(N1,S1,Ts,sendTo(N2,Id),_,_), 
-    log(N2,S2,Tr,received(J),_,_), 
-    (J=Id;J=noID), Ts < Tr, Tr < Te.
 
 % MEMO: If (passive) components are not instrumented to propagate IDs, just put "noId" as ID when templating logs corresponding to receive/answer to service interactions (in the log template parser)
