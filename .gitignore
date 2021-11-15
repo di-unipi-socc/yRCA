@@ -7,7 +7,7 @@ knowledgeBase.pl
 
 *generate_workload.sh
 #*logstash.conf
-*/generated-logs/*
+*generated-logs*
 
 *DS_Store
 
