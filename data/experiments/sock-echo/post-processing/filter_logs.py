@@ -140,10 +140,14 @@ def getInvolvedEvents(message,logFilePath):
 
 # function for printing post-processed logs
 def printLogs(ppLogs,maxSeverity,verbose):
-    print(getLogPrintout(ppLogs[0],verbose))
-    for log in ppLogs[1:]:
+    first = True
+    for log in ppLogs:
         if log["severity"].value <= maxSeverity.value:
-            toPrint = "-> " + getLogPrintout(log,verbose)
+            toPrint = "-> "
+            if first:
+                toPrint = ""
+                first = False 
+            toPrint += getLogPrintout(log,verbose)
             print(toPrint)
 
 # function for getting the string to print for a log
