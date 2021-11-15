@@ -8,6 +8,8 @@ deploy_and_load() {
 
     # deploy "sock-echo"
     echo "* Docker deployment started" 
+    touch echo-stack.log
+    chmod ugo+rw echo-stack.log
     docker stack deploy -c docker-compose.yml sockecho
     echo "* Waiting for services to get online"
     sleep 300
@@ -17,11 +19,12 @@ deploy_and_load() {
     echo "* Generating workload"
     fault=0
     curlLog="curl.log"
+    loglines=0
     while [ $fault -eq 0 ] && [ $loglines -le 100000 ] # loop until at least one frontend failure happened
     do
         ./generate_workload.sh -d 180 -p $requestPeriod > $curlLog
         fault=$(grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | wc -l)
-        loglines=$(wc -l echo-stack.log)
+        loglines=$(cat echo-stack.log | wc -l)
         echo "Generated faults: ${fault}"
     done
     rm $curlLog
@@ -34,7 +37,6 @@ deploy_and_load() {
     echo "* Undeployment completed"
 
     # save logs
-    grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | tail -n 1 > edgeRouter-$logName-fault.log
     mv echo-stack.log all-$logName.log
     mv *.log $results
     echo "* Log files stored in ${results}"

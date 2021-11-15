@@ -12,7 +12,7 @@ services:
     deploy: {replicas: EDGEROUTER_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: edgeRouter, gelf-address: 'udp://localhost:12201'}
+      options: {tag: edgeRouter, gelf-address: 'tcp://localhost:12201'}
 
   frontend:
     depends_on: [orders, catalogue, users, carts, elasticsearch, kibana, logstash]
@@ -21,7 +21,7 @@ services:
     deploy: {replicas: FRONTEND_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: frontend, gelf-address: 'udp://localhost:12201'}
+      options: {tag: frontend, gelf-address: 'tcp://localhost:12201'}
 
   # ------------------
   #      Orders
@@ -34,7 +34,7 @@ services:
     deploy: {replicas: ORDERS_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: orders, gelf-address: 'udp://localhost:12201'}
+      options: {tag: orders, gelf-address: 'tcp://localhost:12201'}
 
   ordersDb:
     depends_on: [elasticsearch, kibana, logstash]
@@ -43,7 +43,7 @@ services:
     deploy: {replicas: ORDERSDB_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: ordersDb, gelf-address: 'udp://localhost:12201'}
+      options: {tag: ordersDb, gelf-address: 'tcp://localhost:12201'}
 
   # ------------------
   #     Catalogue
@@ -55,7 +55,7 @@ services:
     deploy: {replicas: CATALOGUE_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: catalogue, gelf-address: 'udp://localhost:12201'}
+      options: {tag: catalogue, gelf-address: 'tcp://localhost:12201'}
 
   catalogueDb:
     image: diunipisocc/chaosecho:1
@@ -63,7 +63,7 @@ services:
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
-      options: {tag: catalogueDb, gelf-address: 'udp://localhost:12201'}
+      options: {tag: catalogueDb, gelf-address: 'tcp://localhost:12201'}
     deploy: {replicas: CATALOGUEDB_REPLICAS}
 
   # ------------------
@@ -76,7 +76,7 @@ services:
     deploy: {replicas: USERS_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: users, gelf-address: 'udp://localhost:12201'}
+      options: {tag: users, gelf-address: 'tcp://localhost:12201'}
 
   usersDb:
     image: diunipisocc/chaosecho:1
@@ -84,7 +84,7 @@ services:
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
-      options: {tag: usersDb, gelf-address: 'udp://localhost:12201'}
+      options: {tag: usersDb, gelf-address: 'tcp://localhost:12201'}
     deploy: {replicas: USERSDB_REPLICAS}
 
   # ------------------
@@ -97,7 +97,7 @@ services:
     deploy: {replicas: CARTS_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: carts, gelf-address: 'udp://localhost:12201'}
+      options: {tag: carts, gelf-address: 'tcp://localhost:12201'}
 
   cartsDb:
     image: diunipisocc/chaosecho:1
@@ -105,7 +105,7 @@ services:
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
-      options: {tag: cartsDb, gelf-address: 'udp://localhost:12201'}
+      options: {tag: cartsDb, gelf-address: 'tcp://localhost:12201'}
     deploy: {replicas: CARTSDB_REPLICAS}
 
   # ------------------
@@ -117,7 +117,7 @@ services:
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
-      options: {tag: payment, gelf-address: 'udp://localhost:12201'}
+      options: {tag: payment, gelf-address: 'tcp://localhost:12201'}
     deploy: {replicas: PAYMENT_REPLICAS}
 
   # ------------------
@@ -130,7 +130,7 @@ services:
     deploy: {replicas: SHIPPING_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: shipping, gelf-address: 'udp://localhost:12201'}
+      options: {tag: shipping, gelf-address: 'tcp://localhost:12201'}
 
   rabbitMq:
     image: diunipisocc/chaosecho:1
@@ -138,7 +138,7 @@ services:
     depends_on: [elasticsearch, kibana, logstash]
     logging:
       driver: gelf
-      options: {tag: rabbitMq, gelf-address: 'udp://localhost:12201'}
+      options: {tag: rabbitMq, gelf-address: 'tcp://localhost:12201'}
     deploy: {replicas: RABBITMQ_REPLICAS}
 
   queueMaster:
@@ -149,25 +149,14 @@ services:
     deploy: {replicas: QUEUEMASTER_REPLICAS}
     logging:
       driver: gelf
-      options: {tag: queueMaster, gelf-address: 'udp://localhost:12201'}
+      options: {tag: queueMaster, gelf-address: 'tcp://localhost:12201'}
 
 
   # ------------------
-  #    ELK stack
+  #   log collector
   # ------------------
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
-    environment: [discovery.type=single-node]
-    ports: ['9200:9200']
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.6.2
-    ports: ['5601:5601']
-    depends_on: [elasticsearch, logstash]
-
   logstash:
     image: docker.elastic.co/logstash/logstash:7.6.2
     volumes: ['.:/etc/logstash']
     command: logstash -f /etc/logstash/logstash.conf
-    ports: ['12201:12201/udp']
-    depends_on: [elasticsearch]
+    ports: ['12201:12201']
