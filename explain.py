@@ -7,14 +7,9 @@ from parser.parser import parseEvents
 from explainer.explainer import explain
 
 def main(argv):
-    # check if "help" is required
-    if "--help" in argv:
-        cli_help()
-        return
-
-    # otherwise, parse command line arguments
+    # parse command line arguments
     try:
-        options,args = getopt.getopt(argv,"h:l:n:r:v",["help","horizon=","num=","root=","verbose"])
+        options,args = getopt.getopt(argv,"hn:r:v",["help","num=","root=","verbose"])
     except: 
         cli_error("wrong options used")
         exit(-1)
@@ -28,7 +23,6 @@ def main(argv):
     templater = Templater(args[2])
 
     # options to customise the execution of the explainer (with default values)
-    horizon = 10 # lookback radius, in seconds (default: 10s)
     nSols = None # number of possible explanations to find (default: all)
     rootCause = None # value for root cause (default: all)
     verbose = False # by default, only "compact" printing (service names, no instances/timestamps/messages)
@@ -36,12 +30,9 @@ def main(argv):
     # getting specified options
     for option, value in options:
         # setting lookback radius
-        if option in ["-h","--horizon"]:
-            if value.isnumeric():
-                horizon = value
-            else: 
-                cli_error("lookback radius must be a number")
-                exit(-2)
+        if option in ["-h","--help"]:
+            cli_help()
+            exit(0)
         # setting number of solutions to identify
         elif option in ["-n","--num"]:
             if value.isnumeric() and float(value)>0:
@@ -64,11 +55,6 @@ def main(argv):
     parseEvents(eventLogLine,event,templater)
     knowledgeBase = "knowledgeBase.pl"
     parseEvents(applicationLogs,knowledgeBase,templater)
-    
-    # add heartbeat and lookback radius values to "knowledgeBase"
-    knowledgeBaseFile = open(knowledgeBase,"a")
-    knowledgeBaseFile.write("horizon(" + str(horizon) + ").\n")
-    knowledgeBaseFile.close()
 
     # ***********************
     # * ROOT CAUSE ANALYSIS *
@@ -92,8 +78,8 @@ def main(argv):
         print("Found a total of " + str(rootCauses.size()) + " possible explanation" + end)
 
     # Remove generated files
-    # os.remove(event) # comment this, if needing to keep files for Prolog debugging
-    # os.remove(knowledgeBase) # comment this, if needing to keep files for Prolog debugging
+    os.remove(event) # comment this, if needing to keep files for Prolog debugging
+    os.remove(knowledgeBase) # comment this, if needing to keep files for Prolog debugging
 
 # function for printing cli erros, followed by cli usage
 def cli_error(message):
@@ -107,7 +93,6 @@ def cli_help():
     print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json logParsingTemplates.yml")
     print("where OPTIONS can be")
     print("  [--help] to print a help on the usage of explain.py")
-    print("  [-h H|--horizon=H] to set to N the lookback radius in finding explanations")
     print("  [-n N|--num=N] to set to N the amount of possible explanations to identify")
     print("  [-r X|--root=X] to require X to be the root cause of identified explanations")
     print("  [-v X|--verbose] to print verbose analysis results")

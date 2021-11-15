@@ -6,44 +6,56 @@
 % log(serviceName,serviceInstance,timestamp,eventType,message,severity)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-xfail(Event,Explanations,RootCause) :-                      %determine all possible explanations for "Event"
-    findall(E,causedBy(Event,E,RootCause),Explanations).
-xfail(NumSols,Event,Explanations,RootCause) :-              %determine "NumSols" possible explanations for "Event"
+xfail(Event,Explanations,RootCause) :-                              %determine all possible explanations for "Event"
+    findall(E,distinct(causedBy(Event,E,RootCause)),Explanations).
+xfail(NumSols,Event,Explanations,RootCause) :-                      %determine "NumSols" possible explanations for "Event"
     findnsols(NumSols,E,distinct(causedBy(Event,E,RootCause)),Explanations).
-    
-%TODO: fix bug in timeout never considered recursively (see event.log, all.log)
 
-causedBy(log(_,I,T,E,_,_),[X],Root) :-                      %invoked service never started
-    dif(E,internal),                                        %TODO: fix by making this check on invoked service (otherwise, no recursion)
-    log(_,I,Ts,sendTo(Root,_),_,_), Ts < T, horizon(H), Ts >= T - H,
-    \+ log(Root,_,_,_,_,_),
-    X = neverStarted(Root).
-causedBy(log(_,I,_,timeout(Root,Id),_,_),[X],Root) :-       %unreachable service
-    nonReceivedRequest(Id,I,Root,_,_),                      %TODO: fix by making this check on invoked service (otherwise, no recursion)
-    log(Root,_,_,_,_,_),
-    X = unreachable(Root).
-causedBy(log(SI,I,_,E,_,_),[X|Xs],Root) :-                  %internal error of invoked service
+causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-                        %internal error of invoked service
     (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
     failedInteraction(Id,(SI,I),(SJ,J),Ts,Te),
-    log(SJ,J,U,internal,M,Sev), lte(Sev,warning), Ts =< U, U =< Te, 
-    X=log(SJ,J,U,internal,M,Sev),
-    writeln(X),
-    causedBy(X,Xs,Root).
-causedBy(log(SI,I,_,E,_,_),[X|Xs],Root) :-                  %failed interaction of invoked service
+    log(SJ,J,U,internal,MJ,SevJ), lte(SevJ,warning), Ts =< U, U =< Te, 
+    X=log(SI,I,T,E,M,Sev),
+    causedBy(log(SJ,J,U,internal,MJ,SevJ),Xs,Root).
+
+causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-                        %failed interaction of invoked service
     (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
     failedInteraction(Id,(SI,I),(SJ,J),TsIJ,TeIJ), 
     failedInteraction(_,(SJ,J),(_,_),TsJK,TeJK), TsIJ < TsJK, TeJK < TeIJ,
-    log(SJ,J,TeJK,F,M,Sev), lte(Sev,warning), 
-    X=log(SJ,J,TeJK,F,M,Sev),
-    writeln(X),
-    causedBy(X,Xs,Root).
-causedBy(log(SI,I,_,timeout(SJ,Id),_,_),[X|Xs],Root) :-     %timed-out interaction of invoked service
+    log(SJ,J,TeJK,F,MJ,SevJ), lte(SevJ,warning), 
+    X=log(SI,I,T,E,M,Sev),
+    causedBy(log(SJ,J,TeJK,F,MJ,SevJ),Xs,Root).
+
+causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-           %timed-out interaction of invoked service
     timedOutInteraction(Id,(SI,I),(SJ,J),_,TeIJ), 
     timedOutInteraction(_,(SJ,J),(SK,_),TsJK,TeJK), TsJK < TeIJ, TeIJ < TeJK,
-    log(SJ,J,TeJK,timeout(SK,IdJK),M,Sev),X=log(SJ,J,TeJK,timeout(SK,IdJK),M,Sev),
-    writeln(X),
-    causedBy(X,Xs,Root).
-causedBy(log(Root,_,_,internal,_,_),[],Root).           %base case
+    log(SJ,J,TeJK,timeout(SK,IdJK),MJ,SevJ),
+    X=log(SI,I,T,timeout(SJ,Id),M,Sev),
+    causedBy(log(SJ,J,TeJK,timeout(SK,IdJK),MJ,SevJ),Xs,Root).
+
+causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-                        %unreachable service called by invoked service
+    (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
+    failedInteraction(Id,(SI,I),(SJ,J),TsIJ,TeIJ), 
+    nonReceivedRequest(IdK,J,SK,TsJK,TeJK), TsIJ < TsJK, TsJK < TeIJ,
+    log(SJ,J,TeJK,timeout(SK,IdK),MJ,SevJ),
+    X=log(SI,I,T,E,M,Sev),
+    causedBy(log(SJ,J,TeJK,timeout(SK,IdK),MJ,SevJ),Xs,Root).
+
+causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-           %unreachable service invoked
+    nonReceivedRequest(Id,I,SJ,_,T),
+    X = log(SI,I,T,timeout(SJ,Id),M,Sev),
+    causedBy(unreachable(SJ),Xs,Root).
+
+causedBy(log(Root,R,T,internal,M,Sev),[X],Root) :-                  %base case: Root experienced internal error
+    X = log(Root,R,T,internal,M,Sev).               
+
+causedBy(unreachable(Root),[X],Root) :-                             %base case: Root was unreachable
+    log(Root,_,_,_,_,_),
+    X = unreachable(Root). 
+
+causedBy(unreachable(Root),[X],Root) :-                             %base case: Root was never started
+    \+ log(Root,_,_,_,_,_),
+    X = neverStarted(Root).
 
 nonReceivedRequest(Id,I,SJ,Ts,Te) :-
     log(SI,I,Ts,sendTo(SJ,Id),_,_),
