@@ -59,24 +59,38 @@ def main(argv):
     # print logs
     printLogs(ppLogs,maxSeverity,verbose)
 
+# function for parsing a logged event
+def parseLogMsg(msg): 
+    # parse logged event (case: error response)
+    msgInfo = re.match(r'' + Templates.ERROR_RESPONSE.value, msg)
+    if msgInfo is not None:
+        return msgInfo
+    # parse logged event (case: timeout)
+    msgInfo = re.match(r'' + Templates.TIMEOUT.value, msg)
+    if msgInfo is not None:
+        return msgInfo
+    # parse logged event (case: message sent)
+    msgInfo = re.match(r'' + Templates.SENT_MESSAGE.value, msg)
+    if msgInfo is not None:
+        return msgInfo
+    return None
 
 # function for getting the request id from a logged event
 def getRequestId(logString):
     # get logged event
     event = json.loads(logString)
-    msg = event["event"]
-    # parse logged event (case: error response)
-    msgInfo = re.match(r'' + Templates.ERROR_RESPONSE.value, msg)
+    # parse logged event
+    msgInfo = parseLogMsg(event["event"])
     if msgInfo is not None:
         return msgInfo.group("requestId")
-    # parse logged event (case: timeout)
-    msgInfo = re.match(r'' + Templates.TIMEOUT.value, msg)
+    return None
+
+# function for getting the invoked service from a logged event
+def getInvokedService(msg):
+    # parse logged event
+    msgInfo = parseLogMsg(msg)
     if msgInfo is not None:
-        return msgInfo.group("requestId")
-    # parse logged event (case: message sent)
-    msgInfo = re.match(r'' + Templates.SENT_MESSAGE.value, msg)
-    if msgInfo is not None:
-        return msgInfo.group("requestId")
+        return msgInfo.group("service")
     return None
 
 # function for identifying the message sent in an interaction, given the interaction's request id
@@ -141,14 +155,18 @@ def getInvolvedEvents(message,logFilePath):
 # function for printing post-processed logs
 def printLogs(ppLogs,maxSeverity,verbose):
     first = True
+    last = None
     for log in ppLogs:
         if log["severity"].value <= maxSeverity.value:
-            toPrint = "-> "
+            toPrint = "   -> "
             if first:
                 toPrint = ""
                 first = False 
             toPrint += getLogPrintout(log,verbose)
             print(toPrint)
+            last = log
+    # print root causing service
+    print("   -> " + getInvokedService(last["message"]) + ": <internal error>")
 
 # function for getting the string to print for a log
 def getLogPrintout(log,verbose):
@@ -157,7 +175,9 @@ def getLogPrintout(log,verbose):
         logPrintout += "\n\tInstance: " + log["instance"] 
         logPrintout += "\n\tTimestamp: " + str(log["timestamp"])
         logPrintout += "\n\tMessage: " 
-    logPrintout += log["message"]
+    msgInfo = parseLogMsg(log["message"])
+    msgNoId = log["message"].replace(msgInfo.group("requestId"),"<requestId>")
+    logPrintout += msgNoId
     return logPrintout
 
 # function for printing cli erros, followed by cli usage
