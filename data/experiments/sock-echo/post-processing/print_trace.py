@@ -14,38 +14,7 @@ class Templates(Enum):
     TIMEOUT='Failing to contact (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\). Root cause: (?P<exception>.*)'
     SENT_MESSAGE='Sent message: { "hash": "(?P<hash>.*)", "content": "(?P<message>.*)" } \(request_id: \[(?P<requestId>.*)\]\)'
 
-def main(argv):
-    # check if "help" is required
-    if "--help" in argv:
-        cli_help()
-        return
-
-    # otherwise, parse command line arguments
-    try:
-        options,args = getopt.getopt(argv,"av",["all:verbose"])
-    except: 
-        cli_error("wrong options used")
-        exit(-1)
-
-    # check & process command line arguments
-    if len(args) < 2:
-        cli_error("missing input arguments")
-        exit(-1)
-
-    # store arguments
-    eventFilePath = args[0]
-    logFilePath = args[1]
-
-    # check options
-    maxSeverity = Severity.WARN # by default, print only error logs
-    verbose = False # by default, only printing service name and message
-    for option,value in options:
-        # setting lookback radius
-        if option in ["-a","--all"]:
-            maxSeverity = Severity.DEBUG # if required, print all logs
-        if option in ["-v","--verbose"]:
-            verbose = True # if required, print all logs
-    
+def printTrace(eventFilePath,logFilePath,maxSeverity,verbose):
     # read event's "session id"
     eventFile = open(eventFilePath, "r")
     event = eventFile.readline()
@@ -197,4 +166,37 @@ def cli_help():
     print()
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    argv = sys.argv[1:]
+
+    # check if "help" is required
+    if "--help" in argv:
+        cli_help()
+        exit(0)
+
+    # otherwise, parse command line arguments
+    try:
+        options,args = getopt.getopt(argv,"av",["all:verbose"])
+    except: 
+        cli_error("wrong options used")
+        exit(-1)
+
+    # check & process command line arguments
+    if len(args) < 2:
+        cli_error("missing input arguments")
+        exit(-1)
+
+    # store arguments
+    eventFilePath = args[0]
+    logFilePath = args[1]
+
+    # set options
+    maxSeverity = Severity.WARN # by default, print only error logs
+    verbose = False # by default, only printing service name and message
+    for option,value in options:
+        if option in ["-a","--all"]:
+            maxSeverity = Severity.DEBUG # if required, print all logs
+        if option in ["-v","--verbose"]:
+            verbose = True # if required, print all logs
+
+    # print trace
+    printTrace(eventFilePath,logFilePath,maxSeverity,verbose)
