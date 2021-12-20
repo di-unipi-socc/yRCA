@@ -46,8 +46,13 @@ if __name__ == "__main__":
     # get absolute path of folder with logs
     logFolder = os.path.abspath("../generated-logs")
 
+    # get absolute path of templater
+    templates = os.path.abspath("../../../templates/chaos-echo.yml")
+    # templates = os.path.abspath("../../../templates/chaos-echo-noid.yml")
+
     # process log subfolders, separately
     subfolders = os.listdir(logFolder)
+    print(subfolders)
     for subfolder in subfolders:
         # get logfiles in subfolder
         logSubfolder = os.path.join(logFolder,subfolder)
@@ -58,20 +63,32 @@ if __name__ == "__main__":
             logFile = os.path.join(logSubfolder,file)
             
             # process each failure event of the frontend, separately
-            cmd = "grep ERROR " + logFile + " | grep _edgeRouter"
-            failures = os.popen(cmd)
+            grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
+            print(grepFailures)
+            failures = os.popen(grepFailures)
             for failure in list(failures):
                 # generate JSON file containing the failure to explain 
                 failureJSON = open("failure","w")
                 failureJSON.write(failure)
                 failureJSON.close()
+                cwd = os.getcwd()
+                failureFile = os.path.join(cwd,"failure")
 
                 # process failure file with "explain.py"
-                # TODO
-
+                explanations = os.path.join(cwd,"explanations")
+                os.chdir("../../../..")
+                runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates + " > " + explanations
+                print(runExplainer)
+                os.system(runExplainer)
+                os.chdir(cwd)
+                
                 # process failure file with "print_trace.py"
-                # TODO
-
+                realTrace = os.path.join(cwd,"trace") 
+                runTracer = "python3 print_trace.py failure " + logFile + " > " + realTrace
+                os.system(runTracer)
+                
                 # compare outputs and store them in CSV file
-                # expIndex = compareOutputs(explanations,realTrace)
+                expIndex = compareOutputs(explanations,realTrace)
+                print(expIndex)
                 # TODO
+                exit(0) # currently running only the first one
