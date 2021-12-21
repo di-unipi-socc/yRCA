@@ -20,7 +20,7 @@ deploy_and_load() {
     fault=0
     curlLog="curl.log"
     loglines=0
-    while [ $fault -eq 0 ] && [ $loglines -le 100000 ] # loop until at least one frontend failure happened
+    while [ $fault -lt 100 ] && [ $loglines -le 1000000 ] # loop until at least 100 frontend failures happened
     do
         ./generate_workload.sh -d 180 -p $requestPeriod > $curlLog
         fault=$(grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | wc -l)

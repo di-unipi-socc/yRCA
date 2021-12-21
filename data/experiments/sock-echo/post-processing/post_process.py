@@ -67,8 +67,6 @@ if __name__ == "__main__":
 
         # process each log file, separately
         for file in logFiles:
-            if "rabbitMq" not in file:
-                continue
             print("*"*5 + file + "*"*5)
             # create csv string for outputs
             output.write(file)
