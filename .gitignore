@@ -4,15 +4,21 @@ explanations.txt
 # Temporary files
 event.pl
 knowledgeBase.pl
-
 *generate_workload.sh
-#*logstash.conf
 *generated-logs*
-
 *explanations
 *failure
 *trace
 *output.csv
+
+data/experiments/sock-echo/echo-stack.log
+data/experiments/sock-echo/event.log
+data/experiments/sock-echo/logs_exp11_loadRate/
+data/experiments/sock-echo/logs_exp12_invokeProbability/
+data/experiments/sock-echo/logs_exp21_cascadeLength/
+data/experiments/sock-echo/logs_exp22_failProbability/
+data/experiments/sock-echo/nohup.id
+data/experiments/sock-echo/nohup.out
 
 *DS_Store
 
