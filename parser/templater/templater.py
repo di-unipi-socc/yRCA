@@ -107,10 +107,8 @@ class Templater:
     # function for transforming logged severity to Syslog protocol: https://datatracker.ietf.org/doc/html/rfc5424
     # (from Apache Log4j: https://logging.apache.org/log4j/)
     def parseSeverity(self,severity):
-        syslogSeverity = None
-        if severity == "DEBUG":
-            syslogSeverity = "debug"
-        elif severity == "INFO":
+        syslogSeverity = "debug"
+        if severity == "INFO":
             syslogSeverity = "info"
         elif severity == "WARN":
             syslogSeverity == "warning"
