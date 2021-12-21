@@ -23,7 +23,7 @@ def printTrace(eventFilePath,logFilePath,maxSeverity,verbose):
     
     # get logs involved in the considered cascade
     message = getMessage(requestId,logFilePath)
-    ppLogs = getInvolvedEvents(message,logFilePath)
+    ppLogs = getInvolvedEvents(message,event,logFilePath)
 
     # print logs
     printLogs(ppLogs,maxSeverity,verbose)
@@ -78,26 +78,31 @@ def getMessage(requestId,logFilePath):
     return message
 
 # function for getting all logged events pertaining to interactions where a given "message" was sent
-def getInvolvedEvents(message,logFilePath):
-    # get all request ids of interactions sending the "message"
+def getInvolvedEvents(message,event,logFilePath):
+    # get timestamp of "event"
+    timestamp = json.loads(event)["timestamp"]
+
+    # get all request ids of interactions sending the "message" (before the "event")
     requestIds = []
     logFile = open(logFilePath, "r")
     for logString in list(logFile):
-        if message in logString:
+        loggedEvent = json.loads(logString)
+        if message in loggedEvent["message"] and loggedEvent["timestamp"] <= timestamp:
             requestId = getRequestId(logString)
             if requestId:
                 requestIds.append(requestId)
     logFile.close()
-    # get all interaction logs involving the "message"
+
+    # get all interaction logs involving the "message" (before the "event")
     logFile = open(logFilePath, "r")
     ppLogs = [] # post-processed logs
     for logString in list(logFile):
+        log = json.loads(logString)
         for requestId in requestIds:
-            if requestId in logString:
-                log = json.loads(logString)
+            if requestId in log["message"] and log["timestamp"] <= timestamp:
                 ppLog = {} # post-processed log
                 # ppLog's timestamp
-                ppLog["timestamp"] = datetime.strptime(log["timestamp"], '%Y-%m-%d %H:%M:%S.%f')
+                ppLog["timestamp"] = log["timestamp"] # datetime.strptime(log["timestamp"], '%Y-%m-%d %H:%M:%S.%f')
                 # ppLog's service instance
                 containerName = log["container_name"].split("_")[1]
                 ppLog["service"] = containerName.split(".")[0]
@@ -124,7 +129,6 @@ def getInvolvedEvents(message,logFilePath):
 # function for printing post-processed logs
 def printLogs(ppLogs,maxSeverity,verbose):
     first = True
-    last = None
     for log in ppLogs:
         if log["severity"].value <= maxSeverity.value:
             toPrint = "   -> "
@@ -133,9 +137,6 @@ def printLogs(ppLogs,maxSeverity,verbose):
                 first = False 
             toPrint += getLogPrintout(log,verbose)
             print(toPrint)
-            last = log
-    # print root causing service
-    print("   -> " + getInvokedService(last["message"]) + ": <internal error>")
 
 # function for getting the string to print for a log
 def getLogPrintout(log,verbose):
@@ -145,8 +146,10 @@ def getLogPrintout(log,verbose):
         logPrintout += "\n\tTimestamp: " + str(log["timestamp"])
         logPrintout += "\n\tMessage: " 
     msgInfo = parseLogMsg(log["message"])
-    msgNoId = log["message"].replace(msgInfo.group("requestId"),"<requestId>")
-    logPrintout += msgNoId
+    msg = log["message"].replace(msgInfo.group("requestId"),"<requestId>")
+    if "exception" in msgInfo.group():
+        msg = msg.replace(msgInfo.group("exception"),"<exception>")
+    logPrintout += msg
     return logPrintout
 
 # function for printing cli erros, followed by cli usage

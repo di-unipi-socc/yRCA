@@ -11,7 +11,7 @@ def compareOutputs(explanationsPath,realTracePath):
     realTraceFile = open(realTracePath, "r")
     trace = ""
     for rtLine in list(realTraceFile):
-        trace += rtLine.replace("\n","")
+        trace += rtLine.replace("\n","").replace(" ","")
     realTraceFile.close()
 
     # creating a list of strings, each corresponding to one of the possible
@@ -20,14 +20,18 @@ def compareOutputs(explanationsPath,realTracePath):
     exp = ""
     exps = []
     for expLine in list(explanationsFile):
+        expLine = expLine.replace(" ","")
         # if finished parsing explanation, adding it to list of explanations
-        if expLine=="\n":
+        if expLine == "\n":
             exps.append(exp)
             exp = ""
         # otherwise, continue parsing explanation
         else:
+            # considering only "interaction" events
+            if "unreachable" in expLine or "internalerror" in expLine or "neverstarted" in expLine:
+                continue
             # removing "[<probability>]", if any
-            event = re.sub(r"\[\d+.\d+\]: ","",expLine).replace("\n","")
+            event = re.sub(r"\[\d+.\d+\]:","",expLine).replace("\n","")
             # adding event to explanation
             exp += event.replace("\n","")
     explanationsFile.close()
@@ -40,6 +44,10 @@ def compareOutputs(explanationsPath,realTracePath):
         return -1
 
 if __name__ == "__main__":
+    # output CSV file
+    outputFile = "output.csv"
+    os.remove(outputFile)
+
     # get absolute path of explainer
     explainer = os.path.abspath("../../../../explain.py")
 
@@ -52,7 +60,6 @@ if __name__ == "__main__":
 
     # process log subfolders, separately
     subfolders = os.listdir(logFolder)
-    print(subfolders)
     for subfolder in subfolders:
         # get logfiles in subfolder
         logSubfolder = os.path.join(logFolder,subfolder)
@@ -60,13 +67,16 @@ if __name__ == "__main__":
 
         # process each log file, separately
         for file in logFiles:
+            # create csv string for outputs
+            csv = file
+
+            # get absolute of log file 
             logFile = os.path.join(logSubfolder,file)
             
             # process each failure event of the frontend, separately
             grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
-            print(grepFailures)
             failures = os.popen(grepFailures)
-            for failure in list(failures):
+            for failure in list(failures)[-250:]:
                 # generate JSON file containing the failure to explain 
                 failureJSON = open("failure","w")
                 failureJSON.write(failure)
@@ -78,7 +88,6 @@ if __name__ == "__main__":
                 explanations = os.path.join(cwd,"explanations")
                 os.chdir("../../../..")
                 runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates + " > " + explanations
-                print(runExplainer)
                 os.system(runExplainer)
                 os.chdir(cwd)
                 
@@ -89,6 +98,9 @@ if __name__ == "__main__":
                 
                 # compare outputs and store them in CSV file
                 expIndex = compareOutputs(explanations,realTrace)
-                print(expIndex)
-                # TODO
-                exit(0) # currently running only the first one
+                csv += "," + expIndex
+            
+            # write csv line on output file
+            output = open(outputFile,"a")
+            output.write(csv)
+            output.close()
