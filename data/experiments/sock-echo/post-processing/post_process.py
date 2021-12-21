@@ -79,7 +79,7 @@ if __name__ == "__main__":
             # process each failure event of the frontend, separately
             grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
             allFailures = os.popen(grepFailures)
-            failures = list(allFailures)[-20:]
+            failures = list(allFailures)[-100:] # considering the last 100 failures
             print("considering " + str(len(failures)) + " failures")
             for failure in failures:
                 # generate JSON file containing the failure to explain 
