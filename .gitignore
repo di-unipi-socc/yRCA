@@ -9,6 +9,10 @@ knowledgeBase.pl
 #*logstash.conf
 *generated-logs*
 
+*explanations
+*failure
+*trace
+
 *DS_Store
 
 # Byte-compiled / optimized / DLL files
