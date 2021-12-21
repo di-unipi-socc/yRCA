@@ -46,7 +46,7 @@ def compareOutputs(explanationsPath,realTracePath):
 if __name__ == "__main__":
     # output CSV file
     outputFile = "output.csv"
-    os.remove(outputFile)
+    output = open(outputFile,"w")
 
     # get absolute path of explainer
     explainer = os.path.abspath("../../../../explain.py")
@@ -67,16 +67,21 @@ if __name__ == "__main__":
 
         # process each log file, separately
         for file in logFiles:
+            if "rabbitMq" not in file:
+                continue
+            print("*"*5 + file + "*"*5)
             # create csv string for outputs
-            csv = file
+            output.write(file)
 
             # get absolute of log file 
             logFile = os.path.join(logSubfolder,file)
             
             # process each failure event of the frontend, separately
             grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
-            failures = os.popen(grepFailures)
-            for failure in list(failures)[-250:]:
+            allFailures = os.popen(grepFailures)
+            failures = list(allFailures)[-20:]
+            print("considering " + str(len(failures)) + " failures")
+            for failure in failures:
                 # generate JSON file containing the failure to explain 
                 failureJSON = open("failure","w")
                 failureJSON.write(failure)
@@ -98,9 +103,8 @@ if __name__ == "__main__":
                 
                 # compare outputs and store them in CSV file
                 expIndex = compareOutputs(explanations,realTrace)
-                csv += "," + expIndex
+                output.write("," + str(expIndex))
             
             # write csv line on output file
-            output = open(outputFile,"a")
-            output.write(csv)
-            output.close()
+            output.write("\n")
+    output.close()

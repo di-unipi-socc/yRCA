@@ -87,10 +87,13 @@ def getInvolvedEvents(message,event,logFilePath):
     logFile = open(logFilePath, "r")
     for logString in list(logFile):
         loggedEvent = json.loads(logString)
-        if message in loggedEvent["message"] and loggedEvent["timestamp"] <= timestamp:
-            requestId = getRequestId(logString)
-            if requestId:
-                requestIds.append(requestId)
+        try: 
+            if message in loggedEvent["message"] and loggedEvent["timestamp"] <= timestamp:
+                requestId = getRequestId(logString)
+                if requestId:
+                    requestIds.append(requestId)
+        except:
+            print(loggedEvent)
     logFile.close()
 
     # get all interaction logs involving the "message" (before the "event")
