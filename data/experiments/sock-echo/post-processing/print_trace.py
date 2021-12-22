@@ -67,7 +67,7 @@ def getMessage(requestId,logFilePath):
     logFile = open(logFilePath, "r")
     message = None
     for logString in list(logFile):
-        if (requestId in logString):
+        if (requestId is not None) and (requestId in logString):
             log = json.loads(logString)
             msg = log["event"]
             msgInfo = re.match(r'' + Templates.SENT_MESSAGE.value,msg)
