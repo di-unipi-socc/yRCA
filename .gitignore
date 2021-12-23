@@ -9,7 +9,7 @@ knowledgeBase.pl
 *explanations
 *failure
 *trace
-*output.csv
+*.csv
 
 data/experiments/sock-echo/echo-stack.log
 data/experiments/sock-echo/event.log
