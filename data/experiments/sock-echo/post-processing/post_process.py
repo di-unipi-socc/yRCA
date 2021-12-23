@@ -117,6 +117,8 @@ if __name__ == "__main__":
             
             # end csv line on output files
             accuracy.write("\n")
+            accuracy.flush()
             timeFile.write("\n")
+            timeFile.flush()
     accuracy.close()
     timeFile.close()
