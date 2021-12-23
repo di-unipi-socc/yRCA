@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime
 from enum import Enum
 import getopt,json,re,sys
 
@@ -13,6 +13,20 @@ class Templates(Enum):
     ERROR_RESPONSE='Error response \(code: 500\) received from (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\)'
     TIMEOUT='Failing to contact (?P<service>.*) \(request_id: \[(?P<requestId>.*)\]\). Root cause: (?P<exception>.*)'
     SENT_MESSAGE='Sent message: { "hash": "(?P<hash>.*)", "content": "(?P<message>.*)" } \(request_id: \[(?P<requestId>.*)\]\)'
+
+# function returning the distance of each service from Sock Shop's edgeRouter
+def dist(service):
+    if service == "edgeRouter":
+        return 0
+    if service == "frontend":
+        return 1
+    if service in ["orders","users","catalogue","carts"]:
+        return 2
+    if service in ["shipping","ordersDb","payment","usersDb","catalogueDb","cartsDb"]:
+        return 3
+    if service == "rabbitMq":
+        return 4
+    return 5
 
 def printTrace(eventFilePath,logFilePath,maxSeverity,verbose):
     # read event's "session id"
@@ -80,7 +94,7 @@ def getMessage(requestId,logFilePath):
 # function for getting all logged events pertaining to interactions where a given "message" was sent
 def getInvolvedEvents(message,event,logFilePath):
     # get timestamp of "event"
-    timestamp = json.loads(event)["timestamp"]
+    timestamp = json.loads(event)["timestamp"] # needed?
 
     # get all request ids of interactions sending the "message" (before the "event")
     requestIds = []
@@ -88,7 +102,7 @@ def getInvolvedEvents(message,event,logFilePath):
     for logString in list(logFile):
         loggedEvent = json.loads(logString)
         try: 
-            if message in loggedEvent["message"] and loggedEvent["timestamp"] <= timestamp:
+            if message in loggedEvent["message"]: # and loggedEvent["timestamp"] <= timestamp:
                 requestId = getRequestId(logString)
                 if requestId:
                     requestIds.append(requestId)
@@ -102,10 +116,10 @@ def getInvolvedEvents(message,event,logFilePath):
     for logString in list(logFile):
         log = json.loads(logString)
         for requestId in requestIds:
-            if requestId in log["message"] and log["timestamp"] <= timestamp:
+            if requestId in log["message"]: # and log["timestamp"] <= timestamp:
                 ppLog = {} # post-processed log
                 # ppLog's timestamp
-                ppLog["timestamp"] = log["timestamp"] # datetime.strptime(log["timestamp"], '%Y-%m-%d %H:%M:%S.%f')
+                ppLog["timestamp"] = datetime.strptime(log["timestamp"], '%Y-%m-%d %H:%M:%S.%f')
                 # ppLog's service instance
                 containerName = log["container_name"].split("_")[1]
                 ppLog["service"] = containerName.split(".")[0]
@@ -126,7 +140,7 @@ def getInvolvedEvents(message,event,logFilePath):
                 # add ppLog to post-processed logs
                 ppLogs.append(ppLog)
     logFile.close()
-    ppLogs.sort(key=lambda x: x["timestamp"],reverse=True)
+    ppLogs.sort(key=lambda x: (dist(x["service"]), -datetime.timestamp(x["timestamp"])))
     return ppLogs
 
 # function for printing post-processed logs

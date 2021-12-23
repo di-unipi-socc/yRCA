@@ -83,7 +83,7 @@ for requestPeriod in $requestPeriods; do
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
         # all services set to be replicated over 3 instances
-        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
+        sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
         # all services (but shipping) not failing on their own
@@ -122,7 +122,7 @@ for invokeProbability in $invokeProbabilities; do
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
         # all services set to be replicated over 3 instances
-        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
+        sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability "invokeProbability"
         sed -i "s/${service^^}_INVOKE/${invokeProbability}/" docker-compose.yml
         # all services (but shipping) not failing on their own
@@ -141,7 +141,7 @@ done
 
 # *******************************************
 # EXPERIMENT 2.1: Varying failing services, based on failure cascade length
-# (root causing service set to fail with probability 0.5, other services set to not fail on their own)
+# (root causing service set to fail with probability 1, other services set to not fail on their own)
 # (end-users' load set to send 10 requests/sec, invoke probability set to 0.5)
 # *******************************************
 
@@ -161,15 +161,15 @@ for failingService in $rootCauses; do
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
         # all services set to be replicated over 3 instances
-        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
+        sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
         # all services (but "failingService") not failing on their own
         if [ $service != $failingService ]; then
             sed -i "s/${service^^}_FAIL/0/" docker-compose.yml
-        # shipping failing with probability 0.5
+        # "failingService" failing with probability 1
         else 
-            sed -i "s/${service^^}_FAIL/50/" docker-compose.yml
+            sed -i "s/${service^^}_FAIL/100/" docker-compose.yml
         fi 
     done
     echo "* Docker compose file generated"
@@ -201,7 +201,7 @@ for failProbability in $failProbabilities; do
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
         # all services set to be replicated over 3 instances
-        sed -i "s/${service^^}_REPLICAS/3/" docker-compose.yml
+        sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
         # all services failing (on their own) with probability "failProbability"
