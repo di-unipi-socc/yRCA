@@ -72,8 +72,8 @@ echo "     Experiment 1.1"
 echo "========================="
     
 # create folder where to store the logs
-results="logs_exp11_loadRate"
-mkdir $results
+results="generated-logs/logs_exp11_loadRate"
+mkdir -p $results
 
 requestPeriods="0.1 0.04 0.02 0.01333 0.01"
 failingService="shipping"
@@ -111,8 +111,8 @@ echo "     Experiment 1.2"
 echo "========================="
     
 # create folder where to store the logs
-results="logs_exp12_invokeProbability"
-mkdir $results
+results="generated-logs/logs_exp12_invokeProbability"
+mkdir -p $results
 
 invokeProbabilities="10 25 50 75 100"
 failingService="shipping"
@@ -151,8 +151,8 @@ echo "     Experiment 2.1"
 echo "========================="
     
 # create folder where to store the logs
-results="logs_exp21_cascadeLength"
-mkdir $results
+results="generated-logs/logs_exp21_cascadeLength"
+mkdir -p $results
 
 rootCauses="frontend orders shipping rabbitMq"
 for failingService in $rootCauses; do 	
@@ -191,8 +191,8 @@ echo "     Experiment 2.2"
 echo "========================="
     
 # create folder where to store the logs
-results="logs_exp22_failProbability"
-mkdir $results
+results="generated-logs/logs_exp22_failProbability"
+mkdir -p $results
 
 failProbabilities="10 20 30 40 50 60 70"
 for failProbability in $failProbabilities; do 	
