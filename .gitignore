@@ -1,5 +1,5 @@
 # Output files
-explanations.txt
+*.txt
 
 # Temporary files
 event.pl
