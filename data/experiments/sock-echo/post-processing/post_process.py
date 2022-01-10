@@ -1,33 +1,34 @@
 import os
 import time
 
-if __name__ == "__main__":
+def postProcess(id):
     # output files
-    outputsFile = "outputs.txt"
+    outputsFile = "outputs" + id + ".txt"
     outputs = open(outputsFile,"w")
-    timesFile = "times.txt"
+    timesFile = "times" + id + ".csv"
     times = open(timesFile,"w")
-
-    # get absolute path of explainer
-    explainer = os.path.abspath("../../../../explain.py")
 
     # get absolute path of folder with logs
     logFolder = os.path.abspath("../generated-logs")
 
     # get absolute path of templater
-    templates = os.path.abspath("../../../templates/chaos-echo.yml")
-    # templates = os.path.abspath("../../../templates/chaos-echo-noid.yml")
+    templates = os.path.abspath("../../../templates/chaos-echo" + id + ".yml")
 
     # process log subfolders, separately
     subfolders = os.listdir(logFolder)
+    subfolders.sort()
     for subfolder in subfolders:
         # get logfiles in subfolder
         logSubfolder = os.path.join(logFolder,subfolder)
         logFiles = os.listdir(logSubfolder)
+        logFiles.sort()
 
         # write subfolder name in outputs
         outputs.write("*"*3 + subfolder + "*"*3 + "\n")
         times.write("*"*3 + subfolder + "*"*3 + "\n")
+
+        # variable for computing avg time 
+        avgTime = 0
 
         # process each log file, separately
         for file in logFiles:
@@ -39,13 +40,11 @@ if __name__ == "__main__":
             # get frontend "failures" in considered "logFile"
             grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
             allFailures = os.popen(grepFailures)
-            failures = list(allFailures) #[-100:] # considering the last 100 failures
+            failures = list(allFailures)[-3:] #[-100:] # considering the last 100 failures
             
-            # write headings in output files
-            heading = file + "(" + str(len(failures)) + " failures)\n"
-            outputs.write(heading)
-            times.write(heading)
-
+            # write heading in outputs
+            outputs.write(file + " (" + str(len(failures)) + " failures)\n")
+            
             # process each failure event of the frontend, separately
             for failure in failures:
                 # generate JSON file containing the failure to explain 
@@ -61,31 +60,49 @@ if __name__ == "__main__":
                 # process failure file with "explain.py"
                 explanations = os.path.join(cwd,"explanations")
                 os.chdir("../../../..")
-                runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates + " > " + explanations
+                runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates
                 startTime = time.time()
-                os.system(runExplainer)
+                os.system(runExplainer + " > " + explanations)
                 endTime = time.time()
+
+                # repeat run for a total of 10 times to measure avgTime of the run
+                avgTimeRun = endTime - startTime
+                for _ in range(9):
+                    startTime = time.time()
+                    os.system(runExplainer + " > /dev/null")
+                    endTime = time.time()
+                    avgTimeRun += (endTime - startTime) 
+                avgTimeRun = avgTimeRun / 10
+
+                # get back to post-processing folder
                 os.chdir(cwd)
 
                 # write computed "outputs"
                 expLines = open(explanations, "r")
-                exps = list(expLines)[:-1] # consider all lines (but the last one)
-                if len(exps) == 0:
-                    outputs.write("XXX\n")
+                exps = list(expLines)
+                if len(exps) == 1:
+                    outputs.write(exps[0])
                 else: 
-                    for exp in exps: 
+                    for exp in exps[:-1]: # copy all lines (but the last one)
                         if exp != "  \n": # exclude newlines
                             outputs.write(exp)
 
-                # write elapsed time on timeFile
-                times.write(str(endTime - startTime) + "\n")
+                # update avgTime
+                avgTime += avgTimeRun
             
-                # flush output files' buffers
+                # flush outputs' buffer
                 outputs.flush()
-                times.flush()
 
-            # add newline on output files (to separate experiments)
+            # add newline on outputs (to separate experiments)
             outputs.write("\n")
-            times.write("\n")
+
+            # write "avgTime" on "times"
+            avgTime = avgTime / len(failures)
+            times.write(subfolder + "," + file + "," + str(avgTime) + "\n")
     outputs.close()
     times.close()
+
+if __name__ == "__main__":
+    ids = ["","-noid"]
+    for id in ids:
+        postProcess(id)
