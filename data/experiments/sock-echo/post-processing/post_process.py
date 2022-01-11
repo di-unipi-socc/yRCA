@@ -24,8 +24,9 @@ def postProcess(id):
         logFiles.sort()
 
         # write subfolder name in outputs
-        outputs.write("*"*3 + subfolder + "*"*3 + "\n")
-        times.write("*"*3 + subfolder + "*"*3 + "\n")
+        outputs.write("* "*20 + "\n")
+        outputs.write("*\t" + subfolder + "\n")
+        outputs.write("* "*20 + "\n\n")
 
         # process each log file, separately
         for file in logFiles:
@@ -40,10 +41,10 @@ def postProcess(id):
             # get frontend "failures" in considered "logFile"
             grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
             allFailures = os.popen(grepFailures)
-            failures = list(allFailures)[-3:] #[-100:] # considering the last 100 failures
+            failures = list(allFailures) #[-100:] # considering the last 100 failures
             
             # write heading in outputs
-            outputs.write(file + " (" + str(len(failures)) + " failures)\n")
+            outputs.write("> " + file + " (" + str(len(failures)) + " failures)\n\n")
             
             # process each failure event of the frontend, separately
             for failure in failures:
@@ -65,6 +66,15 @@ def postProcess(id):
                 os.system(runExplainer + " > " + explanations)
                 endTime = time.time()
 
+                # repeat run for a total of 10 times to measure avgTime of the run
+                avgTimeRun = endTime - startTime
+                for _ in range(9):
+                    startTime = time.time()
+                    os.system(runExplainer + " > /dev/null")
+                    endTime = time.time()
+                    avgTimeRun += (endTime - startTime) 
+                avgTimeRun = avgTimeRun / 10    
+
                 # get back to post-processing folder
                 os.chdir(cwd)
 
@@ -79,16 +89,7 @@ def postProcess(id):
                             outputs.write(exp)
 
                 # flush outputs' buffer
-                outputs.flush()
-
-                # repeat run for a total of 10 times to measure avgTime of the run
-                avgTimeRun = endTime - startTime
-                for _ in range(9):
-                    startTime = time.time()
-                    os.system(runExplainer + " > /dev/null")
-                    endTime = time.time()
-                    avgTimeRun += (endTime - startTime) 
-                avgTimeRun = avgTimeRun / 10          
+                outputs.flush()      
 
                 # update avgTime
                 avgTime += avgTimeRun
@@ -96,9 +97,12 @@ def postProcess(id):
             # add newline on outputs (to separate experiments)
             outputs.write("\n")
 
-            # write "avgTime" on "times"
+            # write "avgTime" and "fileSize" on "times"
             avgTime = avgTime / len(failures)
-            times.write(subfolder + "," + file + "," + str(avgTime) + "\n")
+            fileSize = os.path.getsize(logFile) 
+            fileSize = (fileSize / 1024) / 1024 # from bytes to megabytes
+            timePer10MB = (avgTime * 10) / fileSize # avgTime : fileSize = timePer10MB : 10
+            times.write(subfolder + "," + file + "," + str(avgTime) + "," + str(fileSize) + "," + str(timePer10MB) + "\n")
             times.flush()
 
     outputs.close()
