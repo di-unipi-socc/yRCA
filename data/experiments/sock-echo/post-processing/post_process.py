@@ -2,7 +2,7 @@ import os
 import sys
 import time
 
-def postProcess(id,n):
+def postProcess(id,nFailures,nIterations):
     # output files
     outputsFile = "outputs" + id + ".txt"
     outputs = open(outputsFile,"w")
@@ -19,6 +19,8 @@ def postProcess(id,n):
     subfolders = os.listdir(logFolder)
     subfolders.sort()
     for subfolder in subfolders:
+        print("Processing logs in " + subfolder)
+
         # get logfiles in subfolder
         logSubfolder = os.path.join(logFolder,subfolder)
         logFiles = os.listdir(logSubfolder)
@@ -31,7 +33,7 @@ def postProcess(id,n):
 
         # process each log file, separately
         for file in logFiles:
-            print("Processing " + file)
+            print("|- " + file)
 
             # variable for computing avg time 
             avgTime = 0
@@ -42,7 +44,7 @@ def postProcess(id,n):
             # get frontend "failures" in considered "logFile"
             grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
             allFailures = os.popen(grepFailures)
-            failures = list(allFailures) #[-100:] # considering the last 100 failures
+            failures = list(allFailures)[-nFailures:] # considering the last "nFailures" failures
             
             # write heading in outputs
             outputs.write("> " + file + " (" + str(len(failures)) + " failures)\n\n")
@@ -62,10 +64,14 @@ def postProcess(id,n):
                 # process failure file with "explain.py"
                 explanations = os.path.join(cwd,"explanations")
                 os.chdir("../../../..")
-                runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates
+                runExplainer = "timeout 30m python3 explain.py " + failureFile + " " + logFile + " " + templates # setting upperbound exec time (30m)
                 startTime = time.time()
                 os.system(runExplainer + " > " + explanations)
                 endTime = time.time()
+
+                # skip rest of the iteration if explain failed to complete (stopped because of timeout)
+                if os.path.getsize(explanations) == 0:
+                    continue
 
                 # write computed "outputs"
                 expLines = open(explanations, "r")
@@ -80,14 +86,14 @@ def postProcess(id,n):
                 # flush outputs' buffer
                 outputs.flush()      
 
-                # repeat run for a total of 10 times to measure avgTime of the run
+                # repeat run for a total of "nIterations" times to measure "avgTime" of the run
                 avgTimeRun = endTime - startTime
-                for _ in range(n-1):
+                for _ in range(nIterations-1):
                     startTime = time.time()
                     os.system(runExplainer + " > /dev/null")
                     endTime = time.time()
                     avgTimeRun += (endTime - startTime) 
-                avgTimeRun = avgTimeRun / n    
+                avgTimeRun = avgTimeRun / nIterations    
 
                 # get back to post-processing folder
                 os.chdir(cwd)
@@ -111,12 +117,14 @@ def postProcess(id,n):
 if __name__ == "__main__":
     # store number "n" of iterations
     # (used to determine average explanation times)
-    if len(sys.argv) < 2:
-        print("ERROR: please specify the number of iterations")
+    if len(sys.argv) < 3:
+        print("ERROR: please specify the number of failures to consider and how many iterations to repeat")
         exit(-1)
-    n = int(sys.argv[1])
+    nFailures = int(sys.argv[1])
+    nIterations = int(sys.argv[2])
 
     # repeat post-processing for both version (with and without ids)
-    ids = ["","-noid"]
-    for id in ids:
-        postProcess(id,n)
+    print("* * Explaining WITH ids * *")
+    postProcess("",nFailures,nIterations)
+    print("\n* * Explaining WITHOUT ids * *")
+    postProcess("-noid",nFailures,nIterations)
