@@ -1,5 +1,6 @@
 # Output files
 *.txt
+*.pdf
 
 # Temporary files
 event.pl
