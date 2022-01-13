@@ -160,4 +160,4 @@ if __name__ == "__main__":
     times = parseTimes("times.csv")
     print(times)
     for t in times:
-        plot("time",times[t],t,"time (ms)",10)
+        plot("time",times[t],t,"time (ms/MB)",10)
