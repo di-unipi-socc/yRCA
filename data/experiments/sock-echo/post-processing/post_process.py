@@ -126,5 +126,5 @@ if __name__ == "__main__":
     # repeat post-processing for both version (with and without ids)
     print("* * Explaining WITH ids * *")
     postProcess("",nFailures,nIterations)
-    print("\n* * Explaining WITHOUT ids * *")
-    postProcess("-noid",nFailures,nIterations)
+    # print("\n* * Explaining WITHOUT ids * *")
+    # postProcess("-noid",nFailures,nIterations)
