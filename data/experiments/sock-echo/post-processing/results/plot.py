@@ -1,6 +1,7 @@
 import math
 import matplotlib.pyplot as plt
 import re
+import time
 
 def parseOutputs(outputsFile):
     out = { }
@@ -131,7 +132,7 @@ def plot(pdfName,experiment,xLabel,yLabel,yDelta):
     axes = plt.gca()
     axes.set_xticks(x)
     axes.set_ylim([0, math.ceil(maxY)+yDelta])
-    plt.plot(x,y) 
+    plt.plot(x,y,"--bo") 
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
 
@@ -142,22 +143,22 @@ def plot(pdfName,experiment,xLabel,yLabel,yDelta):
 
 
 if __name__ == "__main__":
-    
+    print("Generating plots...",end="",flush=True)
+
     # ----------------
     # plot outputs
     # ----------------
     outputs = parseOutputs("outputs.txt")
-    print(outputs)
-    print(outputs["count"])
     for o in outputs["count"]:
-        plot("count",outputs["count"][o],o,"number of possible explanations",1)
-        plot("success_percentage",outputs["accuracy"][o],o,"explained failures (%)",1) # change label into "successfully explained failures"?
+        plot("count",outputs["count"][o],o,"number of possible explanations",0)
+        plot("success_percentage",outputs["accuracy"][o],o,"explained failures (%)",10) # change label into "successfully explained failures"?
     
 
     # ----------------
     # plot times
     # ----------------
     times = parseTimes("times.csv")
-    print(times)
     for t in times:
         plot("time",times[t],t,"time (ms/MB)",10)
+
+    print("done!")
