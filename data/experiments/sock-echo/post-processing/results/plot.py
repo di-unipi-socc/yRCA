@@ -141,6 +141,14 @@ def plot(pdfName,experiment,xLabel,yLabel,yDelta):
     plt.savefig(pdfName)
     plt.clf()
 
+# function to print experiment results
+def printResults(heading,results):
+    print()
+    print("* "*3 + heading.upper() + " *"*3)
+    for experiment in results:
+        print(experiment)
+        for pair in results[experiment]:
+            print(" " + str(pair[0]) + "\t" + str(pair[1]))
 
 if __name__ == "__main__":
     print("Generating plots...",end="",flush=True)
@@ -162,3 +170,8 @@ if __name__ == "__main__":
         plot("time",times[t],t,"time (ms/MB)",10)
 
     print("done!")
+
+    printResults("count",outputs["count"])
+    printResults("success_percentage",outputs["accuracy"])
+    printResults("times",times)
+    
