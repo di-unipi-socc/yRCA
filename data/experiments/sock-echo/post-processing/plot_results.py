@@ -1,7 +1,9 @@
 import math
 import matplotlib.pyplot as plt
+import os
 import re
-import time
+
+plotsDir = "plots"
 
 def parseOutputs(outputsFile):
     out = { }
@@ -137,7 +139,7 @@ def plot(pdfName,experiment,xLabel,yLabel,yDelta):
     plt.ylabel(yLabel)
 
     # store plot on PDF
-    pdfName = xLabel.split(" ")[0] + "_" + pdfName + ".pdf"
+    pdfName = plotsDir + "/" + xLabel.split(" ")[0] + "_" + pdfName + ".pdf"
     plt.savefig(pdfName)
     plt.clf()
 
@@ -152,6 +154,10 @@ def printResults(heading,results):
 
 if __name__ == "__main__":
     print("Generating plots...",end="",flush=True)
+
+    # create folder where to store plots (if not existing)
+    if not os.path.exists(plotsDir):
+        os.makedirs(plotsDir)
 
     # ----------------
     # plot outputs
