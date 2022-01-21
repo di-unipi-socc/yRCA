@@ -20,9 +20,9 @@ deploy_and_load() {
     fault=0
     curlLog="curl.log"
     loglines=0
-    while [ $fault -lt 100 ] && [ $loglines -le 1000000 ] # loop until at least 100 frontend failures happened
+    while [ $fault -lt 200 ] && [ $loglines -le 10000000 ] # loop until at least 200 frontend failures happened
     do
-        ./generate_workload.sh -d 180 -p $requestPeriod > $curlLog
+        ./generate_workload.sh -d 240 -p $requestPeriod > $curlLog
         fault=$(grep ERROR echo-stack.log | grep _edgeRouter | grep -v own | wc -l)
         loglines=$(cat echo-stack.log | wc -l)
         echo "Generated faults: ${fault}"
@@ -75,7 +75,8 @@ echo "========================="
 results="generated-logs/logs_exp11_loadRate"
 mkdir -p $results
 
-requestPeriods="0.1 0.04 0.02 0.01333 0.01"
+#requestPeriods="0.1 0.04 0.02 0.01333 0.01"
+requestPeriods="0.04 0.02 0.01333 0.01 0.008 0.00667" # 25 50 75 100 125 150 req/s 
 failingService="shipping"
 for requestPeriod in $requestPeriods; do 	
     echo "RATE: ${requestPeriod}^(-1)" 
@@ -114,7 +115,8 @@ echo "========================="
 results="generated-logs/logs_exp12_invokeProbability"
 mkdir -p $results
 
-invokeProbabilities="10 25 50 75 100"
+#invokeProbabilities="10 25 50 75 100"
+invokeProbabilities="10 20 30 40 50 60 70 80 90 100"
 failingService="shipping"
 for invokeProbability in $invokeProbabilities; do 	
     echo "INVOKE PROBABILITY ${invokeProbability}" 
@@ -194,7 +196,8 @@ echo "========================="
 results="generated-logs/logs_exp22_failProbability"
 mkdir -p $results
 
-failProbabilities="10 20 30 40 50 60 70"
+#failProbabilities="10 20 30 40 50 60 70"
+failProbabilities="10 20 30 40 50 60 70 80 90 100"
 for failProbability in $failProbabilities; do 	
     echo "FAILING PROBABILITY: ${failProbability}" 
     # generate docker-compose file with single point of failure 
