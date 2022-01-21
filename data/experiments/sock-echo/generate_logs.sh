@@ -83,7 +83,7 @@ for requestPeriod in $requestPeriods; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
-        # all services set to be replicated over 3 instances
+        # spawning one instance of each service
         sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
@@ -123,7 +123,7 @@ for invokeProbability in $invokeProbabilities; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
-        # all services set to be replicated over 3 instances
+        # spawning one instance of each service
         sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability "invokeProbability"
         sed -i "s/${service^^}_INVOKE/${invokeProbability}/" docker-compose.yml
@@ -162,7 +162,7 @@ for failingService in $rootCauses; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
-        # all services set to be replicated over 3 instances
+        # spawning one instance of each service
         sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
@@ -203,7 +203,7 @@ for failProbability in $failProbabilities; do
     # generate docker-compose file with single point of failure 
     cp docker-compose.yml docker-compose.yml.original
     for service in $serviceList ; do
-        # all services set to be replicated over 3 instances
+        # spawning one instance of each service
         sed -i "s/${service^^}_REPLICAS/1/" docker-compose.yml
         # all services invoking backend services with probability 0.5
         sed -i "s/${service^^}_INVOKE/50/" docker-compose.yml
