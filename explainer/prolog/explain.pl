@@ -21,14 +21,14 @@ causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-                        %internal er
 causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-                        %failed interaction of invoked service
     (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
     failedInteraction(Id,(SI,I),(SJ,J),TsIJ,TeIJ), 
-    failedInteraction(_,(SJ,J),(_,_),TsJK,TeJK), TsIJ < TsJK, TeJK < TeIJ,
+    failedInteraction(_,(SJ,J),(_,_),TsJK,TeJK), TsIJ =< TsJK, TeJK =< TeIJ,
     log(SJ,J,TeJK,F,MJ,SevJ), lte(SevJ,warning), 
     X=log(SI,I,T,E,M,Sev),
     causedBy(log(SJ,J,TeJK,F,MJ,SevJ),Xs,Root).
 
 causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-           %timed-out interaction of invoked service
     timedOutInteraction(Id,(SI,I),(SJ,J),_,TeIJ), 
-    timedOutInteraction(_,(SJ,J),(SK,_),TsJK,TeJK), TsJK < TeIJ, TeIJ < TeJK,
+    timedOutInteraction(_,(SJ,J),(SK,_),TsJK,TeJK), TsJK =< TeIJ, TeIJ < TeJK, 
     log(SJ,J,TeJK,timeout(SK,IdJK),MJ,SevJ),
     X=log(SI,I,T,timeout(SJ,Id),M,Sev),
     causedBy(log(SJ,J,TeJK,timeout(SK,IdJK),MJ,SevJ),Xs,Root).
@@ -36,7 +36,7 @@ causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-           %timed-out i
 causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-                        %unreachable service called by invoked service
     (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
     failedInteraction(Id,(SI,I),(SJ,J),TsIJ,TeIJ), 
-    nonReceivedRequest(IdK,J,SK,TsJK,TeJK), TsIJ < TsJK, TsJK < TeIJ,
+    nonReceivedRequest(IdK,J,SK,TsJK,TeJK), TsIJ =< TsJK, TsJK =< TeIJ,
     log(SJ,J,TeJK,timeout(SK,IdK),MJ,SevJ),
     X=log(SI,I,T,E,M,Sev),
     causedBy(log(SJ,J,TeJK,timeout(SK,IdK),MJ,SevJ),Xs,Root).
@@ -60,7 +60,7 @@ causedBy(unreachable(Root),[X],Root) :-                             %base case: 
 nonReceivedRequest(Id,I,SJ,Ts,Te) :-
     log(SI,I,Ts,sendTo(SJ,Id),_,_),
     log(SI,I,Te,timeout(SJ,Id),_,_),
-    \+ (log(SJ,_,Tr,received(X),_,_), Ts < Tr, Tr < Te, (X=Id;X=noId)).
+    \+ (log(SJ,_,Tr,received(X),_,_), Ts =< Tr, Tr =< Te, (X=Id;X=noId)).
 
 failedInteraction(Id,(SI,I),(SJ,J),Ts,Te) :-
     errorInteraction(Id,(SI,I),(SJ,J),Ts,Te); timedOutInteraction(Id,(SI,I),(SJ,J),Ts,Te).
@@ -76,7 +76,7 @@ timedOutInteraction(Id,(SI,I),(SJ,J),Ts,Te) :-
 interaction(Id,(SI,I),(SJ,J),Ts,Te) :-
     log(SI,I,Ts,sendTo(SJ,Id),_,_), 
     log(SJ,J,Tr,received(X),_,_), 
-    (X=Id; X=noId), Ts < Tr, Tr < Te. % noId accounts for non-instrumented components
+    (X=Id; X=noId), Ts =< Tr, Tr =< Te. % noId accounts for non-instrumented components
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
 
