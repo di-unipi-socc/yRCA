@@ -8,9 +8,8 @@ services:
     ports: ['8080:80']
     depends_on: [frontend, elasticsearch, kibana, logstash]
     image: diunipisocc/chaosecho:1
-    #environment: {P_INVOKE: EDGEROUTER_INVOKE, P_FAIL: EDGEROUTER_FAIL, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: frontend}
-    environment: {P_INVOKE: EDGEROUTER_INVOKE, P_FAIL: 0, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: frontend} # never failing on its own
-    deploy: {replicas: EDGEROUTER_REPLICAS}
+    environment: {P_INVOKE: 100, P_FAIL: 0, P_CRASH: 25, TIMEOUT: 5000, DEPENDS_ON: frontend} # never failing on its own
+    deploy: {replicas: 1}
     logging:
       driver: gelf
       options: {tag: edgeRouter, gelf-address: 'tcp://localhost:12201'}
