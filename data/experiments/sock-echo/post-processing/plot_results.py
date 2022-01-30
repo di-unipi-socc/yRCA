@@ -159,6 +159,9 @@ if __name__ == "__main__":
     if not os.path.exists(plotsDir):
         os.makedirs(plotsDir)
 
+    # config plot's defaults
+    plt.rcParams.update({'font.size': 14}) 
+
     # ----------------
     # plot outputs
     # ----------------
