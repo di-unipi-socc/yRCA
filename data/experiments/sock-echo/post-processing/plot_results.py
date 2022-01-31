@@ -17,23 +17,24 @@ def parseOutputs(outputsFile):
     nFailures = None
     noExps = None
     for outputLine in list(outputs):
-        if "logs_exp" in outputLine:
+        if "logs_exp" in outputLine: # case: new experiment
             addOutput(out,experiment,value,nFailures,count,noExps)
             experiment = adaptLabel(outputLine[:-1])
             out["count"][experiment] = []
             out["accuracy"][experiment] = []
             value = None
             count = None
-        if outputLine[0] == ">":
+            roots = {}
+        elif outputLine[0] == ">": # case: new experiment's value
             addOutput(out,experiment,value,nFailures,count,noExps)
             logFileInfo = re.match(r'> all-(?P<value>.*).log \((?P<n>.*) failures\)',outputLine)
             value = adaptValue(logFileInfo.group("value"))
             nFailures = int(logFileInfo.group("n"))
             count = 0
             noExps = 0
-        if outputLine[0] == "[":
+        elif outputLine[0] == "[": # case: new solution
             count += 1
-        if "no failure cascade" in outputLine:
+        elif "no failure cascade" in outputLine: # case: no solution found
             noExps += 1 
     addOutput(out,experiment,value,nFailures,count,noExps)
     outputs.close()
