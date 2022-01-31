@@ -135,20 +135,36 @@ def adaptValue(experimentValue):
     return None
 
 # function to plot "experiment" list
-def plot(pdfName,experiment,xLabel,yLabel,yTop):
-    # excerpt x/y coordinates from list of pairs
-    x = [p[0] for p in experiment]
-    y = [p[1] for p in experiment]
-    
+def plot(pdfName,coord1,label1,coord2,label2,xLabel,yLabel,yTop):
     # configure plot 
     axes = plt.gca()
-    axes.set_xticks(x)
+    
+    # plot x/y coordinates from list of pairs "coord1"
+    x1 = [p[0] for p in coord1]
+    y1 = [p[1] for p in coord1]
+    if label1 is not None:
+        plt.plot(x1,y1,":bo",label=label1)
+    else:
+        plt.plot(x1,y1,":bo")
+
+    # plot x/y coordinates from list of pairs "coord2" (if any)
+    if coord2 is not None:
+        x2 = [p[0] for p in coord2]
+        y2 = [p[1] for p in coord2]
+        if label1 is not None:
+            plt.plot(x2,y2,":g^",label=label2)
+        else:
+            plt.plot(x2,y2,":g^")
+
+    # plot legend, if any
+    if label1 or label2:
+        plt.legend(loc="upper left")
+
+    # configure labels
+    axes.set_xticks(x1)
     axes.set_ylim([0, yTop])
-    plt.plot(x,y,"--bo") 
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
-
-    # label area
     plt.subplots_adjust(bottom=0.18)
     plt.subplots_adjust(left=0.18)
 
@@ -181,8 +197,8 @@ if __name__ == "__main__":
     # ----------------
     outputs = parseOutputs("outputs.txt")
     for o in outputs["count"]:
-        plot("count",outputs["count"][o],o,"number",4)
-        plot("success_percentage",outputs["accuracy"][o],o,"explained failures (%)",100) # change label into "successfully explained failures"?
+        plot("count",outputs["count"][o],"cascades",outputs["roots"][o],"root causes",o,"count",5)
+        plot("success_percentage",outputs["accuracy"][o],None,None,None,o,"explained failures (%)",100)
     
 
     # ----------------
@@ -190,17 +206,11 @@ if __name__ == "__main__":
     # ----------------
     times = parseTimes("times.csv")
     for t in times:
-        plot("time",times[t],t,"time (ms/MB)",275)
+        plot("time",times[t],None,None,None,t,"time (ms/MB)",275)
 
     print("done!")
 
     printResults("count",outputs["count"])
     printResults("success_percentage",outputs["accuracy"])
     printResults("times",times)
-
-    print()
-    print(outputs["count"])
-    
-    print()
-    print(outputs["roots"])
     
