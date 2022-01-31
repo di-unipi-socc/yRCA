@@ -8,6 +8,7 @@ plotsDir = "plots"
 def parseOutputs(outputsFile):
     out = { }
     out["count"] = {}
+    out["roots"] = {}
     out["accuracy"] = {}
     outputs = open(outputsFile)
 
@@ -16,42 +17,57 @@ def parseOutputs(outputsFile):
     count = None
     nFailures = None
     noExps = None
+    roots = None
     for outputLine in list(outputs):
         if "logs_exp" in outputLine: # case: new experiment
-            addOutput(out,experiment,value,nFailures,count,noExps)
+            #addOutput(out,experiment,value,nFailures,count,noExps,roots)
             experiment = adaptLabel(outputLine[:-1])
             out["count"][experiment] = []
+            out["roots"][experiment] = []
             out["accuracy"][experiment] = []
             value = None
             count = None
+            roots = None
         elif outputLine[0] == ">": # case: new experiment's value
-            addOutput(out,experiment,value,nFailures,count,noExps)
+            #addOutput(out,experiment,value,nFailures,count,noExps,roots)
             logFileInfo = re.match(r'> all-(?P<value>.*).log \((?P<n>.*) failures\)',outputLine)
             value = adaptValue(logFileInfo.group("value"))
             nFailures = int(logFileInfo.group("n"))
             count = 0
             noExps = 0
+            roots = 0
+            rootVals = {}
         elif outputLine[0] == "[": # case: new solution
             count += 1
         elif "no failure cascade" in outputLine: # case: no solution found
             noExps += 1 
+        elif ": unreachable" in outputLine or ": <internal error>" in outputLine: # case: root cause
+            rootVal = outputLine.split(":")[0].replace(" ","")[2:]
+            if not rootVal in rootVals: # added only if not already considered as a root cause for current failure
+                rootVals[rootVal] = True
+                roots +=1
+        elif outputLine[0] == "{": # case: new failure for an experiment's value
+            rootVals = {}
         elif outputLine == "\n":
-            addOutput(out,experiment,value,nFailures,count,noExps)
+            addOutput(out,experiment,value,nFailures,count,noExps,roots)
     outputs.close()
 
     # sort experiments' lists by experiment value
     for experiment in out["count"]:
         out["count"][experiment].sort(key=lambda pair:pair[0])
+    for experiment in out["count"]:
+        out["roots"][experiment].sort(key=lambda pair:pair[0])
     for experiment in out["accuracy"]:
         out["accuracy"][experiment].sort(key=lambda pair:pair[0])
 
     return out
 
 # function to add an output, if experiment and value are both defined
-def addOutput(outputs,experiment,value,nFailures,count,noExps):
+def addOutput(outputs,experiment,value,nFailures,count,noExps,roots):
     if experiment and value and count:
         nExplainedFailures = nFailures - noExps
         outputs["count"][experiment].append([value,count/nExplainedFailures])
+        outputs["roots"][experiment].append([value,roots/nExplainedFailures])
         accuracy = nExplainedFailures * 100 / nFailures
         outputs["accuracy"][experiment].append([value,accuracy])
 
@@ -185,4 +201,10 @@ if __name__ == "__main__":
     printResults("count",outputs["count"])
     printResults("success_percentage",outputs["accuracy"])
     printResults("times",times)
+
+    print()
+    print(outputs["count"])
+    
+    print()
+    print(outputs["roots"])
     
