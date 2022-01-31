@@ -119,25 +119,24 @@ def adaptValue(experimentValue):
     return None
 
 # function to plot "experiment" list
-def plot(pdfName,experiment,xLabel,yLabel,yDelta):
+def plot(pdfName,experiment,xLabel,yLabel,yTop):
     # excerpt x/y coordinates from list of pairs
     x = []
     y = []
-    maxY = -1
     for pair in experiment:
         x.append(pair[0]) 
         yValue = pair[1]
         y.append(yValue)
-        if yValue > maxY:
-            maxY = yValue
     
     # configure plot 
     axes = plt.gca()
     axes.set_xticks(x)
-    axes.set_ylim([0, math.ceil(maxY)+yDelta])
+    axes.set_ylim([0, yTop])
     plt.plot(x,y,"--bo") 
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
+
+    plt.subplots_adjust(bottom=0.18)
 
     # store plot on PDF
     pdfName = plotsDir + "/" + xLabel.split(" ")[0] + "_" + pdfName + ".pdf"
@@ -161,15 +160,15 @@ if __name__ == "__main__":
         os.makedirs(plotsDir)
 
     # config plot's defaults
-    plt.rcParams.update({'font.size': 14}) 
+    plt.rcParams.update({'font.size': 20}) 
 
     # ----------------
     # plot outputs
     # ----------------
     outputs = parseOutputs("outputs.txt")
     for o in outputs["count"]:
-        plot("count",outputs["count"][o],o,"number of possible explanations",0)
-        plot("success_percentage",outputs["accuracy"][o],o,"explained failures (%)",10) # change label into "successfully explained failures"?
+        plot("count",outputs["count"][o],o,"number",4)
+        plot("success_percentage",outputs["accuracy"][o],o,"explained failures (%)",100) # change label into "successfully explained failures"?
     
 
     # ----------------
@@ -177,7 +176,7 @@ if __name__ == "__main__":
     # ----------------
     times = parseTimes("times.csv")
     for t in times:
-        plot("time",times[t],t,"time (ms/MB)",10)
+        plot("time",times[t],t,"time (ms/MB)",275)
 
     print("done!")
 
