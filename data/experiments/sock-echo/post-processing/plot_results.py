@@ -136,7 +136,9 @@ def plot(pdfName,experiment,xLabel,yLabel,yTop):
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
 
+    # label area
     plt.subplots_adjust(bottom=0.18)
+    plt.subplots_adjust(left=0.18)
 
     # store plot on PDF
     pdfName = plotsDir + "/" + xLabel.split(" ")[0] + "_" + pdfName + ".pdf"
@@ -159,7 +161,7 @@ if __name__ == "__main__":
     if not os.path.exists(plotsDir):
         os.makedirs(plotsDir)
 
-    # config plot's defaults
+    # confige plt's defaults
     plt.rcParams.update({'font.size': 20}) 
 
     # ----------------
