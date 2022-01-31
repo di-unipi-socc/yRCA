@@ -164,9 +164,9 @@ def plot(pdfName,coord1,label1,coord2,label2,xLabel,yLabel,yTop):
     axes.set_xticks(x1)
     axes.set_ylim([0, yTop])
     plt.xlabel(xLabel)
-    plt.ylabel(yLabel)
     plt.subplots_adjust(bottom=0.18)
-    plt.subplots_adjust(left=0.18)
+    # plt.ylabel(yLabel)
+    # plt.subplots_adjust(left=0.18)
 
     # store plot on PDF
     pdfName = plotsDir + "/" + xLabel.split(" ")[0] + "_" + pdfName + ".pdf"
