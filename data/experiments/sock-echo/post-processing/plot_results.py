@@ -137,12 +137,8 @@ def adaptValue(experimentValue):
 # function to plot "experiment" list
 def plot(pdfName,experiment,xLabel,yLabel,yTop):
     # excerpt x/y coordinates from list of pairs
-    x = []
-    y = []
-    for pair in experiment:
-        x.append(pair[0]) 
-        yValue = pair[1]
-        y.append(yValue)
+    x = [p[0] for p in experiment]
+    y = [p[1] for p in experiment]
     
     # configure plot 
     axes = plt.gca()
