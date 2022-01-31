@@ -24,7 +24,6 @@ def parseOutputs(outputsFile):
             out["accuracy"][experiment] = []
             value = None
             count = None
-            roots = {}
         elif outputLine[0] == ">": # case: new experiment's value
             addOutput(out,experiment,value,nFailures,count,noExps)
             logFileInfo = re.match(r'> all-(?P<value>.*).log \((?P<n>.*) failures\)',outputLine)
@@ -36,7 +35,8 @@ def parseOutputs(outputsFile):
             count += 1
         elif "no failure cascade" in outputLine: # case: no solution found
             noExps += 1 
-    addOutput(out,experiment,value,nFailures,count,noExps)
+        elif outputLine == "\n":
+            addOutput(out,experiment,value,nFailures,count,noExps)
     outputs.close()
 
     # sort experiments' lists by experiment value
@@ -49,7 +49,7 @@ def parseOutputs(outputsFile):
 
 # function to add an output, if experiment and value are both defined
 def addOutput(outputs,experiment,value,nFailures,count,noExps):
-    if experiment and value:
+    if experiment and value and count:
         nExplainedFailures = nFailures - noExps
         outputs["count"][experiment].append([value,count/nExplainedFailures])
         accuracy = nExplainedFailures * 100 / nFailures
