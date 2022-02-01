@@ -64,14 +64,10 @@ def postProcess(id,nFailures,nIterations):
                 # process failure file with "explain.py"
                 explanations = os.path.join(cwd,"explanations")
                 os.chdir("../../../..")
-                runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates # add "timeout 30m" at the beginning to set upperbound exec time (30m)
+                runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates 
                 startTime = time.time()
                 os.system(runExplainer + " > " + explanations)
                 endTime = time.time()
-
-                # skip rest of the iteration if explain failed to complete (stopped because of timeout)
-                # if os.path.getsize(explanations) == 0:
-                #     continue
 
                 # write computed "outputs"
                 expLines = open(explanations, "r")
