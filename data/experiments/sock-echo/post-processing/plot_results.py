@@ -79,6 +79,8 @@ def parseTimes(timesFile):
     # process each csv line separately
     csvTimes = open(timesFile)
     for csvTime in list(csvTimes):
+        if csvTime == "\n":
+            continue # skip empty lines (if any)
         splittedTime = csvTime.split(",")
         # add "experiment" to "times", if not there already
         experiment = adaptLabel(splittedTime[0])
@@ -180,7 +182,7 @@ def printResults(heading,results):
     for experiment in results:
         print(experiment)
         for pair in results[experiment]:
-            print(" " + str(pair[0]) + "\t" + str(pair[1]))
+            print(" " + str(pair[0]) + "\t" + "{:.3f}".format(pair[1]))
 
 if __name__ == "__main__":
     print("Generating plots...",end="",flush=True)
@@ -210,7 +212,8 @@ if __name__ == "__main__":
 
     print("done!")
 
-    printResults("count",outputs["count"])
+    printResults("count (cascades)",outputs["count"])
+    printResults("count (root causes)",outputs["roots"])
     printResults("success_percentage",outputs["accuracy"])
     printResults("times",times)
     
