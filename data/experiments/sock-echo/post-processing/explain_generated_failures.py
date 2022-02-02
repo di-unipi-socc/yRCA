@@ -1,4 +1,5 @@
 import os
+import random 
 import sys
 import time
 
@@ -44,8 +45,11 @@ def postProcess(id,nFailures,nIterations):
             # get frontend "failures" in considered "logFile"
             grepFailures = "grep ERROR '" + logFile + "' | grep _edgeRouter | grep -v own"
             allFailures = os.popen(grepFailures)
-            failures = list(allFailures)[-nFailures:] # considering the last "nFailures" failures
-            
+            failures = list(allFailures)
+            failures = failures[:nFailures] # considering the first generated failures
+            # failures = random.sample(failures,nFailures) # considering the a random subset of generated failures
+            # failures = failures[-nFailures:] # considering the last generated failures
+
             # write heading in outputs
             outputs.write("> " + file + " (" + str(len(failures)) + " failures)\n\n")
             
