@@ -42,7 +42,7 @@ def postProcess(id,nFailures,nIterations):
             logFile = os.path.join(logSubfolder,file)
             
             # get frontend "failures" in considered "logFile"
-            grepFailures = "grep ERROR " + logFile + " | grep _edgeRouter | grep -v own"
+            grepFailures = "grep ERROR '" + logFile + "' | grep _edgeRouter | grep -v own"
             allFailures = os.popen(grepFailures)
             failures = list(allFailures)[-nFailures:] # considering the last "nFailures" failures
             
@@ -64,9 +64,9 @@ def postProcess(id,nFailures,nIterations):
                 # process failure file with "explain.py"
                 explanations = os.path.join(cwd,"explanations")
                 os.chdir("../../../..")
-                runExplainer = "python3 explain.py " + failureFile + " " + logFile + " " + templates 
+                runExplainer = "python3 explain.py '" + failureFile + "' '" + logFile + "' '" + templates + "'"
                 startTime = time.time()
-                os.system(runExplainer + " > " + explanations)
+                os.system(runExplainer + " > '" + explanations + "'")
                 endTime = time.time()
 
                 # write computed "outputs"
