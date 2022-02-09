@@ -166,7 +166,7 @@ def plot(pdfName,coord1,label1,coord2,label2,xLabel,yLabel,yTop):
     axes.set_xticks(x1)
     axes.set_ylim([0, yTop])
     plt.xlabel(xLabel)
-    plt.subplots_adjust(bottom=0.18)
+    plt.subplots_adjust(bottom=0.15)
     # plt.ylabel(yLabel)
     # plt.subplots_adjust(left=0.18)
 
@@ -193,6 +193,7 @@ if __name__ == "__main__":
 
     # confige plt's defaults
     plt.rcParams.update({'font.size': 20}) 
+    plt.figure(figsize=(6, 6))
 
     # ----------------
     # plot outputs
