@@ -46,8 +46,8 @@ def postProcess(id,nFailures,nIterations):
             grepFailures = "grep ERROR '" + logFile + "' | grep _edgeRouter | grep -v own"
             allFailures = os.popen(grepFailures)
             failures = list(allFailures)
-            failures = failures[:nFailures] # considering the first generated failures
-            # failures = random.sample(failures,nFailures) # considering the a random subset of generated failures
+            # failures = failures[:nFailures] # considering the first generated failures
+            failures = random.sample(failures,nFailures) # considering the a random subset of generated failures
             # failures = failures[-nFailures:] # considering the last generated failures
 
             # write heading in outputs

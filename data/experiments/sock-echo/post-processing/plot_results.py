@@ -209,7 +209,7 @@ if __name__ == "__main__":
     # ----------------
     times = parseTimes("times.csv")
     for t in times:
-        plot("time",times[t],None,None,None,t,"time (ms/MB)",275)
+        plot("time",times[t],None,None,None,t,"time (ms/MB)",500)
 
     print("done!")
 
