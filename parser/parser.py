@@ -12,6 +12,11 @@ def parseEvents(applicationLogs,targetFile,templater):
     for le in reversed(list(loggedEvents)): 
         # parsing log event with chosen template
         event = templater.parse(le)
+
+        # Generate log facts only for events that are truly of interest 
+        if event.message.type == MessageType.OTHER and event.severity in ["info","debug"]:
+            continue
+
         # write prolog corresponding fact
         knowledgeBase.write(generateLogFact(event))
 
