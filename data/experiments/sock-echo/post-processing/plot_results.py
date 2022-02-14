@@ -1,5 +1,5 @@
-import math
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 import re
 
@@ -162,11 +162,28 @@ def plot(pdfName,coord1,label1,coord2,label2,xLabel,yLabel,yTop):
     if label1 or label2:
         plt.legend(loc="upper left")
 
-    # configure labels
-    axes.set_xticks(x1)
+    # configure x ticks
+    if len(x1) < 6: 
+        xs = x1
+    else: 
+        xs = []
+        i = 1
+        step = 2
+        while i < len(x1):
+            xs.append(x1[i])
+            i += step
+    axes.set_xticks(xs)
+
+    # configure y ticks
     axes.set_ylim([0, yTop])
-    plt.xlabel(xLabel)
-    plt.subplots_adjust(bottom=0.15)
+    if yTop < 10:
+        axes.set_yticks(np.arange(0, yTop, 1))
+    else:
+        axes.set_yticks(np.arange(0,yTop,100))
+
+    # configure labels
+    # plt.xlabel(xLabel)
+    # plt.subplots_adjust(bottom=0.18)
     # plt.ylabel(yLabel)
     # plt.subplots_adjust(left=0.18)
 
@@ -192,15 +209,15 @@ if __name__ == "__main__":
         os.makedirs(plotsDir)
 
     # confige plt's defaults
-    plt.rcParams.update({'font.size': 20}) 
-    plt.figure(figsize=(6, 6))
+    plt.rcParams.update({'font.size': 25}) 
+    plt.figure(figsize=(7, 4))
 
     # ----------------
     # plot outputs
     # ----------------
     outputs = parseOutputs("outputs.txt")
     for o in outputs["count"]:
-        plot("count",outputs["count"][o],"cascades",outputs["roots"][o],"root causes",o,"count",5)
+        plot("count",outputs["count"][o],"explanations",outputs["roots"][o],"root causes",o,"count",5)
         plot("success_percentage",outputs["accuracy"][o],None,None,None,o,"explained failures (%)",100)
     
 
@@ -209,7 +226,7 @@ if __name__ == "__main__":
     # ----------------
     times = parseTimes("times.csv")
     for t in times:
-        plot("time",times[t],None,None,None,t,"time (ms/MB)",500)
+        plot("time",times[t],None,None,None,t,"time (ms/MB)",450)
 
     print("done!")
 
