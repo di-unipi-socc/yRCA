@@ -209,8 +209,8 @@ if __name__ == "__main__":
         os.makedirs(plotsDir)
 
     # confige plt's defaults
-    plt.rcParams.update({'font.size': 25}) 
-    plt.figure(figsize=(7, 4))
+    plt.rcParams.update({'font.size': 28}) 
+    plt.figure(figsize=(7, 4.5))
 
     # ----------------
     # plot outputs
