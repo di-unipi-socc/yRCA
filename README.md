@@ -1,8 +1,8 @@
-# xfail
-**xFail** enables identifying the possible root causes for a (failure) event to happen in a service instance in a multi-service application, only based on the application logs.
+# yRCA
+**yRCA** enables identifying the possible root causes for a (failure) event to happen in a service instance in a multi-service application, only based on the application logs.
 
-## How to Run xFail
-**xFail** provides a Python3-based command-line interface, which can be run with the following command:
+## How to Run yRCA
+**yRCA** provides a Python3-based command-line interface, which can be run with the following command:
 ```
 python3 explain.py [OPTIONS] EVENT APPLICATION_LOGS
 ```
@@ -10,9 +10,9 @@ where
 * `EVENT` is the path to the file containing the logged event that is to be explained, while
 * `APPLICATION_LOGS` is the path to the file containing the logged events to be considered for explaining `EVENT`, viz., for finding the possible failure cascades causing `EVENT` to happen.
 
-By default, **xFail** finds all possible explanations,  viz., the failure cascades that may have possibly caused `EVENT` to happen.
-It does so whilst considering the application to feature a logging hearbeat period of 100 milliseconds and considering a "lookback radius" of 10 seconds (with the latter meaning that **xFail** assumes that an event may have *directly* caused another only if -at most- 10 seconds have lasted between such events). 
-**xFail** can anyhow be configured with the available CLI `OPTIONS`, viz.,
+By default, **yRCA** finds all possible explanations,  viz., the failure cascades that may have possibly caused `EVENT` to happen.
+It does so whilst considering the application to feature a logging hearbeat period of 100 milliseconds and considering a "lookback radius" of 10 seconds (with the latter meaning that **yRCA** assumes that an event may have *directly* caused another only if -at most- 10 seconds have lasted between such events). 
+**yRCA** can anyhow be configured with the available CLI `OPTIONS`, viz.,
 * `-b N` or `--beat=N`, to set to `N` milliseconds the period of the target application's heartbeat logs,
 * `-l N` or `--lookbackRadius=N`, to set to `N` the lookback radius in finding explanations,
 * `-n N` or `--nSols=N`, to set the number `N` of possible explanations to identify, and
@@ -20,7 +20,7 @@ It does so whilst considering the application to feature a logging hearbeat peri
 
 ## How xFail Works
 
-**xFail** is composed of two main components, viz., the `parser` and the `explainer`, which are invoked in sequence by the main module (`explain`), which implements the command-line interface.
+**yRCA** is composed of two main components, viz., the `parser` and the `explainer`, which are invoked in sequence by the main module (`explain`), which implements the command-line interface.
 
 ### The Parser
 The `parser` provides a function `parse` for parsing a file `applicationLogs`, containing all events logged by all service instances in the considered run of a multi-service application.
