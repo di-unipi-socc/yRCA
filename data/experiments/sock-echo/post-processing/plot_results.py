@@ -137,7 +137,7 @@ def adaptValue(experimentValue):
     return None
 
 # function to plot "experiment" list
-def plot(pdfName,coord1,label1,coord2,label2,xLabel,yLabel,yTop):
+def plot(pdfName,coord1,label1,coord2,label2,experimentName,yTop):
     # configure plot 
     axes = plt.gca()
     
@@ -181,14 +181,8 @@ def plot(pdfName,coord1,label1,coord2,label2,xLabel,yLabel,yTop):
     else:
         axes.set_yticks(np.arange(0,yTop,100))
 
-    # configure labels
-    # plt.xlabel(xLabel)
-    # plt.subplots_adjust(bottom=0.18)
-    # plt.ylabel(yLabel)
-    # plt.subplots_adjust(left=0.18)
-
     # store plot on PDF
-    pdfName = plotsDir + "/" + xLabel.split(" ")[0] + "_" + pdfName + ".pdf"
+    pdfName = plotsDir + "/" + experimentName.split(" ")[0] + "_" + pdfName + ".pdf"
     plt.savefig(pdfName)
     plt.clf()
 
@@ -217,8 +211,8 @@ if __name__ == "__main__":
     # ----------------
     outputs = parseOutputs("outputs.txt")
     for o in outputs["count"]:
-        plot("count",outputs["count"][o],"explanations",outputs["roots"][o],"root causes",o,"count",5)
-        plot("success_percentage",outputs["accuracy"][o],None,None,None,o,"explained failures (%)",100)
+        plot("count",outputs["count"][o],"explanations",outputs["roots"][o],"root causes",o,6)
+        plot("success_percentage",outputs["accuracy"][o],None,None,None,o,100)
     
 
     # ----------------
@@ -226,7 +220,7 @@ if __name__ == "__main__":
     # ----------------
     times = parseTimes("times.csv")
     for t in times:
-        plot("time",times[t],None,None,None,t,"time (ms/MB)",450)
+        plot("time",times[t],None,None,None,t,450)
 
     print("done!")
 
