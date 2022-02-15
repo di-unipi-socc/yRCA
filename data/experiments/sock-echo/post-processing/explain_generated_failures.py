@@ -65,10 +65,10 @@ def postProcess(id,nFailures,nIterations):
                 # write failure on outputs
                 outputs.write(failure)
 
-                # process failure file with "explain.py"
+                # process failure file with "yrca.py"
                 explanations = os.path.join(cwd,"explanations")
                 os.chdir("../../../..")
-                runExplainer = "python3 explain.py '" + failureFile + "' '" + logFile + "' '" + templates + "'"
+                runExplainer = "python3 yrca.py '" + failureFile + "' '" + logFile + "' '" + templates + "'"
                 startTime = time.time()
                 os.system(runExplainer + " > '" + explanations + "'")
                 endTime = time.time()
