@@ -9,29 +9,41 @@ The [docker-compose.yml](docker-compose.yml) file is specified so as to enable c
 Those services correspond to the services whose failure can cause a (cascading) failure in `edgeRouter`, which is the service acting as frontend of the application.
 
 ## The Experiment
-TBD
+The experiment measures the performances of our tool in determining the possible root causes for an observed failure and the explanations (namely, the failure cascades) due to which root causing failures propagated to that observed.
+For this, `edgeRouter` is set to always invoke its backend services and to never fail on its own. 
+The other services are instead configured to vary (a) end-user load, (b) service interaction rate, (c) failure cascade lenght, and (d) service failure rate.
 
 ## Running the Experiment
-TBD
+The experiment runs in two subsequent steps, namely (1) log generation and (2) root cause analysis. An additional, optional step (3) enables plotting the results.
 
-- - - - 
-**Experiments**
+**Step 1: Log generation**
 
-Measure accuracy (amount of returned solutions/explanations) and time performances of three different levels of instrumentation
-1. no instrumentation (ids not logged by neither client nor server)
-2. instrumented invocations (ids logged only by invokers)
-3. instrumented interactions (ids logged by invokers and invokees)
+Run the [generate_logs](https://github.com/di-unipi-socc/xfail/blob/main/data/experiments/sock-echo/generate_logs.sh) script with the command
+```
+./generate_logs.sh
+```
+This will result in the creation of a folder `generated-logs`, which will contain four sub-folders, one for each of the cases (a-d). 
+Each subfolder will in turn contain multiple log files, one for each of the values considered in the corresponding case.
 
-**Howto**
+**Step 2: Root Cause Analysis**
 
-Generate logs to be processed by versions 1-3 (same logs, different information considered).
-1. varying MBs of logs (higher load per second, higher amount of logs) -> just one service failing, always "shipping" failing
-    1. increasing end user load (fixed invoke probability)
-        - 1 (1), 10 (0.1), 20 (0.05), 30 (0.033), 40 (0.025), 50 (0.02), 60 (0.0167), 70 (0.0143), 80 (0.0125), 90 (0.0111), 100 (0.01) -> rate (period between requests) 
-    2. increasing invoke probability (fixed user load) -> 10 r/s
-        - 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100
-2. varying failing services (small amount of logs, to enable manually checking them)
-    1. varying length of failure cascade
-        - 1 (edgerouter-frontend), 2 (edgerouter-frontend-orders), 3 (edgerouter-frontend-orders-shipping), 4 (edgerouter-frontend-orders-shipping-rabbitmq)
-    2. varying failure probability
-        -  1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100
+Move to the [post-processing](https://github.com/di-unipi-socc/xfail/tree/main/data/experiments/sock-echo/post-processing) subfolder and run the Python [script](https://github.com/di-unipi-socc/xfail/blob/main/data/experiments/sock-echo/post-processing/explain_generated_failures.py) for explaining the 's generated failures in each of the cases (a-d)
+```
+cd post-processing
+python3 explain_generated_failures.py
+```
+This will generate two files, namely `outputs.txt` and `times.csv`.
+* `output.txt` contains the results of the root cause analysis enacted for each `edgeRouter`'s considered for each value of the cases (a-d).
+* `times.csv` contains the average time elapsed in analysing an `edgeRouter`'s failure for each value of the cases (a-d).
+
+**Step 3: Plot Results (Optional)**
+
+Run the Python script [plot_results](https://github.com/di-unipi-socc/xfail/blob/main/data/experiments/sock-echo/post-processing/plot_results.py):
+```
+python3 plot_results.py
+```
+This will result in generating a folder `plots` containing a set of PDFs, displaying
+* the varying number of identified root causes/explanations for each of the cases (a-d),
+* the percentage of explained failures for each of the cases (a-d), and
+* the varying time elapsed in explaining failures in each of the cases (a-d).
+(Note: In the latter case, time is normalised in millis/MB of logs, given that generated log files have different sizes)
