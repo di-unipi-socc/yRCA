@@ -221,7 +221,7 @@ if __name__ == "__main__":
         print("*"*30, file=checkResults)
         for file in o[folder]:
             print("FILE: " + file, file=checkResults)
-            logsFilePath = os.path.join("../generated-logs",folder,file) 
+            logsFilePath = os.path.join("../../generated-logs",folder,file) 
             c = 0
             for event in o[folder][file]:
                 print(str(c) + ": " + event, file=checkResults)
