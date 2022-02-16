@@ -221,7 +221,7 @@ if __name__ == "__main__":
         print("*"*25)
         for file in o[folder]:
             print("FILE: " + file)
-            logsFilePath = os.path.join(cwd,folder,file) 
+            logsFilePath = os.path.join("../generated-logs",folder,file) 
             for event in o[folder][file]:
                 gtruth = getErrorTraceFromFiles(event,logsFilePath)
                 found = False
