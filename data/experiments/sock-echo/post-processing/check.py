@@ -215,7 +215,7 @@ if __name__ == "__main__":
     cwd = os.getcwd()
     for folder in o:
         print("*"*30)
-        print("** FOLDER: " + folder + " **")
+        print(" FOLDER: " + folder)
         print("*"*30)
         for file in o[folder]:
             print("FILE: " + file)
