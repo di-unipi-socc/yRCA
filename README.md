@@ -4,17 +4,17 @@
 ## How to Run yRCA
 **yRCA** provides a Python3-based command-line interface, which can be run with the following command:
 ```
-python3 explain.py [OPTIONS] EVENT APPLICATION_LOGS
+python3 explain.py [OPTIONS] EVENT LOGS TEMPLATES
 ```
 where
-* `EVENT` is the path to the file containing the logged event that is to be explained, while
-* `APPLICATION_LOGS` is the path to the file containing the logged events to be considered for explaining `EVENT`, viz., for finding the possible failure cascades causing `EVENT` to happen.
+* `EVENT` is the path to the file containing the logged event that is to be explained (e.g., [event-edgeRouter.log](https://github.com/di-unipi-socc/yRCA/blob/main/data/examples/sock-echo/orders-fail/event-edgeRouter.log)),
+* `LOGS` is the path to the file containing the logged events to be considered for explaining `EVENT`, viz., for finding the possible failure cascades causing `EVENT` to happen (e.g., [all.log](https://github.com/di-unipi-socc/yRCA/blob/main/data/examples/sock-echo/orders-fail/all.log)), and 
+* `TEMPLATES` is the path to a YAML file specifying the templates for parsing logged events and assigning them with a type (e.g., [chaos-echo.yml](https://github.com/di-unipi-socc/yRCA/blob/main/data/templates/chaos-echo.yml))
 
 By default, **yRCA** finds all possible explanations,  viz., the failure cascades that may have possibly caused `EVENT` to happen.
-It does so whilst considering the application to feature a logging hearbeat period of 100 milliseconds and considering a "lookback radius" of 10 seconds (with the latter meaning that **yRCA** assumes that an event may have *directly* caused another only if -at most- 10 seconds have lasted between such events). 
+It then returns the possible explanations grouped based on their structure, and it ranks the returned explanation groups based on the frequency with which they occur).
 **yRCA** can anyhow be configured with the available CLI `OPTIONS`, viz.,
-* `-b N` or `--beat=N`, to set to `N` milliseconds the period of the target application's heartbeat logs,
-* `-l N` or `--lookbackRadius=N`, to set to `N` the lookback radius in finding explanations,
+* `-v` or `--vebose`, to run **yRCA** in verbose mode (viz., to not group identified explanations but rather return them plain),
 * `-n N` or `--nSols=N`, to set the number `N` of possible explanations to identify, and
 * `-r X` or `--rootCause X` to require `X` to be the root cause of identified explanations.
 
@@ -23,30 +23,21 @@ It does so whilst considering the application to feature a logging hearbeat peri
 **yRCA** is composed of two main components, viz., the `parser` and the `explainer`, which are invoked in sequence by the main module (`explain`), which implements the command-line interface.
 
 ### The Parser
-The `parser` provides a function `parse` for parsing a file `applicationLogs`, containing all events logged by all service instances in the considered run of a multi-service application.
-The function generates a representation of such logged events in Prolog, which is put in a given `targetFile`. 
+The `parser` provides a function `parse` for parsing a file `applicationLogs`, containing all events logged by all service instances in the considered run of a multi-service application. The function generates a representation of such logged events in Prolog, which is put in a given `knowledgeBase`. 
 
-To enable parsing any type of log file, the `parser` exploits log templating, viz., it imports a `parse` function from a module in the [templates](parser/templates) folder. 
-Currently, the folder provides a template for the [Chaos Echo](https://github.com/di-unipi-socc/chaos-echo) benchmarking application.
+To enable parsing any type of log file, the `parser` exploits log templating, viz., it imports a `parse` function from the [templater](parser/templater) module. 
+The latter implements all the logic needed to parse log events based on the input `TEMPLATES` (see above). 
+Example of templates for the [Chaos Echo](https://github.com/di-unipi-socc/chaos-echo) benchmarking application can be found in [data/templates](data/templates)
 
-Adding and importing an additional template for parsing logs of other target application can be done by (i) including the Python module implementing such template withing the [templates](parser/templates) folder and (ii) changing the imported module at the beginning of the [`parser`](parser/parser.py#2)
-
-#### Writing a New Template Parser
-The template parser must offer a `parse` function that, given a log line corresponding to a logged event, returns a representation of such event with the class [`Event`](parser/model/event.py). 
-In particular, the returned `Event` must indicate:
-* the name `serviceName` of the service,
-* the `instanceId` of the instance of `serviceName` that is logging the event,
-* the `timestamp` (since UNIX epoch) of the event,
-* the `message` logged within the logged event, and
-* the `severity` level of the logged event (according to the [Syslog standard](https://datatracker.ietf.org/doc/html/rfc5424))
-
-Notice that the `message` included within the returned `Event` must be an instance of the class [`Message`](parser/model/message.py), viz., it must indicate:
-* the message `type` (see `MessageType` in [`Message`](parser/model/message.py)),
-* the message `content` (viz., the original message), and
-* the message `parameters`, if the corresponding message `type` requires such parameters.
+Other templates can be provided for parsing the logs of other applications, provided that they are given as a YAML file structured as follows:
+```
+client_send: [list_of_regex]
+client_receive: [list_of_regex]
+client_error: [list_of_regex]
+client_timeout: [list_of_regex]
+server_receive: [list_of_regex]
+server_send: [list_of_regex]
+```
 
 ### The Explainer
-The `explainer` essentially takes the Prolog representation of the input files generated by the parser and runs a Prolog query to identify the desired explanations.
-The latter is done by running the Prolog program [`explain.pl`](explainer/prolog/explain.pl), which provides all the rules for identifying the desired amount of explanations for a given event.
-
-Notice that the rules in [`explain.pl`](explainer/prolog/explain.pl) are sorted so as to make the Prolog reasoner to prioritize those corresponding to most probable explanations for a given event.
+The `explainer` essentially takes the Prolog representation of the input files generated by the parser and runs a Prolog query to identify the desired explanations. The latter is done by running the Prolog program [`explain.pl`](explainer/prolog/explain.pl), which provides all the rules for identifying the desired amount of explanations for a given event.
