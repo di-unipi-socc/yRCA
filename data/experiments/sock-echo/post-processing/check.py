@@ -193,11 +193,11 @@ def getOutputs(outputsFilePath):
             o[folder][file][event] = [] # create list to include the explanations of this event
         # case: new explanation for an event
         elif line.startswith(matchStartExp):
-            errorTrace = [line.split("]:")[1]]
+            errorTrace = [line.split("]: ")[1][:-1]]
             while outputs[i+1].startswith(matchOngoingExp):
                 i += 1
                 line = outputs[i]
-                errorTrace.append(line[len(matchOngoingExp):])
+                errorTrace.append(line[len(matchOngoingExp):-1])
             o[folder][file][event].append(errorTrace)
     return o
 
@@ -228,6 +228,7 @@ if __name__ == "__main__":
                 gtruth = getErrorTraceFromFiles(event,logsFilePath)
                 found = False
                 for trace in o[folder][file][event]:
+                    print(trace)
                     if compareErrorTraces(trace,gtruth):
                         found = True
                 if not found:
