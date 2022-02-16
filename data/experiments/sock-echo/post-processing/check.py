@@ -204,7 +204,7 @@ def getOutputs(outputsFilePath):
 if __name__ == "__main__":
     argv = sys.argv[1:]
     
-    checkResults = open("check-results.txt","w")
+    checkResults = open("check-results.txt","w",buffering=1)
 
     # input files
     outputsFilePath = argv[0]
