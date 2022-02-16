@@ -89,13 +89,13 @@ def cli_error(message):
 
 # function for printing cli usage
 def cli_help():
-    print("Usage of explain.py is as follows:")
-    print("  explain.py [OPTIONS] eventToBeExplained.json applicationLogs.json logParsingTemplates.yml")
+    print("Usage of yrca.py is as follows:")
+    print("  yrca.py [OPTIONS] eventToBeExplained.json applicationLogs.json logParsingTemplates.yml")
     print("where OPTIONS can be")
     print("  [--help] to print a help on the usage of explain.py")
     print("  [-n N|--num=N] to set to N the amount of possible explanations to identify")
     print("  [-r X|--root=X] to require X to be the root cause of identified explanations")
-    print("  [-v X|--verbose] to print verbose analysis results")
+    print("  [-v|--verbose] to print verbose analysis results")
     print()
 
 if __name__ == "__main__":
