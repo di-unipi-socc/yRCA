@@ -227,7 +227,7 @@ if __name__ == "__main__":
                 print(str(c) + ": " + event, file=checkResults)
                 gtruth = getErrorTraceFromFiles(event,logsFilePath)
                 found = False
-                for trace in o[folder][file][trace]:
+                for trace in o[folder][file][event]:
                     if compareErrorTraces(trace,gtruth):
                         found = True
                 if not found:
