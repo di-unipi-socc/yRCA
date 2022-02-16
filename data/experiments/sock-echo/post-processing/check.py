@@ -204,6 +204,8 @@ def getOutputs(outputsFilePath):
 if __name__ == "__main__":
     argv = sys.argv[1:]
     
+    checkResults = open("check-results.txt","w")
+
     # input files
     outputsFilePath = argv[0]
     
@@ -214,15 +216,15 @@ if __name__ == "__main__":
     mismatches = 0
     cwd = os.getcwd()
     for folder in o:
-        print("*"*30)
-        print(" FOLDER: " + folder)
-        print("*"*30)
+        print("*"*30, file=checkResults)
+        print(" FOLDER: " + folder, file=checkResults)
+        print("*"*30, file=checkResults)
         for file in o[folder]:
-            print("FILE: " + file)
+            print("FILE: " + file, file=checkResults)
             logsFilePath = os.path.join("../generated-logs",folder,file) 
             c = 0
             for event in o[folder][file]:
-                print(str(c) + ": " + event)
+                print(str(c) + ": " + event, file=checkResults)
                 gtruth = getErrorTraceFromFiles(event,logsFilePath)
                 found = False
                 for trace in o[folder][file][trace]:
@@ -230,10 +232,12 @@ if __name__ == "__main__":
                         found = True
                 if not found:
                     mismatches += 1
-                    print("MISMATCH ON " + gtruth)
-                    print()
+                    print("MISMATCH ON " + gtruth, file=checkResults)
+                    print("", file=checkResults)
                 c += 1
-            print()
-        print()
+            print("", file=checkResults)
+        print("", file=checkResults)
             
-    print("MISMATCHES: " + str(mismatches))
+    print("MISMATCHES: " + str(mismatches), file=checkResults)
+
+    checkResults.close()
