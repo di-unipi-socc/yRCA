@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
     # confige plt's defaults
     plt.rcParams.update({'font.size': 28}) 
-    plt.figure(figsize=(7, 4.5))
+    plt.figure(figsize=(7, 4.3))
 
     # ----------------
     # plot outputs
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     # ----------------
     times = parseTimes("times.csv")
     for t in times:
-        plot("time",times[t],None,None,None,t,450)
+        plot("time",times[t],None,None,None,t,501)
 
     print("done!")
 

@@ -21,6 +21,8 @@ data/experiments/sock-echo/logs_exp22_failProbability/
 data/experiments/sock-echo/nohup.id
 data/experiments/sock-echo/nohup.out
 
+data/experiments/sock-echo/post-processing/temp
+
 *DS_Store
 
 # Byte-compiled / optimized / DLL files
