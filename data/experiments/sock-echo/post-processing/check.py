@@ -214,13 +214,15 @@ if __name__ == "__main__":
     mismatches = 0
     cwd = os.getcwd()
     for folder in o:
-        print("*"*25)
-        print("** FOLDER: " + folder + "**")
-        print("*"*25)
+        print("*"*30)
+        print("** FOLDER: " + folder + " **")
+        print("*"*30)
         for file in o[folder]:
             print("FILE: " + file)
             logsFilePath = os.path.join("../generated-logs",folder,file) 
+            c = 0
             for event in o[folder][file]:
+                print(str(c) + ": " + event)
                 gtruth = getErrorTraceFromFiles(event,logsFilePath)
                 found = False
                 for trace in o[folder][file][trace]:
@@ -228,9 +230,9 @@ if __name__ == "__main__":
                         found = True
                 if not found:
                     mismatches += 1
-                    print(event)
-                    print(gtruth)
+                    print("MISMATCH ON " + gtruth)
                     print()
+                c += 1
             print()
         print()
             
