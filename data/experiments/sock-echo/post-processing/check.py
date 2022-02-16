@@ -5,8 +5,6 @@ import os
 import re
 import sys
 
-from numpy import compare_chararrays
-
 class Severity(Enum):
     FATAL = 0
     ERROR = 1
