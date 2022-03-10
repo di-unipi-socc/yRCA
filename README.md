@@ -18,7 +18,7 @@ It then returns the possible explanations grouped based on their structure, and 
 * `-n N` or `--nSols=N`, to set the number `N` of possible explanations to identify, and
 * `-r X` or `--rootCause X` to require `X` to be the root cause of identified explanations.
 
-## How xFail Works
+## How yRCA Works
 
 **yRCA** is composed of two main components, viz., the `parser` and the `explainer`, which are invoked in sequence by the main module (`explain`), which implements the command-line interface.
 
