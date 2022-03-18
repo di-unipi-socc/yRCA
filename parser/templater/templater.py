@@ -63,10 +63,6 @@ class Templater:
             # parse regex to check whether message is of type "template"
             for regex in self.templates[template]:
                 msgInfo = re.match(r'' + regex, message)
-                # if "Error response" in message:
-                #     print(message)
-                #     print(msgInfo)
-                #     print()
                 if msgInfo is not None:
                     try:
                         service = msgInfo.group('service')

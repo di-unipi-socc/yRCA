@@ -1,8 +1,5 @@
 from parser.model.message import MessageType
 
-# The method "parse" imported from the "templates" package must parse a log line and
-# return an "Event" object (see "model/event.py")
-
 def parseEvents(applicationLogs,targetFile,templater):
     # open source/target files 
     loggedEvents = open(applicationLogs,"r")
