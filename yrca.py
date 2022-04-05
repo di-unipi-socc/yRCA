@@ -92,7 +92,7 @@ def cli_help():
     print("Usage of yrca.py is as follows:")
     print("  yrca.py [OPTIONS] eventToBeExplained.json applicationLogs.json logParsingTemplates.yml")
     print("where OPTIONS can be")
-    print("  [--help] to print a help on the usage of explain.py")
+    print("  [--help] to print a help on the usage of yrca.py")
     print("  [-n N|--num=N] to set to N the amount of possible explanations to identify")
     print("  [-r X|--root=X] to require X to be the root cause of identified explanations")
     print("  [-v|--verbose] to print verbose analysis results")

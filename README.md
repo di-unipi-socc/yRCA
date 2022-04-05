@@ -4,7 +4,7 @@
 ## How to Run yRCA
 **yRCA** provides a Python3-based command-line interface, which can be run with the following command:
 ```
-python3 explain.py [OPTIONS] EVENT LOGS TEMPLATES
+python3 yrca.py [OPTIONS] EVENT LOGS TEMPLATES
 ```
 where
 * `EVENT` is the path to the file containing the logged event that is to be explained (e.g., [event-edgeRouter.log](https://github.com/di-unipi-socc/yRCA/blob/main/data/examples/sock-echo/orders-fail/event-edgeRouter.log)),
@@ -14,9 +14,10 @@ where
 By default, **yRCA** finds all possible explanations,  viz., the failure cascades that may have possibly caused `EVENT` to happen.
 It then returns the possible explanations grouped based on their structure, and it ranks the returned explanation groups based on the frequency with which they occur).
 **yRCA** can anyhow be configured with the available CLI `OPTIONS`, viz.,
+* `--help` to print a help on the usage of yrca.py,
 * `-v` or `--vebose`, to run **yRCA** in verbose mode (viz., to not group identified explanations but rather return them plain),
 * `-n N` or `--nSols=N`, to set the number `N` of possible explanations to identify, and
-* `-r X` or `--rootCause X` to require `X` to be the root cause of identified explanations.
+* `-r X` or `--root=X` to require `X` to be the root causing service of identified explanations.
 
 ## How yRCA Works
 
