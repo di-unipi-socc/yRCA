@@ -26,7 +26,23 @@ It then returns the possible explanations grouped based on their structure, and 
 ### The Parser
 The `parser` provides a function `parseEvents` for parsing a file `applicationLogs`, containing events logged by  service instances in the considered run of a multi-service application. An example of logged event is the following:
 ```
-{"message":"2021-09-28 14:14:18.796 ERROR 1 --- [p-nio-80-exec-7] d.u.s.chaosecho.EchoServiceController    : Failing to contact frontend (request_id: [712399e1-b5ff-42b7-9a3b-2d9293fbeca7]). Root cause: org.springframework.web.client.HttpServerErrorException$InternalServerError: 500 : [{\"hash\":-1898628045,\"content\":\"Failing to contact backend services\"}]","version":"1.1","severity":"ERROR","source_host":"10.0.0.2","pid":"1","@version":"1","created":"2021-09-28T14:13:23.14966049Z","timestamp":"2021-09-28 14:14:18.796","event":"Failing to contact frontend (request_id: [712399e1-b5ff-42b7-9a3b-2d9293fbeca7]). Root cause: org.springframework.web.client.HttpServerErrorException$InternalServerError: 500 : [{\"hash\":-1898628045,\"content\":\"Failing to contact backend services\"}]","tag":"edgeRouter","container_name":"sockecho_edgeRouter.1.yhoejj5k0f2uc8lzcollgeala","@timestamp":"2021-09-28T14:14:18.796Z","container_id":"737b523ff95e5860eea879cc5bc9bc34d9ac7f11487b797e47f6705ec56e3ed9","class":"d.u.s.chaosecho.EchoServiceController","tags":["spring_boot"]}
+{
+  "message":"2021-09-28 14:14:18.796 ERROR 1 --- [p-nio-80-exec-7] d.u.s.chaosecho.EchoServiceController    : Failing to contact frontend (request_id: [712399e1-b5ff-42b7-9a3b-2d9293fbeca7]). Root cause: org.springframework.web.client.HttpServerErrorException$InternalServerError: 500 : [{\"hash\":-1898628045,\"content\":\"Failing to contact backend services\"}]",
+  "version":"1.1",
+  "severity":"ERROR",
+  "source_host":"10.0.0.2",
+  "pid":"1",
+  "@version":"1",
+  "created":"2021-09-28T14:13:23.14966049Z",
+  "timestamp":"2021-09-28 14:14:18.796",
+  "event":"Failing to contact frontend (request_id: [712399e1-b5ff-42b7-9a3b-2d9293fbeca7]). Root cause: org.springframework.web.client.HttpServerErrorException$InternalServerError: 500 : [{\"hash\":-1898628045,\"content\":\"Failing to contact backend services\"}]",
+  "tag":"edgeRouter",
+  "container_name":"sockecho_edgeRouter.1.yhoejj5k0f2uc8lzcollgeala",
+  "@timestamp":"2021-09-28T14:14:18.796Z",
+  "container_id":"737b523ff95e5860eea879cc5bc9bc34d9ac7f11487b797e47f6705ec56e3ed9",
+  "class":"d.u.s.chaosecho.EchoServiceController",
+  "tags":["spring_boot"]
+ }
 ```
 whose fields `severity`, `container_name`, `event`, `message`, `timestamp`, and `@timestamp` are used by `parseEvents` to elicit information on the logged event. Based on such information, `parseEvents` generates a representation of logged events in Prolog, e.g,
 ```
