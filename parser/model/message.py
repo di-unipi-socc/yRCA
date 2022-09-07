@@ -18,6 +18,8 @@ class MessageType(Enum):
 # (currently only used for "interactions")
 class Parameters: 
     def __init__(self,service,requestId):
+        if service is not None:
+            service=service.lower()
         self.service=service
         self.requestId=requestId
 
