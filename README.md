@@ -15,7 +15,7 @@ By default, **yRCA** finds all possible explanations,  viz., the failure cascade
 It then returns the possible explanations grouped based on their structure, and it ranks the returned explanation groups based on the frequency with which they occur).
 **yRCA** can anyhow be configured with the available CLI `OPTIONS`, viz.,
 * `--help` to print a help on the usage of yrca.py,
-* `-v` or `--vebose`, to run **yRCA** in verbose mode (viz., to not group identified explanations but rather return them plain),
+* `-v` or `--verbose`, to run **yRCA** in verbose mode (viz., to not group identified explanations but rather return them plain),
 * `-n N` or `--nSols=N`, to set the number `N` of possible explanations to identify, and
 * `-r X` or `--root=X` to require `X` to be the root causing service of identified explanations.
 
