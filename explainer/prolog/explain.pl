@@ -75,10 +75,7 @@ timedOutInteraction(Id,(SI,I),(SJ,J),Ts,Te) :-
 
 interaction(Id,(SI,I),(SJ,J),Ts,Te) :-
     log(SI,I,Ts,sendTo(SJ,Id),_,_), 
-    log(SJ,J,Tr,received(X),_,_), 
-    (X=Id; X=noId), Ts =< Tr, Tr =< Te. % noId accounts for non-instrumented components
+    log(SJ,J,Tr,received(Id),_,_),
+    Ts =< Tr, Tr =< Te.
 
 lte(S1,S2) :- severity(S1,A), severity(S2,B), A=<B.
-
-
-% MEMO: If (passive) components are not instrumented to propagate IDs, just put "noId" as ID when templating logs corresponding to receive/answer to service interactions (in the log template parser)
