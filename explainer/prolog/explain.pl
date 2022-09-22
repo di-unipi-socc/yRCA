@@ -60,7 +60,7 @@ causedBy(unreachable(Root),[X],Root) :-                             %base case: 
 nonReceivedRequest(Id,I,SJ,Ts,Te) :-
     log(SI,I,Ts,sendTo(SJ,Id),_,_),
     log(SI,I,Te,timeout(SJ,Id),_,_),
-    \+ (log(SJ,_,Tr,received(X),_,_), Ts =< Tr, Tr =< Te, (X=Id;X=noId)).
+    \+ (log(SJ,_,Tr,received(Id),_,_), Ts =< Tr, Tr =< Te).
 
 failedInteraction(Id,(SI,I),(SJ,J),Ts,Te) :-
     errorInteraction(Id,(SI,I),(SJ,J),Ts,Te); timedOutInteraction(Id,(SI,I),(SJ,J),Ts,Te).
