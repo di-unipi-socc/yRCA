@@ -50,7 +50,7 @@ causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-
 ** timeout at SJ to explain it.                                                              |           |           |
 **                                                                                           O           |           |
 */    
-causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-           %timed-out interaction of invoked service
+causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-          
     timedOutInteraction(Id,(SI,I),(SJ,J),_,TeIJ), 
     timedOutInteraction(_,(SJ,J),(SK,_),TsJK,TeJK), TsJK =< TeIJ, TeIJ < TeJK, 
     log(SJ,J,TeJK,timeout(SK,IdJK),MJ,SevJ),
