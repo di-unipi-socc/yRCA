@@ -102,7 +102,7 @@ causedBy(unreachable(Root),[X],Root) :-
     log(Root,_,_,_,_,_),
     X = unreachable(Root). 
 
-/* 7. Temporary service unreachability
+/* 8. Temporary service unreachability
 ** This case explains abducted unreachability events for a service, identifying that 
 ** such a service never logged any information. Recursion ends, by abducting the fact 
 ** that such a service was possibly never started.
