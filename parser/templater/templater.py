@@ -23,7 +23,7 @@ class Templater:
         try:
             message = log["event"]
             severity = log["severity"]
-            timestamp = log["timestamp"]
+            timestamp = log["timestamp"].replace("T"," ").replace("Z","")
         except:
             # handle Logstash's grok parse failures
             message = log["message"].replace("\\","").replace("/","")
