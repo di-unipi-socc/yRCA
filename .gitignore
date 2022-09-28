@@ -1,6 +1,7 @@
 # Output files
 *.txt
 *.pdf
+data/examples/sock-echo/deploy/docker-compose-configured.yml
 
 # Temporary files
 event.pl
