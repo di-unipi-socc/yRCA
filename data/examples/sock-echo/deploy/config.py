@@ -1,4 +1,4 @@
-import sys
+import sys,getopt
 
 # List of configurable Sock Echo services
 services = [ 
@@ -24,11 +24,27 @@ def lineConfig(line,service,failureProbability):
     return newLine
 
 def main(argv):
+    # Parse command line arguments
+    try:
+        options,args = getopt.getopt(argv,"p:",["probability="])
+    except: 
+        print("ERROR: Unsupported options were used")
+        exit(-1)
+    
+    # Setting failure probability
+    failureProbability=10
+    for option, value in options: 
+        if option in ["-p","--probability"]:
+            failureProbability = int(value)
+            if failureProbability<1 or failureProbability>100:
+                print("ERROR: Failure probability should be expressed as a percentage between 1 and 100")
+                exit(-1)
+
     # Check input list of services to set for failure-prone behaviour
-    if len(argv)==0: 
+    if len(args)==0: 
         print("ERROR: Missing list of failing services")
         exit(-1)
-    for s in argv:
+    for s in args:
         if s.upper() not in services:
             print("ERROR: " + s + " is not a configurable service")
             exit(-1)
@@ -48,7 +64,7 @@ def main(argv):
     for l in list(source):
         for s in services:
             if s in l and s in failingServices:
-                l = lineConfig(l,s,10)
+                l = lineConfig(l,s,failureProbability)
             if s in l and s in healthyServices:
                 l = lineConfig(l,s,0)
         target.write(l)
