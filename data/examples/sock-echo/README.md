@@ -2,8 +2,10 @@
 The examples in this folder enable running **yRCA** to analyse examples of logs obtained by running a testbed application, called *Sock Echo*.
 
 ## Sock Echo
-The deployed application mirrors the topology of [Sock Shop](https://microservices-demo.github.io/), from which the name "Sock Echo".
+The deployed application mirrors the topology of [Sock Shop](https://microservices-demo.github.io/), from which the name *Sock Echo*.
 It essentially consists of 14 interacting [Chaos Echo](https://github.com/di-unipi-socc/chaos-echo) services, configured to emulate the interactions between the services forming Sock Shop.
+
+The runned instances of *Sock Echo* used in our examples were obtained by exploiting the configurable Docker Compose deployment in the [deploy](deploy) folder.
 
 ## Example: Orders Failure
 

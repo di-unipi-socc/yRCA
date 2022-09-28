@@ -1,9 +1,10 @@
 # Sock Echo deployment
 To configure a deployable instance of Sock Echo, please issue:
 ```
-python3 config.py SERV1 [SERV2 SERV3 ...]
+python3 config.py [-p PERCENTAGE] SERV1 [SERV2 SERV3 ...]
 ```
-where `SERVx` are the names of the services to be configured to fail with 10% probability
+where `SERVx` are the names of the services to be configured to fail with given probability. 
+If option `-p PERCENTAGE` is specified, the failure probability is set to `PERCENTAGE`; otherwise, it is set to 10% by default.
 
 The obtained instance can then be deployed by issuing:
 ```
