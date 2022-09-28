@@ -9,3 +9,4 @@ The obtained instance can then be deployed by issuing:
 ```
 docker stack deploy -c docker-compose-configured.yml sockecho
 ```
+and it can be loaded with the [load generator script](https://github.com/di-unipi-socc/chaos-echo/blob/main/generate_workload.sh) publicly available in [Chaos Echo's repository](https://github.com/di-unipi-socc/chaos-echo).
