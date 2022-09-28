@@ -40,11 +40,7 @@ def main(argv):
     healthyServices = []
     for s in services:
         if s not in failingServices:
-            healthyServices.append(s)
-
-    print(failingServices)
-    print(healthyServices)
-        
+            healthyServices.append(s)     
     
     # Generate configured Docker Compose file
     source = open("docker-compose.yml","r")
