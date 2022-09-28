@@ -29,7 +29,7 @@ def main(argv):
 
     # getting specified options
     for option, value in options:
-        # setting lookback radius
+        # help 
         if option in ["-h","--help"]:
             cli_help()
             exit(0)
