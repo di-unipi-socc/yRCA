@@ -17,27 +17,39 @@ services = [
     "QUEUEMASTER"
 ]
 
-def lineConfig(line,service,failureProbability):
-    newLine = line.replace(service + "_INVOKE", "75")
-    newLine = newLine.replace(service + "_FAIL", str(failureProbability))
-    newLine = newLine.replace(service + "_REPLICAS", "2")
+def lineConfig(line,service,invokeProb,failureProb,replicas):
+    newLine = line.replace(service + "_INVOKE", str(invokeProb))
+    newLine = newLine.replace(service + "_FAIL", str(failureProb))
+    newLine = newLine.replace(service + "_REPLICAS", str(replicas))
     return newLine
 
 def main(argv):
     # Parse command line arguments
     try:
-        options,args = getopt.getopt(argv,"p:",["probability="])
+        options,args = getopt.getopt(argv,"i:f:r:")
     except: 
         print("ERROR: Unsupported options were used")
         exit(-1)
     
-    # Setting failure probability
-    failureProbability=10
+    # Setting configuration values
+    invokeProbability=75 # probability of invoking backend services
+    failureProbability=10 # probability of failing in cascade
+    replicas=1 # number of replicas
     for option, value in options: 
-        if option in ["-p","--probability"]:
+        if option in ["-i"]:
+            invokeProbability = int(value)
+            if invokeProbability<1 or failureProbability>100:
+                print("ERROR: Invoke probability should be expressed as a percentage between 1 and 100")
+                exit(-1)
+        if option in ["-f"]:
             failureProbability = int(value)
             if failureProbability<1 or failureProbability>100:
                 print("ERROR: Failure probability should be expressed as a percentage between 1 and 100")
+                exit(-1)
+        if option in ["-r"]:
+            replicas = int(value)
+            if replicas<1:
+                print("ERROR: Cannot deploy less than 1 instance of application services")
                 exit(-1)
 
     # Check input list of services to set for failure-prone behaviour
@@ -64,9 +76,9 @@ def main(argv):
     for l in list(source):
         for s in services:
             if s in l and s in failingServices:
-                l = lineConfig(l,s,failureProbability)
+                l = lineConfig(l,s,invokeProbability,failureProbability,replicas)
             if s in l and s in healthyServices:
-                l = lineConfig(l,s,0)
+                l = lineConfig(l,s,invokeProbability,0,replicas)
         target.write(l)
     source.close()
     target.close()

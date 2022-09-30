@@ -1,10 +1,12 @@
 # Sock Echo deployment
 To configure a deployable instance of Sock Echo, please issue:
 ```
-python3 config.py [-p PERCENTAGE] SERV1 [SERV2 SERV3 ...]
+python3 config.py [-i INVOKE_PERCENTAGE] [-f FAILURE_PERCENTAGE] [-r REPLICAS] SERV1 [SERV2 SERV3 ...]
 ```
 where `SERVx` are the names of the services to be configured to fail with given probability. 
-If option `-p PERCENTAGE` is specified, the failure probability is set to `PERCENTAGE`; otherwise, it is set to 10% by default.
+* If option `-i INVOKE_PERCENTAGE` is specified, each application service (other than `edgeRouter`) is set to invoked its backend services with probability `INVOKE_PERCENTAGE`; otherwise, such probability is set to 75% by default.
+* If option `-f FAILURE_PERCENTAGE` is specified, the probability for the listed services `SERVx` to fail is set to `FAILURE_PERCENTAGE`; otherwise, such probability is set to 10% by default.
+* If option `-r REPLICAS` is specified, each application service (other than `edgeRouter`) is set to be replicated into the given number `REPLICAS` of instance; otherwise, one instance of each of such services is deployed by default.
 
 The obtained instance can then be deployed by issuing:
 ```
