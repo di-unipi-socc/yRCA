@@ -14,14 +14,6 @@ def main(argv):
         cli_error("wrong options used")
         exit(-1)
 
-    # check & process command line arguments
-    if len(args) < 3:
-        cli_error("missing input arguments")
-        exit(-1)
-    eventLogLine = args[0]
-    applicationLogs = args[1]
-    templater = Templater(args[2])
-
     # options to customise the execution of the explainer (with default values)
     nSols = None # number of possible explanations to find (default: all)
     rootCause = None # value for root cause (default: all)
@@ -46,6 +38,14 @@ def main(argv):
         # setting verbosity
         elif option in ["-v","--verbose"]:
             verbose = True
+
+    # check & process command line arguments
+    if len(args) < 3:
+        cli_error("missing input arguments")
+        exit(-1)
+    eventLogLine = args[0]
+    applicationLogs = args[1]
+    templater = Templater(args[2])
 
     # ******************
     # * PARSING INPUTS *
@@ -90,8 +90,8 @@ def cli_error(message):
 # function for printing cli usage
 def cli_help():
     print("Usage of yrca.py is as follows:")
-    print("  yrca.py [OPTIONS] eventToBeExplained.json applicationLogs.json logParsingTemplates.yml")
-    print("where OPTIONS can be")
+    print("  yrca.py [OPTIONS] EVENT LOGS TEMPLATES")
+    print("where EVENT and LOGS are JSON files, TEMPLATES is a YAML file, and OPTIONS can be")
     print("  [--help] to print a help on the usage of yrca.py")
     print("  [-n N|--num=N] to set to N the amount of possible explanations to identify")
     print("  [-r X|--root=X] to require X to be the root cause of identified explanations")
