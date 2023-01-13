@@ -11,7 +11,19 @@ xfail(Event,Explanations,RootCause) :-                              %determine a
 xfail(NumSols,Event,Explanations,RootCause) :-                      %determine "NumSols" possible explanations for "Event"
     findnsols(NumSols,E,distinct(causedBy(Event,E,RootCause)),Explanations).
 
-/* 1. Internal error of invoked service instance                                            SI          SJ
+/* 1. Timeout error of invoked service instance
+** This case explains a timeout event E at service instance SI
+** happening when the invoked service replies after the time
+** threshold of SI. yRCA returns SI internal error for not having
+** waited enough time.
+*/
+causedBy(log(SI,I,T,E,M,Sev),[X],SI) :-
+    (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
+    failedInteraction(Id,(SI,I),(SJ,J),Ts,Te),
+    \+ (log(SJ,J,U,_,_,SevJ), lte(SevJ,warning), Ts =< U, U =< Te),
+    X=log(SI,I,T,E,M,Sev).
+
+/* 2. Internal error of invoked service instance                                            SI          SJ
 ** This case explains that a failure/timeout event E at service instance SI                  |---------->|
 ** happening at the end of a failed or timed-out interaction with service SJ,                |           ϟ 
 ** may have been caused by an internal failure (i.e., a logged event ϟ  whose                |<----------|                             
@@ -25,7 +37,7 @@ causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-
     X=log(SI,I,T,E,M,Sev),
     causedBy(log(SJ,J,U,internal,MJ,SevJ),Xs,Root).
 
-/* 2. Failed interaction of invoked service instance                                        SI          SJ          SK             
+/* 3. Failed interaction of invoked service instance                                        SI          SJ          SK             
 ** This case explains that a failure/timeout event E at service instance SI                  |---------->|           |
 ** has been caused by a failure event F at service SJ, which -- in turn --                   |           |---------->|
 ** has been caused by a failed interaction ϟ of SJ with SK. After identifying the            |           |           ϟ                          
@@ -42,7 +54,7 @@ causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-
     X=log(SI,I,T,E,M,Sev),
     causedBy(log(SJ,J,TeJK,F,MJ,SevJ),Xs,Root).
 
-/* 3. Timed-out interaction of invoked service instance                                     SI          SJ          SK             
+/* 4. Timed-out interaction of invoked service instance                                     SI          SJ          SK             
 ** This case explains that a timeout event E at service instance SI                          |---------->|           |
 ** has been caused by a timeout event O at service SJ, which -- in turn --                   |           |---------->|
 ** has been caused by a timeout event O'related to an interaction of SJ with SK.             |           |           |                          
@@ -57,7 +69,7 @@ causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-
     X=log(SI,I,T,timeout(SJ,Id),M,Sev),
     causedBy(log(SJ,J,TeJK,timeout(SK,IdJK),MJ,SevJ),Xs,Root).
 
-/* 4. Unreachability of a service called by invoked service instance                        SI          SJ          SK             
+/* 5. Unreachability of a service called by invoked service instance                        SI          SJ          SK             
 ** This case explains that a failure/timeout event E at service instance SI                  |---------->|           |
 ** has been caused by a timeout event O at service SJ, which -- in turn --                   |           |-----!     |
 ** has been caused by a failed interaction ! of SJ with SK.                                  |           |           |                          
@@ -74,7 +86,7 @@ causedBy(log(SI,I,T,E,M,Sev),[X|Xs],Root) :-
     X=log(SI,I,T,E,M,Sev),
     causedBy(log(SJ,J,TeJK,timeout(SK,IdK),MJ,SevJ),Xs,Root).
 
-/* 5. Unreachability of invoked service instance                                            SI          SJ
+/* 6. Unreachability of invoked service instance                                            SI          SJ
 ** This case explains that a timeout event O at service instance SI                          |-----!     |
 ** has been caused by a non-received request during an interaction of SI with SJ             |           | 
 ** yRCA abducts that that SJ was unreachable, and recurs to explain it.                      |           |                              
@@ -86,14 +98,14 @@ causedBy(log(SI,I,T,timeout(SJ,Id),M,Sev),[X|Xs],Root) :-
     X = log(SI,I,T,timeout(SJ,Id),M,Sev),
     causedBy(unreachable(SJ),Xs,Root).
 
-/* 6. Internal service error
+/* 7. Internal service error
 ** This case explains an internal failure event logged by a service, identifying 
 ** the service itself as the root cause for such an event. Recursion ends.
 */
 causedBy(log(Root,R,T,internal,M,Sev),[X],Root) :-                  
     X = log(Root,R,T,internal,M,Sev).               
 
-/* 7. Temporary service unreachability
+/* 8. Temporary service unreachability
 ** This case explains abducted unreachability events for a service, identifying that 
 ** such a service was temporarily unreachable because it previously logged some information. 
 ** Recursion ends.
@@ -102,7 +114,7 @@ causedBy(unreachable(Root),[X],Root) :-
     log(Root,_,_,_,_,_),
     X = unreachable(Root). 
 
-/* 8. Unstarted service
+/* 9. Unstarted service
 ** This case explains abducted unreachability events for a service, identifying that 
 ** such a service never logged any information. Recursion ends, by abducting the fact 
 ** that such a service was possibly never started.
