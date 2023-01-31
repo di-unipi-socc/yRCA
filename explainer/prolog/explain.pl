@@ -11,6 +11,18 @@ xfail(Event,Explanations,RootCause) :-                              %determine a
 xfail(NumSols,Event,Explanations,RootCause) :-                      %determine "NumSols" possible explanations for "Event"
     findnsols(NumSols,E,distinct(causedBy(Event,E,RootCause)),Explanations).
 
+/* 1. Timeout error of invoked service instance                                             SI          SJ
+** This case explains a timeout event E at service instance SI                               |---------->|
+** happening when the invoked service replies after the time                                 |           |
+** threshold of SI. yRCA returns SI internal error for not having                            E           |
+** waited enough time.                                                                       |<----------|
+*/
+causedBy(log(SI,I,T,E,M,Sev),[X],SI) :-                        
+    (E=errorFrom(SJ,Id);E=timeout(SJ,Id)),
+    failedInteraction(Id,(SI,I),(SJ,J),Ts,Te),
+    \+ (log(SJ,J,U,_,_,SevJ), lte(SevJ,warning), Ts =< U, U =< Te),
+    X=log(SI,I,T,E,M,Sev).
+
 /* 1. Internal error of invoked service instance                                            SI          SJ
 ** This case explains that a failure/timeout event E at service instance SI                  |---------->|
 ** happening at the end of a failed or timed-out interaction with service SJ,                |           ϟ 
