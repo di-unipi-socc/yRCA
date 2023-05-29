@@ -21,4 +21,4 @@ RUN git clone https://github.com/di-unipi-socc/yRCA.git
 # Run example
 WORKDIR yRCA
 CMD python3.8 yrca.py data/examples/sock-echo/shipping-fail/event-edgeRouter.log data/examples/sock-echo/shipping-fail/all.log data/templates/chaos-echo.yml
-
+# TODO: Add script running all examples!
