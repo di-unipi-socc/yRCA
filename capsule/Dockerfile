@@ -13,10 +13,10 @@ RUN apt install python3-pip -y && python -m pip install --upgrade pip
 
 # Clone yRCA
 RUN apt install git -y  
+RUN echo "pippo"
 RUN git clone https://github.com/di-unipi-socc/yRCA.git
 WORKDIR yRCA
 RUN pip install -r requirements.txt
 
 # Run example
-CMD python3 yrca.py data/examples/sock-echo/shipping-fail/event-edgeRouter.log data/examples/sock-echo/shipping-fail/all.log data/templates/chaos-echo.yml 
-# CMD ./capsule/run_all.sh
+CMD ./capsule/run_all.sh
