@@ -19,4 +19,4 @@ WORKDIR yRCA
 RUN pip install -r requirements.txt
 
 # Run example
-CMD ./capsule/run_all.sh
+CMD ./data/examples/capsule/run_all.sh
