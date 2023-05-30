@@ -10,6 +10,10 @@ def postProcess(id,nFailures,nIterations):
     timesFile = "times" + id + ".csv"
     times = open(timesFile,"w")
 
+    # logging file
+    progressFile = "post-processing.logs"
+    progress = open(progressFile,"w")
+
     # get absolute path of folder with logs
     logFolder = os.path.abspath("../generated-logs")
 
@@ -20,7 +24,9 @@ def postProcess(id,nFailures,nIterations):
     subfolders = os.listdir(logFolder)
     subfolders.sort()
     for subfolder in subfolders:
-        print("Processing logs in " + subfolder)
+        # log progress info
+        progress.write("Processing logs in " + subfolder + "\n")
+        progress.flush()
 
         # get logfiles in subfolder
         logSubfolder = os.path.join(logFolder,subfolder)
@@ -34,7 +40,9 @@ def postProcess(id,nFailures,nIterations):
 
         # process each log file, separately
         for file in logFiles:
-            print("|- " + file)
+            # log progress info
+            progress.write("|- " + file + "\n")
+            progress.flush()
 
             # variable for computing avg time 
             avgTime = 0
@@ -113,6 +121,7 @@ def postProcess(id,nFailures,nIterations):
 
     outputs.close()
     times.close()
+    progress.close()
 
 if __name__ == "__main__":
     # store number "n" of iterations
@@ -124,7 +133,4 @@ if __name__ == "__main__":
     nIterations = int(sys.argv[2])
 
     # repeat post-processing for both version (with and without ids)
-    print("* * Explaining WITH ids * *")
     postProcess("",nFailures,nIterations)
-    # print("\n* * Explaining WITHOUT ids * *")
-    # postProcess("-noid",nFailures,nIterations)
