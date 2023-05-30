@@ -1,5 +1,5 @@
 # Output files
-*.txt
+explanations.txt
 *.pdf
 data/examples/sock-echo/deploy/docker-compose-configured.yml
 data/examples/sock-echo/deploy/*.log
