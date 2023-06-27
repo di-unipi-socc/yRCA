@@ -13,7 +13,6 @@ RUN apt install python3-pip -y && python -m pip install --upgrade pip
 
 # Clone yRCA
 RUN apt install git -y  
-RUN echo "pippo"
 RUN git clone https://github.com/di-unipi-socc/yRCA.git
 WORKDIR yRCA
 RUN pip install -r requirements.txt
